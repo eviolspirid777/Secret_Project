@@ -1,0 +1,18 @@
+﻿namespace Secret_Project_Backend.Models
+{
+    public enum ChannelType
+    {
+        Text = 0,
+        Voice = 1,
+    }
+    public class Channel
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public ChannelType Type { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public virtual ICollection<Message> Messages { get; set; }
+        public virtual ICollection<ChannelUser> ChannelUsers { get; set; }
+    }
+}

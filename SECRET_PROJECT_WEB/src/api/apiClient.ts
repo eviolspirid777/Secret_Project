@@ -3,6 +3,10 @@ import type {
   LoginRequest,
   LoginResponse,
 } from "@/types/Autorization/Autorization";
+import type {
+  RegisterRequest,
+  RegisterResponse,
+} from "@/types/Autorization/Register";
 import type { AxiosInstance } from "axios";
 import axios from "axios";
 
@@ -30,13 +34,22 @@ class ApiClient {
 
     if (response.status === 200) {
       this.sessionToken = response.data.token;
-      this.expiresAt = response.data.expiresAt;
+      this.expiresAt = response.data.expirationDate;
       localStorageService.setItem("sessionToken", this.sessionToken);
       localStorageService.setItem("expiresAt", this.expiresAt.toISOString());
       return response.data;
     }
 
     throw new Error("Неудачная авторизация");
+  }
+
+  async Register(data: RegisterRequest) {
+    const response = await this.client.post<RegisterResponse>(
+      `${BASE_URL}/register`,
+      data
+    );
+
+    return response.data;
   }
 
   async Logout() {

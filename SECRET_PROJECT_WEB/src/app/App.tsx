@@ -1,4 +1,4 @@
-import { LoginPage } from "@/pages/LoginPage";
+import { AutorizationPage } from "@/pages/AutorizePage/ui";
 import { MainPage } from "@/pages/MainPage";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
@@ -9,7 +9,7 @@ const App = () => {
   );
 
   if (!isLoggedIn) {
-    return <LoginPage />;
+    return <AutorizationPage />;
   }
 
   return <MainPage />;
