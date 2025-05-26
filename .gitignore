@@ -1,9 +1,3 @@
-/node_modules
-/dist
-/build
-/coverage
-/logs
-/temp
 /SECRET_PROJECT_SERVER/Secret_Project_Backend/.vs
 /SECRET_PROJECT_SERVER/Secret_Project_Backend/Secret_Project_Backend/bin
 /SECRET_PROJECT_SERVER/Secret_Project_Backend/Secret_Project_Backend/obj

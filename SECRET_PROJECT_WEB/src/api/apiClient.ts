@@ -11,7 +11,7 @@ import type { AxiosInstance } from "axios";
 import axios from "axios";
 
 // const BASE_URL = import.meta.env.VITE_API_URL;
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = "https://localhost:7239/Auth";
 
 class ApiClient {
   client: AxiosInstance;
@@ -36,7 +36,10 @@ class ApiClient {
       this.sessionToken = response.data.token;
       this.expiresAt = response.data.expirationDate;
       localStorageService.setItem("sessionToken", this.sessionToken);
-      localStorageService.setItem("expiresAt", this.expiresAt.toISOString());
+      localStorageService.setItem(
+        "expiresAt",
+        this.expiresAt as unknown as string
+      );
       return response.data;
     }
 

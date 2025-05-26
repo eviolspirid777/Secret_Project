@@ -8,6 +8,7 @@ export const useLogin = () => {
     isPending: isLoginPending,
     isError: isLoginError,
     error: loginError,
+    reset: resetLogin,
   } = useMutation({
     mutationKey: ["autorize"],
     mutationFn: async (data: LoginRequest) => {
@@ -21,5 +22,6 @@ export const useLogin = () => {
     isLoginPending,
     isLoginError,
     loginError,
+    resetLogin,
   };
 };

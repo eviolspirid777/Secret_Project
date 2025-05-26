@@ -10,13 +10,26 @@ import { Input } from "@/shadcn/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { FC } from "react";
+import styles from "./style.module.scss";
+import { useLogin } from "@/shared/hooks/autorization/useLogin";
+import { Loader } from "@/shared/components/Loader/loader";
+import { Error } from "./Error/error";
+import { useNavigate } from "react-router";
 
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
 
-export const Page = () => {
+type PageProps = {
+  onRegister: () => void;
+};
+
+export const Page: FC<PageProps> = ({ onRegister }) => {
+  const { loginAsync, isLoginPending, isLoginError, loginError, resetLogin } =
+    useLogin();
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -25,18 +38,27 @@ export const Page = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof loginSchema>) => {
-    console.log(data);
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
+    await loginAsync({
+      email: data.email,
+      password: data.password,
+    });
+    navigate("/main-content");
   };
+
+  const handleResetLogin = () => {
+    resetLogin();
+    form.resetField("password");
+    form.resetField("email");
+  };
+
+  if (isLoginPending) return <Loader />;
+  if (isLoginError)
+    return <Error error={loginError} resetStates={handleResetLogin} />;
 
   return (
     <div
-      className="w-100 flex flex-col gap-4 items-center justify-center"
-      style={{
-        width: "100%",
-        position: "absolute",
-        inset: "0",
-      }}
+      className={`w-100 flex flex-col gap-4 items-center justify-center ${styles.autorize}`}
     >
       <h3 className="text-2xl font-bold">Вход в систему</h3>
       <Form {...form}>
@@ -68,7 +90,12 @@ export const Page = () => {
               </FormItem>
             )}
           />
-          <Button type="submit">Войти</Button>
+          <div className="flex flex-col gap-4">
+            <Button type="submit">Войти</Button>
+            <Button variant="link" onClick={onRegister}>
+              Регистрация
+            </Button>
+          </div>
         </form>
       </Form>
     </div>

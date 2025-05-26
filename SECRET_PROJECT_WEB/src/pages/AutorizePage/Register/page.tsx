@@ -8,16 +8,42 @@ import {
 } from "@/shadcn/ui/form";
 import { Input } from "@/shadcn/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { type FC } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import styles from "./style.module.scss";
+import { useRegister } from "@/shared/hooks/autorization/useRegister";
+import { Loader } from "@/shared/components/Loader/loader";
+import { Error } from "./Error/error";
+import { useLogin } from "@/shared/hooks/autorization/useLogin";
+import { useNavigate } from "react-router";
 
-const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  confirmPassword: z.string().min(6),
-});
+const registerSchema = z
+  .object({
+    email: z.string().email(),
+    password: z.string().min(6),
+    confirmPassword: z.string().min(6),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Пароли не совпадают",
+    path: ["confirmPassword"],
+  });
 
-export const Page = () => {
+type PageProps = {
+  onAutorize: () => void;
+};
+
+export const Page: FC<PageProps> = ({ onAutorize }) => {
+  const navigate = useNavigate();
+  const {
+    registerAsync,
+    isRegisterPending,
+    isRegisterError,
+    registerError,
+    resetRegister,
+  } = useRegister();
+  const { loginAsync, isLoginPending, isLoginError } = useLogin();
+
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -27,18 +53,36 @@ export const Page = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof registerSchema>) => {
-    console.log(data);
+  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
+    try {
+      await registerAsync({
+        email: data.email,
+        displayName: data.email,
+        password: data.password,
+      });
+      await loginAsync({
+        email: data.email,
+        password: data.password,
+      });
+      navigate("/main-content");
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  const handleResetRegister = () => {
+    resetRegister();
+    form.resetField("password");
+    form.resetField("confirmPassword");
+  };
+
+  if (isRegisterPending || isLoginPending) return <Loader />;
+  if (isRegisterError || isLoginError)
+    return <Error error={registerError} resetStates={handleResetRegister} />;
 
   return (
     <div
-      className="w-100 flex flex-col gap-4 items-center justify-center"
-      style={{
-        width: "100%",
-        position: "absolute",
-        inset: "0",
-      }}
+      className={`w-100 flex flex-col gap-4 items-center justify-center ${styles["register-page-container"]}`}
     >
       <h3 className="text-2xl font-bold">Регистрация</h3>
       <Form {...form}>
@@ -86,9 +130,12 @@ export const Page = () => {
               </FormItem>
             )}
           />
-          <Button className="self-start ml-45" type="submit">
-            Регистрация
-          </Button>
+          <div className="flex flex-col gap-4">
+            <Button type="submit">Зарегестрироваться</Button>
+            <Button variant="link" onClick={onAutorize}>
+              Авторизация
+            </Button>
+          </div>
         </form>
       </Form>
     </div>

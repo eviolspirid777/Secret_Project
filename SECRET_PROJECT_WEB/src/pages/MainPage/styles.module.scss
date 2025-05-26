@@ -1,0 +1,16 @@
+.main-page-container {
+  display: grid;
+  grid-template-rows: 1fr 25fr;
+  height: 100vh;
+
+  & > h1 {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  &-content {
+    display: grid;
+    grid-template-columns: 1fr 25fr;
+  }
+}

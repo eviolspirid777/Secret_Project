@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Secret_Project_Backend.Configurations;
 using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Models;
+using static Secret_Project_Backend.Configurations.ServiceExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,11 +18,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCorsService(CORS_ENUM.ANY);
+
 builder.Services.AddDbService<PostgreSQLDbContext>(builder.Configuration.GetConnectionString("Development"));
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
-    options.Password.RequireUppercase = true;
+    options.Password.RequireUppercase = false;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
 })
@@ -49,6 +52,8 @@ builder.Services.AddAuthentication(options =>
 //builder.Services.AddSignalR();
 
 var app = builder.Build();
+
+app.UseCors("AllowSpecificOrigin");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

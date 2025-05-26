@@ -1,18 +1,11 @@
-import { AutorizationPage } from "@/pages/AutorizePage/ui";
-import { MainPage } from "@/pages/MainPage";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/store/store";
+import { RouterProviderContext } from "@/shared/router/router";
+import { Suspense } from "react";
+import { Loader } from "@/shared/components/Loader/loader";
 
-const App = () => {
-  const isLoggedIn = useSelector(
-    (state: RootState) => state.autorization.isLoggedIn
+export const App = () => {
+  return (
+    <Suspense fallback={<Loader />}>
+      <RouterProviderContext />
+    </Suspense>
   );
-
-  if (!isLoggedIn) {
-    return <AutorizationPage />;
-  }
-
-  return <MainPage />;
 };
-
-export default App;

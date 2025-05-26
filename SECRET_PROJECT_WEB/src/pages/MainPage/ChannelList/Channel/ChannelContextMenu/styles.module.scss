@@ -1,0 +1,14 @@
+@use "@/shared/styles/_colors.scss" as *;
+
+.channel-context-menu {
+  & div[role="menuitem"],
+  & div[role="menuitemcheckbox"] {
+    &:hover {
+      background-color: $color-hovered;
+    }
+  }
+
+  &__delete-item {
+    color: red;
+  }
+}
