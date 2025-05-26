@@ -12,6 +12,8 @@ export const Page = () => {
     <div className={styles["main-page-container"]}>
       <h1>Secret Project</h1>
       <div className={styles["main-page-container-content"]}>
+        {/*TODO: Можно переписать под еще один вложенный роутер, который будет отображать данные в Outlet */}
+        {/*TODO: Добавить возможность dnd для серверов*/}
         <ChannelList channels={channels} />
         <OutletDisplay />
       </div>
