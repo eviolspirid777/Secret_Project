@@ -10,6 +10,10 @@ export const useAuth = () => {
     return false;
   });
 
+  /*TODO: тут вынести из useEffect в UseState выше и добавить метод на беке
+  для проверки ликвидности токена из localStorage
+  и если токен не ликвиден, то удалять его из localStorage
+  */
   useEffect(() => {
     apiClient.sessionToken = null;
 

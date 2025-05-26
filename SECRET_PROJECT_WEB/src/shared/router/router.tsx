@@ -11,7 +11,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <AutorizationPage />,
+        element: <ProtectedRoute />,
       },
       {
         path: "autorize",
