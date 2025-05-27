@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Data.Entity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Secret_Project_Backend.Context;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -7,5 +9,12 @@ namespace Secret_Project_Backend.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly PostgreSQLDbContext _dbContext;
+        public UserController(
+            PostgreSQLDbContext dbContext
+        )
+        {
+            _dbContext = dbContext;
+        }
     }
 }
