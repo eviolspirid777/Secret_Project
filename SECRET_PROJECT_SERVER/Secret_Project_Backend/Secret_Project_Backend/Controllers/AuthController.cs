@@ -24,7 +24,7 @@ namespace Secret_Project_Backend.Controllers
             _userManager = userManager;
             _configuration = configuration;
         }
-
+        //TODO: Добавить RegisterConfirmation
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody] RegisterDto model)
         {
