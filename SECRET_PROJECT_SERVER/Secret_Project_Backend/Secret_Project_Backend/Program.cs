@@ -8,6 +8,7 @@ using Secret_Project_Backend.Configurations;
 using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Models;
 using static Secret_Project_Backend.Configurations.ServiceExtensions;
+using Secret_Project_Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +50,8 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
+
+builder.Services.AddScoped<IEmailService, MailKitEmailService>();
 //builder.Services.AddSignalR();
 
 var app = builder.Build();
