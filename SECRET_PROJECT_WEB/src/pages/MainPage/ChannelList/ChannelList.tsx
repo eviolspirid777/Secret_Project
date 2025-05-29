@@ -1,15 +1,14 @@
 import { Channel } from "./Channel/Channel";
-import type { Channel as ChannelType } from "@/types/Channel/Channel";
 import type { FC } from "react";
 
 import styles from "./styles.module.scss";
 import { Profile } from "./Profile/Profile";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 
-type ChannelListProps = {
-  channels?: ChannelType[];
-};
+export const ChannelList: FC = () => {
+  const channels = useSelector((state: RootState) => state.channels);
 
-export const ChannelList: FC<ChannelListProps> = ({ channels }) => {
   return (
     <div className={styles["channel-list-container"]}>
       <Profile />

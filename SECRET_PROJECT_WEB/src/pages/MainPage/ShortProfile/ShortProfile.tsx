@@ -2,21 +2,21 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/store/store";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { TbHeadphones, TbHeadphonesOff } from "react-icons/tb";
-import { changeMicrophoneState } from "@/store/slices/User.slice";
-import { changeHeadphonesState } from "@/store/slices/User.slice";
+import {
+  changeMicrophoneState,
+  changeHeadphonesState,
+} from "@/store/slices/User.slice";
 
 import styles from "./ShortProfile.module.scss";
 
 export const ShortProfile = () => {
-  const userName = useSelector((state: RootState) => state.user.userInfo.name);
-  const userAvatar = useSelector(
-    (state: RootState) => state.user.userInfo.avatar
-  );
+  const userName = useSelector((state: RootState) => state.user.name);
+  const userAvatar = useSelector((state: RootState) => state.user.avatar);
   const isMicrophoneMuted = useSelector(
-    (state: RootState) => state.user.userInfo.states.isMicrophoneMuted
+    (state: RootState) => state.user.states.isMicrophoneMuted
   );
   const isHeadphonesMuted = useSelector(
-    (state: RootState) => state.user.userInfo.states.isHeadphonesMuted
+    (state: RootState) => state.user.states.isHeadphonesMuted
   );
 
   const dispatch = useDispatch();

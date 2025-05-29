@@ -1,7 +1,7 @@
 import type { User } from "@/types/User/user";
 import { createSlice } from "@reduxjs/toolkit";
 
-const user: User = {
+const initialState: User = {
   userId: "123123",
   avatar: "https://i.pinimg.com/originals/00/00/00/00000000000000000000000000000000.jpg",
   name: "John Doe",
@@ -14,18 +14,16 @@ const user: User = {
 
 const userSlice = createSlice({
   name: "user",
-  initialState: {
-    userInfo: user,
-  },
+  initialState,
   reducers: {
     setUser: (state, action) => {
-      state.userInfo = action.payload;
+      state = action.payload;
     },
     changeMicrophoneState: (state) => {
-      state.userInfo.states.isMicrophoneMuted = !state.userInfo.states.isMicrophoneMuted;
+      state.states.isMicrophoneMuted = !state.states.isMicrophoneMuted;
     },
     changeHeadphonesState: (state) => {
-      state.userInfo.states.isHeadphonesMuted = !state.userInfo.states.isHeadphonesMuted;
+      state.states.isHeadphonesMuted = !state.states.isHeadphonesMuted;
     },
   },
 });
