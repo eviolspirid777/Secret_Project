@@ -26,6 +26,14 @@ class ApiClient {
     });
   }
 
+  private removeAuthorization() {
+    this.client.defaults.headers.common["Authorization"] = null;
+    this.sessionToken = null;
+    this.expiresAt = null;
+    localStorageService.removeItem("sessionToken");
+    localStorageService.removeItem("expiresAt");
+  }
+
   async Login(data: LoginRequest) {
     const response = await this.client.post<LoginResponse>(
       `${BASE_URL}/login`,
@@ -40,6 +48,13 @@ class ApiClient {
         "expiresAt",
         this.expiresAt as unknown as string
       );
+      this.client.defaults.headers.common["Authorization"] = `Bearer ${this.sessionToken}`;
+
+      //Очищаем через установленное время токен авторизации
+      setTimeout(() => {
+        this.removeAuthorization()
+      }, this.expiresAt.getTime());
+
       return response.data;
     }
 
@@ -59,8 +74,7 @@ class ApiClient {
     const response = await this.client.post<boolean>(`${BASE_URL}/logout`);
 
     if (response.status === 200) {
-      this.sessionToken = null;
-      this.expiresAt = null;
+      this.removeAuthorization();
       return response.data;
     }
   }
