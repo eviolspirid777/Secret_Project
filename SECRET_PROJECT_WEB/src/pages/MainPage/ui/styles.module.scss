@@ -2,6 +2,7 @@
   display: grid;
   grid-template-rows: 1fr 25fr;
   height: 100vh;
+  padding: 0.4% 0.5%;
 
   & > h1 {
     text-align: center;
@@ -11,11 +12,11 @@
 
   &-content {
     display: grid;
-    grid-template-columns: 1fr 25fr;
+    grid-template-columns: 1fr 6fr;
 
     &__side-bar {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-rows: 9fr 1fr;
       gap: 10px;
     }
   }

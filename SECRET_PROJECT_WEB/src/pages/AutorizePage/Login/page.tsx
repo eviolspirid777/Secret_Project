@@ -16,6 +16,7 @@ import { useLogin } from "@/shared/hooks/autorization/useLogin";
 import { Loader } from "@/shared/components/Loader/loader";
 import { Error } from "./Error/error";
 import { useNavigate } from "react-router";
+import type { AxiosError } from "axios";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -54,7 +55,9 @@ export const Page: FC<PageProps> = ({ onRegister }) => {
 
   if (isLoginPending) return <Loader />;
   if (isLoginError)
-    return <Error error={loginError} resetStates={handleResetLogin} />;
+    return (
+      <Error error={loginError as AxiosError} resetStates={handleResetLogin} />
+    );
 
   return (
     <div

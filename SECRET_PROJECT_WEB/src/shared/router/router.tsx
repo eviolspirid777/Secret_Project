@@ -1,8 +1,8 @@
 import { AutorizationPage } from "@/pages/AutorizePage/ui";
-import { ErrorPage } from "@/pages/ErrorPage";
+import { ErrorPage } from "@/pages/ErrorPage/ui";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { ProtectedRoute } from "./ProtectedRoute";
-import { MainPage } from "@/pages/MainPage";
+import { MainPage } from "@/pages/MainPage/ui";
 
 const router = createBrowserRouter([
   {

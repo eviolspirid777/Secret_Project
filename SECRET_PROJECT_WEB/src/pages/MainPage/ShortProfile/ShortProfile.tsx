@@ -25,27 +25,40 @@ export const ShortProfile = () => {
     <div className={styles["short-profile-container"]}>
       <div className={styles["short-profile-container__info"]}>
         <img src={userAvatar} alt="avatar" />
-        <span>{userName}</span>
-      </div>
-      <div className={styles["short-profile-container__controls"]}>
-        {isMicrophoneMuted ? (
-          <FaMicrophoneSlash
-            onClick={dispatch.bind(null, changeMicrophoneState())}
-          />
-        ) : (
-          <FaMicrophone
-            onClick={dispatch.bind(null, changeMicrophoneState())}
-          />
-        )}
-        {isHeadphonesMuted ? (
-          <TbHeadphonesOff
-            onClick={dispatch.bind(null, changeHeadphonesState())}
-          />
-        ) : (
-          <TbHeadphones
-            onClick={dispatch.bind(null, changeHeadphonesState())}
-          />
-        )}
+        <div>
+          <span>{userName}</span>
+          <div className={styles["short-profile-container__controls"]}>
+            {isMicrophoneMuted ? (
+              <FaMicrophoneSlash
+                className={
+                  styles["short-profile-container__controls-icon__danger"]
+                }
+                size={25}
+                onClick={dispatch.bind(null, changeMicrophoneState())}
+              />
+            ) : (
+              <FaMicrophone
+                className={styles["short-profile-container__controls-icon"]}
+                size={20}
+                onClick={dispatch.bind(null, changeMicrophoneState())}
+              />
+            )}
+            {isHeadphonesMuted ? (
+              <TbHeadphonesOff
+                className={
+                  styles["short-profile-container__controls-icon__danger"]
+                }
+                size={25}
+                onClick={dispatch.bind(null, changeHeadphonesState())}
+              />
+            ) : (
+              <TbHeadphones
+                size={25}
+                onClick={dispatch.bind(null, changeHeadphonesState())}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
-import { ChannelList } from "./ChannelList/ChannelList";
-import { OutletDisplay } from "./OutletDisplay/OutletDisplay";
+import { ChannelList } from "../ChannelList/ChannelList";
+import { OutletDisplay } from "../OutletDisplay/OutletDisplay";
 
 import styles from "./styles.module.scss";
-import { ShortProfile } from "./ShortProfile/ShortProfile";
+import { ShortProfile } from "../ShortProfile/ShortProfile";
 
 export const Page = () => {
   return (

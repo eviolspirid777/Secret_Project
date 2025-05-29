@@ -17,6 +17,7 @@ class ApiClient {
   client: AxiosInstance;
   sessionToken: string | null = null;
   expiresAt: Date | null = null;
+  private tokenTimeoutId: NodeJS.Timeout | null = null;
 
   constructor() {
     this.client = axios.create({
@@ -30,35 +31,56 @@ class ApiClient {
     this.client.defaults.headers.common["Authorization"] = null;
     this.sessionToken = null;
     this.expiresAt = null;
+    if (this.tokenTimeoutId) {
+      clearTimeout(this.tokenTimeoutId);
+      this.tokenTimeoutId = null;
+    }
     localStorageService.removeItem("sessionToken");
     localStorageService.removeItem("expiresAt");
   }
 
-  async Login(data: LoginRequest) {
-    const response = await this.client.post<LoginResponse>(
-      `${BASE_URL}/login`,
-      data
-    );
+  private setupTokenExpiration(expirationDate: string) {
+    const expiration = new Date(expirationDate);
+    const now = new Date();
+    const timeUntilExpiration = expiration.getTime() - now.getTime();
 
-    if (response.status === 200) {
-      this.sessionToken = response.data.token;
-      this.expiresAt = response.data.expirationDate;
-      localStorageService.setItem("sessionToken", this.sessionToken);
-      localStorageService.setItem(
-        "expiresAt",
-        this.expiresAt as unknown as string
-      );
-      this.client.defaults.headers.common["Authorization"] = `Bearer ${this.sessionToken}`;
-
-      //Очищаем через установленное время токен авторизации
-      setTimeout(() => {
-        this.removeAuthorization()
-      }, this.expiresAt.getTime());
-
-      return response.data;
+    if (this.tokenTimeoutId) {
+      clearTimeout(this.tokenTimeoutId);
     }
 
-    throw new Error("Неудачная авторизация");
+    this.tokenTimeoutId = setTimeout(() => {
+      this.removeAuthorization();
+    }, timeUntilExpiration);
+
+    console.log(`Токен истечет через ${Math.floor(timeUntilExpiration / 1000 / 60)} минут`);
+  }
+
+  async Login(data: LoginRequest) {
+    try {
+      const response = await this.client.post<LoginResponse>(
+        `${BASE_URL}/login`,
+        data
+      );
+
+      if (response.status === 200) {
+        this.sessionToken = response.data.token;
+        this.expiresAt = new Date(response.data.expirationDate);
+        
+        localStorageService.setItem("sessionToken", this.sessionToken);
+        localStorageService.setItem("expiresAt", response.data.expirationDate);
+        
+        this.client.defaults.headers.common["Authorization"] = `Bearer ${this.sessionToken}`;
+
+        this.setupTokenExpiration(response.data.expirationDate);
+
+        return response.data;
+      }
+
+      throw new Error("Неудачная авторизация");
+    } catch (error) {
+      this.removeAuthorization();
+      throw error;
+    }
   }
 
   async Register(data: RegisterRequest) {

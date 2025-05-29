@@ -48,6 +48,9 @@ namespace Secret_Project_Backend.Controllers
         {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
+            var foundedUser = await _userManager.FindByEmailAsync(model.Email);
+            if (foundedUser != null)
+                return BadRequest("Пользователь с таким именем уже существует");
 
             var user = new ApplicationUser
             {

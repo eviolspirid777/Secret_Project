@@ -3,6 +3,7 @@
 .channel-context-menu {
   & div[role="menuitem"],
   & div[role="menuitemcheckbox"] {
+    cursor: pointer;
     &:hover {
       background-color: $color-hovered;
     }

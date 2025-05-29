@@ -18,6 +18,7 @@ import { useNavigate } from "react-router";
 import { EmailConfirmation } from "./EmailConfirmation/EmailConfirmation.";
 
 import styles from "./style.module.scss";
+import type { AxiosError } from "axios";
 
 const registerSchema = z
   .object({
@@ -77,7 +78,12 @@ export const Page: FC<PageProps> = ({ onAutorize }) => {
   if (isRegisterSuccess)
     return <EmailConfirmation email={form.getValues("email")} />;
   if (isRegisterError)
-    return <Error error={registerError} resetStates={handleResetRegister} />;
+    return (
+      <Error
+        error={registerError as AxiosError}
+        resetStates={handleResetRegister}
+      />
+    );
 
   return (
     <div
