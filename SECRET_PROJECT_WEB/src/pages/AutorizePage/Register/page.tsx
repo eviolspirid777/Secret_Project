@@ -62,7 +62,7 @@ export const Page: FC<PageProps> = ({ onAutorize }) => {
         displayName: data.email,
         password: data.password,
       });
-      navigate("/main-content");
+      // navigate("/main-content");
     } catch (error) {
       console.log(error);
     }

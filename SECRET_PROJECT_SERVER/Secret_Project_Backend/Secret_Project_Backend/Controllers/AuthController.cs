@@ -17,18 +17,21 @@ namespace Secret_Project_Backend.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             IConfiguration configuration,
-            IEmailService emailService
+            IEmailService emailService,
+            ILogger<AuthController> logger
         )
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _configuration = configuration;
             _emailService = emailService;
+            _logger = logger;
         }
 
         //[HttpDelete("delete-user")]
@@ -71,6 +74,7 @@ namespace Secret_Project_Backend.Controllers
             try
             {
                 await _emailService.SendEmailConfirmationAsync(user.Email, user.Id, token);
+                _logger.LogInformation($"Пользователь с почтой: {user.Email} отправлен на подтверждение email.");
                 return Ok(new { 
                     message = "Для завершения регистрации проверьте вашу почту и подтвердите email"
                 });
@@ -85,7 +89,7 @@ namespace Secret_Project_Backend.Controllers
         [HttpGet("confirm-email")]
         public async Task<IActionResult> ConfirmEmail([FromQuery] string UserId, [FromQuery] string Token)
         {
-        var user = await _userManager.FindByIdAsync(UserId);
+            var user = await _userManager.FindByIdAsync(UserId);
             if(user == null)
             {
                 return BadRequest("Пользователь не найден!");
@@ -95,6 +99,7 @@ namespace Secret_Project_Backend.Controllers
             if(result.Succeeded)
             {
                 //var (token, expirationDate) = JwtToken.GenerateJwtToken(user, _configuration["Jwt:Key"]);
+                _logger.LogInformation($"Пользователь {user.Email} успешно прошел подтверждение почты!");
                 return Ok(new { 
                     message = "Email подтвержден!",
                     //token,

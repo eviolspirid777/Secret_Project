@@ -8,6 +8,8 @@ type EmailConfirmationProps = {
 
 export const EmailConfirmation: FC<EmailConfirmationProps> = ({ email }) => {
   const navigate = useNavigate();
+  //TODO: Не работет возвра на предудыщую страницу
+  //TODO: Нет стилей для страницы
   return (
     <div>
       <h3>Подтвердите регистрацию</h3>
@@ -15,7 +17,7 @@ export const EmailConfirmation: FC<EmailConfirmationProps> = ({ email }) => {
         На вашу почту {email} было отправлено сообщение. Перейдите по ссылке в
         письме, чтобы подтвердить регистрацию аккаунта.
       </span>
-      <Button onClick={() => navigate("/autorize")}>Вернуться назад</Button>
+      <Button onClick={() => navigate(-1)}>Вернуться назад</Button>
     </div>
   );
 };
