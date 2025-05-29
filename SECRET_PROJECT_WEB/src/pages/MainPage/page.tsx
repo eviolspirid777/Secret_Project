@@ -4,6 +4,7 @@ import { OutletDisplay } from "./OutletDisplay/OutletDisplay";
 import type { RootState } from "@/store/store";
 
 import styles from "./styles.module.scss";
+import { ShortProfile } from "./ShortProfile/ShortProfile";
 
 export const Page = () => {
   const channels = useSelector((state: RootState) => state.channels.channels);
@@ -14,7 +15,10 @@ export const Page = () => {
       <div className={styles["main-page-container-content"]}>
         {/*TODO: Можно переписать под еще один вложенный роутер, который будет отображать данные в Outlet */}
         {/*TODO: Добавить возможность dnd для серверов*/}
-        <ChannelList channels={channels} />
+        <div className={styles["main-page-container-content__side-bar"]}>
+          <ChannelList channels={channels} />
+          <ShortProfile />
+        </div>
         <OutletDisplay />
       </div>
     </div>

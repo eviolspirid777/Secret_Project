@@ -72,7 +72,7 @@ namespace Secret_Project_Backend.Controllers
                     message = "Для завершения регистрации проверьте вашу почту и подтвердите email"
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await _userManager.DeleteAsync(user);
                 return StatusCode(500, "Ошибка при отправке письма подтверждения. Пожалуйста, попробуйте позже.");
@@ -91,11 +91,11 @@ namespace Secret_Project_Backend.Controllers
             var result = await _userManager.ConfirmEmailAsync(user, Token);
             if(result.Succeeded)
             {
-                var (token, expirationDate) = JwtToken.GenerateJwtToken(user, _configuration["Jwt:Key"]);
+                //var (token, expirationDate) = JwtToken.GenerateJwtToken(user, _configuration["Jwt:Key"]);
                 return Ok(new { 
                     message = "Email подтвержден!",
-                    token = token,
-                    expirationDate = expirationDate
+                    //token,
+                    //expirationDate
                 });
             }
             else

@@ -11,12 +11,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { type FC } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import styles from "./style.module.scss";
 import { useRegister } from "@/shared/hooks/autorization/useRegister";
 import { Loader } from "@/shared/components/Loader/loader";
 import { Error } from "./Error/error";
-import { useLogin } from "@/shared/hooks/autorization/useLogin";
 import { useNavigate } from "react-router";
+import { EmailConfirmation } from "./EmailConfirmation/EmailConfirmation.";
+
+import styles from "./style.module.scss";
 
 const registerSchema = z
   .object({
@@ -38,11 +39,11 @@ export const Page: FC<PageProps> = ({ onAutorize }) => {
   const {
     registerAsync,
     isRegisterPending,
+    isRegisterSuccess,
     isRegisterError,
     registerError,
     resetRegister,
   } = useRegister();
-  const { loginAsync, isLoginPending, isLoginError } = useLogin();
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -60,10 +61,6 @@ export const Page: FC<PageProps> = ({ onAutorize }) => {
         displayName: data.email,
         password: data.password,
       });
-      await loginAsync({
-        email: data.email,
-        password: data.password,
-      });
       navigate("/main-content");
     } catch (error) {
       console.log(error);
@@ -76,8 +73,10 @@ export const Page: FC<PageProps> = ({ onAutorize }) => {
     form.resetField("confirmPassword");
   };
 
-  if (isRegisterPending || isLoginPending) return <Loader />;
-  if (isRegisterError || isLoginError)
+  if (isRegisterPending) return <Loader />;
+  if (isRegisterSuccess)
+    return <EmailConfirmation email={form.getValues("email")} />;
+  if (isRegisterError)
     return <Error error={registerError} resetStates={handleResetRegister} />;
 
   return (

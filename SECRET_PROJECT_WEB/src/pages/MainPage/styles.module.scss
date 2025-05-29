@@ -12,5 +12,11 @@
   &-content {
     display: grid;
     grid-template-columns: 1fr 25fr;
+
+    &__side-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
   }
 }

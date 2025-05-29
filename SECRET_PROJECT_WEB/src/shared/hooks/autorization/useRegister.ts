@@ -6,6 +6,7 @@ export const useRegister = () => {
   const {
     mutateAsync: registerAsync,
     isPending: isRegisterPending,
+    isSuccess: isRegisterSuccess,
     isError: isRegisterError,
     error: registerError,
     reset: resetRegister,
@@ -20,6 +21,7 @@ export const useRegister = () => {
   return {
     registerAsync,
     isRegisterPending,
+    isRegisterSuccess,
     isRegisterError,
     registerError,
     resetRegister,
