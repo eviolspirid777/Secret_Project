@@ -29,7 +29,8 @@ namespace Secret_Project_Backend.Controllers
             }
             foreach(var message in data.Messages)
             {
-                var mappedMessage = MessagesMapper.MessageDtoToMessage(message);
+                //TODO: Посмотри как работает этот маппер в деле. Мб тут могу возникнуть проблемы
+                var mappedMessage = MessagesMapper.MapMessageDtoToMessage(message);
                 channel.Messages.Add(mappedMessage);
             }
 
