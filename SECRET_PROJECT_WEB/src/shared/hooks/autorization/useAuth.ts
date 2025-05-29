@@ -4,22 +4,22 @@ import { useState } from "react";
 import { useEffect } from "react";
 
 export const useAuth = () => {
-  const [isLoggedIn] = useState(() => {
-    const token = apiClient.sessionToken;
-    if (token) return true;
-    return false;
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
-  /*TODO: тут вынести из useEffect в UseState выше и добавить метод на беке
-  для проверки ликвидности токена из localStorage
-  и если токен не ликвиден, то удалять его из localStorage
-  */
   useEffect(() => {
-    apiClient.sessionToken = null;
-
-    if (localStorageService.getItem("sessionToken")) {
-      apiClient.sessionToken = localStorageService.getItem("sessionToken");
+    const sessionToken = localStorageService.getItem("sessionToken");
+    const expiresAt = localStorageService.getItem("expiresAt");
+    if (sessionToken && expiresAt) {
+      apiClient.sessionToken = sessionToken;
+      const now = new Date();
+      const expiration = new Date(expiresAt);
+      if (now < expiration) {
+        setIsLoggedIn(true);
+        return;
+      }
     }
+    setIsLoggedIn(false);
+    apiClient.sessionToken = null;
   }, []);
 
   return { isLoggedIn };
