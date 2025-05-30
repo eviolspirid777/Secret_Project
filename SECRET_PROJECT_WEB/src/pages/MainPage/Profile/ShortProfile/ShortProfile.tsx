@@ -6,12 +6,14 @@ import {
   changeMicrophoneState,
   changeHeadphonesState,
 } from "@/store/slices/User.slice";
+import { Badge } from "@/shared/components/Badge/Badge";
 
 import styles from "./styles.module.scss";
 
 export const ShortProfile = () => {
   const userName = useSelector((state: RootState) => state.user.name);
   const userAvatar = useSelector((state: RootState) => state.user.avatar);
+  const userStatus = useSelector((state: RootState) => state.user.status);
   const isMicrophoneMuted = useSelector(
     (state: RootState) => state.user.states.isMicrophoneMuted
   );
@@ -24,7 +26,15 @@ export const ShortProfile = () => {
   return (
     <div className={styles["short-profile-container"]}>
       <div className={styles["short-profile-container__info"]}>
-        <img src={userAvatar} alt="avatar" />
+        <div className={styles["short-profile-container__info-avatar-wrapper"]}>
+          <img src={userAvatar} alt="avatar" />
+          <Badge
+            className={
+              styles["short-profile-container__info-avatar-wrapper__badge"]
+            }
+            variant={userStatus}
+          />
+        </div>
         <div>
           <span>{userName}</span>
           <div className={styles["short-profile-container__controls"]}>
