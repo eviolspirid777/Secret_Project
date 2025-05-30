@@ -36,10 +36,7 @@ export const ChannelContextMenu: FC<ChannelContextMenuProps> = ({
       >
         {channel.isMuted ? "Включить оповещения" : "Выключить оповещения"}
       </ContextMenuCheckboxItem>
-      <ContextMenuItem
-        inset
-        className={styles["channel-context-menu__delete-item"]}
-      >
+      <ContextMenuItem inset className="context-menu-item__delete">
         Покинуть канал
       </ContextMenuItem>
     </ContextMenuContent>

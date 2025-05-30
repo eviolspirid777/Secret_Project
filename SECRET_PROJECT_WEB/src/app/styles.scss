@@ -1,0 +1,5 @@
+@use "@/shared/styles/_colors.scss" as *;
+
+.context-menu-item__delete {
+  color: $color-danger;
+}
