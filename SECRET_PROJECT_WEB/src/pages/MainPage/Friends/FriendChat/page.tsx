@@ -35,7 +35,7 @@ export const FriendChat = () => {
   }, []);
 
   const sendMessage = async (message: string) => {
-    if (friendId) {
+    if (friendId && message) {
       await messageSignalRService.current.sendMessageToUser(
         "a5b99e1a-719e-4d22-8101-977eb95a9e04",
         message
