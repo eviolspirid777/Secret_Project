@@ -3,6 +3,8 @@ import { ErrorPage } from "@/pages/ErrorPage/ui";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { MainPage } from "@/pages/MainPage/ui";
+import { ChannelContent } from "@/pages/MainPage/Channels/ChannelContent/ChannelContent";
+import { MyProfile } from "@/pages/MainPage/Profile/MyProfile/MyProfile";
 
 const router = createBrowserRouter([
   {
@@ -10,22 +12,27 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        index: true,
         element: <ProtectedRoute />,
+        children: [
+          {
+            path: "/",
+            element: <MainPage />,
+            children: [
+              {
+                path: "channels/:channelId",
+                element: <ChannelContent />,
+              },
+              {
+                path: "my-profile",
+                element: <MyProfile />,
+              },
+            ],
+          },
+        ],
       },
       {
         path: "autorize",
         element: <AutorizationPage />,
-      },
-      {
-        element: <ProtectedRoute />, // защищённая область
-        children: [
-          {
-            path: "main-content",
-            element: <MainPage />,
-          },
-          // другие защищённые маршруты...
-        ],
       },
     ],
   },

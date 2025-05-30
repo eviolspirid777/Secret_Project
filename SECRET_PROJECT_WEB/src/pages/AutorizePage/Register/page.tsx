@@ -14,7 +14,6 @@ import { z } from "zod";
 import { useRegister } from "@/shared/hooks/autorization/useRegister";
 import { Loader } from "@/shared/components/Loader/loader";
 import { Error } from "./Error/error";
-import { useNavigate } from "react-router";
 import { EmailConfirmation } from "./EmailConfirmation/EmailConfirmation.";
 
 import styles from "./style.module.scss";
@@ -36,7 +35,6 @@ type PageProps = {
 };
 
 export const Page: FC<PageProps> = ({ onAutorize }) => {
-  const navigate = useNavigate();
   const {
     registerAsync,
     isRegisterPending,

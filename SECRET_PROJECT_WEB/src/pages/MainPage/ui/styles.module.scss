@@ -19,5 +19,10 @@
       grid-template-rows: 9fr 1fr;
       gap: 10px;
     }
+
+    &__main {
+      height: 100%;
+      overflow: hidden;
+    }
   }
 }
