@@ -12,7 +12,8 @@
 
   &-content {
     display: grid;
-    grid-template-columns: 1fr 6fr;
+    grid-template-columns: 1fr 3fr 16fr;
+    position: relative;
 
     &__side-bar {
       display: grid;

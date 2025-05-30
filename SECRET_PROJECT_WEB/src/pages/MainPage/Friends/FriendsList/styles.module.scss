@@ -1,0 +1,10 @@
+.friends-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__title {
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+}

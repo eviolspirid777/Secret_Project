@@ -7,7 +7,7 @@ import {
   changeHeadphonesState,
 } from "@/store/slices/User.slice";
 
-import styles from "./ShortProfile.module.scss";
+import styles from "./styles.module.scss";
 
 export const ShortProfile = () => {
   const userName = useSelector((state: RootState) => state.user.name);
