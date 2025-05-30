@@ -5,16 +5,19 @@ const initialState: Message[] = [
   {
     message: "Hello",
     senderId: "1",
+    receiverId: "2",
     createdAt: new Date("2025-05-30T10:00:00"),
   },
   {
     message: "It is me",
     senderId: "1",
+    receiverId: "2",
     createdAt: new Date("2025-05-31T10:00:00"),
   },
   {
     message: "Hello",
     senderId: "1",
+    receiverId: "2",
     createdAt: new Date("2025-05-31T13:00:00"),
   },
 ];

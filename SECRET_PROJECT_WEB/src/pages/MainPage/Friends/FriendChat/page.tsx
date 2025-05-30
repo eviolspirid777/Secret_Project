@@ -28,7 +28,12 @@ export const FriendChat = () => {
     messageSignalRService.current.onReceiveMessage((message) => {
       if (friendId) {
         dispatch(
-          addMessage({ message, createdAt: new Date(), senderId: friendId })
+          addMessage({
+            message,
+            createdAt: new Date(),
+            senderId: friendId,
+            receiverId: friendId,
+          })
         );
       }
     });
@@ -36,10 +41,7 @@ export const FriendChat = () => {
 
   const sendMessage = async (message: string) => {
     if (friendId && message) {
-      await messageSignalRService.current.sendMessageToUser(
-        "a5b99e1a-719e-4d22-8101-977eb95a9e04",
-        message
-      );
+      await messageSignalRService.current.sendMessageToUser(friendId, message);
       setMessage("");
     }
   };

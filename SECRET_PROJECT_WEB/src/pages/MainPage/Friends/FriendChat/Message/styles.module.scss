@@ -3,7 +3,7 @@
 
 .message {
   display: grid;
-  grid-template-columns: 30px 1fr 40px;
+  grid-template-columns: 40px 1fr 40px;
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
@@ -11,8 +11,8 @@
   border-radius: 10px;
 
   &__avatar {
-    width: 30px;
-    height: 30px;
+    width: 41px;
+    height: 41px;
     border-radius: 50%;
     user-select: none;
   }
