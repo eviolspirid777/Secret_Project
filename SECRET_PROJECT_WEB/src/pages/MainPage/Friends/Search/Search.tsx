@@ -1,7 +1,9 @@
+import { Input } from "@/shadcn/ui/input";
+
 export const Search = () => {
   return (
     <div>
-      <h1>Friends Search</h1>
+      <Input placeholder="Поиск друзей" />
     </div>
   );
 };

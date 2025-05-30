@@ -5,6 +5,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { MainPage } from "@/pages/MainPage/ui";
 import { ChannelContent } from "@/pages/MainPage/Channels/ChannelContent/ChannelContent";
 import { MyProfile } from "@/pages/MainPage/Profile/MyProfile/MyProfile";
+import { FriendChat } from "@/pages/MainPage/Friends/FriendChat/page";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
               {
                 path: "my-profile",
                 element: <MyProfile />,
+              },
+              {
+                path: "friend-chat/:friendId",
+                element: <FriendChat />,
               },
             ],
           },

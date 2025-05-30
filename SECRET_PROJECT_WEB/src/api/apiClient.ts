@@ -11,7 +11,8 @@ import type { AxiosInstance } from "axios";
 import axios from "axios";
 
 // const BASE_URL = import.meta.env.VITE_API_URL;
-const BASE_URL = "https://localhost:7239/Auth";
+const apiUrl = import.meta.env.VITE_API_URL;
+const BASE_URL = `${apiUrl}/Auth`;
 
 class ApiClient {
   client: AxiosInstance;
@@ -52,7 +53,9 @@ class ApiClient {
       this.removeAuthorization();
     }, timeUntilExpiration);
 
-    console.log(`Токен истечет через ${Math.floor(timeUntilExpiration / 1000 / 60)} минут`);
+    console.log(
+      `Токен истечет через ${Math.floor(timeUntilExpiration / 1000 / 60)} минут`
+    );
   }
 
   async Login(data: LoginRequest) {
@@ -65,11 +68,13 @@ class ApiClient {
       if (response.status === 200) {
         this.sessionToken = response.data.token;
         this.expiresAt = new Date(response.data.expirationDate);
-        
+
         localStorageService.setItem("sessionToken", this.sessionToken);
         localStorageService.setItem("expiresAt", response.data.expirationDate);
-        
-        this.client.defaults.headers.common["Authorization"] = `Bearer ${this.sessionToken}`;
+
+        this.client.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${this.sessionToken}`;
 
         this.setupTokenExpiration(response.data.expirationDate);
 

@@ -9,16 +9,23 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/shadcn/ui/context-menu";
+import { useNavigate } from "react-router";
 
 type FriendCardProps = {
   friend: Friend;
 };
 
 export const FriendCard = ({ friend }: FriendCardProps) => {
+  const navigate = useNavigate();
+
+  const handleFriendClick = () => {
+    navigate(`/friend-chat/${friend.id}`);
+  };
+
   return (
     <ContextMenu>
       <ContextMenuTrigger>
-        <div className={styles["friend-card"]}>
+        <div className={styles["friend-card"]} onClick={handleFriendClick}>
           <div className={styles["friend-card__avatar-wrapper"]}>
             <img
               className={styles["friend-card__avatar"]}

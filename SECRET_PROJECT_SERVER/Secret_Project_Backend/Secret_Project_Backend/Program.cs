@@ -9,6 +9,9 @@ using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Models;
 using static Secret_Project_Backend.Configurations.ServiceExtensions;
 using Secret_Project_Backend.Services;
+using Secret_Project_Backend.SignalR;
+using Microsoft.AspNetCore.SignalR;
+using Secret_Project_Backend.Services.Chat;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +22,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddCorsService(CORS_ENUM.ANY);
+builder.Services.AddCorsService(CORS_ENUM.LOCAL);
+builder.Services.AddSignalR();
 
 builder.Services.AddDbService<PostgreSQLDbContext>(builder.Configuration.GetConnectionString("Development"));
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -49,10 +53,27 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            foreach (var kv in context.Request.Query)
+            {
+                Console.WriteLine($"Query: {kv.Key} = {kv.Value}");
+            }
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
+builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
 builder.Services.AddScoped<IEmailService, MailKitEmailService>();
-//builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -71,5 +92,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();

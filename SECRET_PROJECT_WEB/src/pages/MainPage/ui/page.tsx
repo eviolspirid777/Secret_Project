@@ -3,7 +3,7 @@ import { Outlet } from "react-router";
 import { ShortProfile } from "../Profile/ShortProfile/ShortProfile";
 
 import styles from "./styles.module.scss";
-import { Friends } from "../Friends/Friends";
+import { Friends } from "../Friends/ui/Friends";
 
 export const Page = () => {
   /*TODO:
