@@ -1,13 +1,18 @@
+@use "@/shared/styles/colors" as *;
+@use "sass:color";
+
 .main-page-container {
   display: grid;
   grid-template-rows: 1fr 25fr;
   height: 100vh;
   padding: 0.4% 0.5%;
+  background-color: color.adjust($background-color, $lightness: 10%);
 
   & > h1 {
     text-align: center;
     font-size: 1.2rem;
     font-weight: 600;
+    color: $font-color;
   }
 
   &-content {

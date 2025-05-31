@@ -44,7 +44,7 @@ export const Page: FC<PageProps> = ({ onRegister }) => {
       email: data.email,
       password: data.password,
     });
-    navigate("/main-content");
+    navigate("/");
   };
 
   const handleResetLogin = () => {

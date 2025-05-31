@@ -38,6 +38,7 @@
     & span {
       font-size: 1.2rem;
       font-weight: 600;
+      color: $font-color;
     }
   }
 
@@ -47,13 +48,14 @@
     gap: 10px;
     & > * {
       cursor: pointer;
+      color: $font-color;
     }
 
     &-icon {
       min-width: 25px;
 
       &__danger {
-        color: color.adjust($color-danger, $lightness: -30%);
+        color: color.adjust($color-danger, $lightness: -20%);
       }
     }
   }

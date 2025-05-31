@@ -27,6 +27,9 @@ const userSlice = createSlice({
     changeHeadphonesState: (state) => {
       state.states.isHeadphonesMuted = !state.states.isHeadphonesMuted;
     },
+    changeName: (state, action) => {
+      state.name = action.payload;
+    },
   },
   selectors: {
     getUser: (state) => state,
@@ -34,8 +37,12 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, changeMicrophoneState, changeHeadphonesState } =
-  userSlice.actions;
+export const {
+  setUser,
+  changeMicrophoneState,
+  changeHeadphonesState,
+  changeName,
+} = userSlice.actions;
 export const { getUser, getUserAvatar } = userSlice.selectors;
 
 export default userSlice.reducer;

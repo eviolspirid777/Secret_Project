@@ -1,0 +1,31 @@
+@use "@/shared/styles/colors" as *;
+@use "sass:color";
+
+.navigate-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 20px;
+    width: 100%;
+  }
+
+  &__link {
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: 500;
+    width: 100%;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: color.scale($background-color, $lightness: 25%);
+    }
+  }
+}

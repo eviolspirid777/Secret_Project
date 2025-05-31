@@ -7,10 +7,14 @@ import {
   changeHeadphonesState,
 } from "@/store/slices/User.slice";
 import { Badge } from "@/shared/components/Badge/Badge";
+import { IoSettingsSharp } from "react-icons/io5";
+import { useNavigate } from "react-router";
 
 import styles from "./styles.module.scss";
 
 export const ShortProfile = () => {
+  const navigate = useNavigate();
+
   const userName = useSelector((state: RootState) => state.user.name);
   const userAvatar = useSelector((state: RootState) => state.user.avatar);
   const userStatus = useSelector((state: RootState) => state.user.status);
@@ -22,6 +26,10 @@ export const ShortProfile = () => {
   );
 
   const dispatch = useDispatch();
+
+  const navigateToSettings = () => {
+    navigate("/settings");
+  };
 
   return (
     <div className={styles["short-profile-container"]}>
@@ -67,6 +75,7 @@ export const ShortProfile = () => {
                 onClick={dispatch.bind(null, changeHeadphonesState())}
               />
             )}
+            <IoSettingsSharp size={23} onClick={navigateToSettings} />
           </div>
         </div>
       </div>

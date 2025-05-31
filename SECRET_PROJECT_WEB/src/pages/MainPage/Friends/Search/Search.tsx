@@ -1,9 +1,20 @@
 import { Input } from "@/shadcn/ui/input";
+import type { FC } from "react";
 
-export const Search = () => {
+import styles from "./styles.module.scss";
+
+type SearchProps = {
+  onChange: (value: string) => void;
+};
+
+export const Search: FC<SearchProps> = ({ onChange }) => {
   return (
-    <div>
-      <Input placeholder="Поиск друзей" />
+    <div className={styles["search"]}>
+      <Input
+        className={styles["search__input"]}
+        placeholder="Поиск друзей"
+        onChange={(e) => onChange(e.target.value)}
+      />
     </div>
   );
 };

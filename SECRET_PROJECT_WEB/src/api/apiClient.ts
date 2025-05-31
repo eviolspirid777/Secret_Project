@@ -7,6 +7,7 @@ import type {
   RegisterRequest,
   RegisterResponse,
 } from "@/types/Autorization/Register";
+import type { User } from "@/types/User/User";
 import type { AxiosInstance } from "axios";
 import axios from "axios";
 
@@ -104,6 +105,14 @@ class ApiClient {
       this.removeAuthorization();
       return response.data;
     }
+  }
+
+  async GetUserInformation(id: string) {
+    const response = await this.client.get<User>(
+      `${BASE_URL}/user-information/${id}`
+    );
+
+    return response.data;
   }
 }
 

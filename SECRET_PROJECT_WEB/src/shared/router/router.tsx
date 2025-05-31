@@ -5,7 +5,10 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { MainPage } from "@/pages/MainPage/ui";
 import { ChannelContent } from "@/pages/MainPage/Channels/ChannelContent/ChannelContent";
 import { MyProfile } from "@/pages/MainPage/Profile/MyProfile/MyProfile";
+import { MyProfile as MyProfileSettings } from "@/pages/Settings/MyProfile/page";
 import { FriendChat } from "@/pages/MainPage/Friends/FriendChat/page";
+import { Settings } from "@/pages/Settings/ui";
+import { Security } from "@/pages/Settings/Security/page";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +33,20 @@ const router = createBrowserRouter([
               {
                 path: "friend-chat/:friendId",
                 element: <FriendChat />,
+              },
+            ],
+          },
+          {
+            path: "settings",
+            element: <Settings />,
+            children: [
+              {
+                path: "profile",
+                element: <MyProfileSettings />,
+              },
+              {
+                path: "security",
+                element: <Security />,
               },
             ],
           },

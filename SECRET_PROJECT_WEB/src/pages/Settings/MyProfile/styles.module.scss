@@ -1,0 +1,91 @@
+@use "@/shared/styles/colors" as *;
+@use "sass:color";
+
+$avatar-size: 120px;
+
+.my-profile {
+  display: grid;
+  grid-template-columns: 1fr 5fr 2fr;
+  gap: 10px;
+
+  &__avatar-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+
+  &__avatar {
+    width: $avatar-size;
+    height: $avatar-size;
+    border-radius: 50%;
+
+    &-editing {
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+      box-shadow: 0 0 10px 0 color.adjust($font-color, $lightness: -30%);
+
+      & ~ .my-profile__avatar-pencil {
+        opacity: 0;
+        pointer-events: none;
+        color: color.adjust($font-color, $lightness: -10%);
+      }
+
+      &:hover {
+        opacity: 0.5;
+
+        & ~ .my-profile__avatar-pencil {
+          opacity: 1;
+        }
+      }
+    }
+
+    &-pencil {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  &__info {
+    align-self: center;
+
+    &-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $font-color;
+    }
+
+    &-name-input {
+      width: 100%;
+      max-width: 300px;
+    }
+
+    &-status {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: color.adjust($font-color, $lightness: -40%);
+    }
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    &-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    bottom: 0px;
+    left: calc($avatar-size - 30px);
+  }
+}

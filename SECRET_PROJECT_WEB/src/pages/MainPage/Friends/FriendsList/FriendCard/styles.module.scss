@@ -1,3 +1,5 @@
+@use "@/shared/styles/colors" as *;
+
 .friend-card {
   display: grid;
   grid-template-columns: 35px 1fr;
@@ -23,8 +25,9 @@
   }
 
   &__name {
-    font-size: .9rem;
+    font-size: 0.9rem;
     font-weight: 600;
+    color: $font-color;
   }
 
   &__status {
