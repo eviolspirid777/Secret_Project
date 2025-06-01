@@ -31,7 +31,7 @@ export const channelsSlice = createSlice({
   initialState,
   reducers: {
     setChannels: (state, action) => {
-      state = action.payload;
+      return action.payload;
     },
   },
 });

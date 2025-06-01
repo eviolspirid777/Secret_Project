@@ -1,4 +1,6 @@
-﻿namespace Secret_Project_Backend.DTOs
+﻿using Secret_Project_Backend.Models;
+
+namespace Secret_Project_Backend.DTOs
 {
     public class UserDTO
     {
@@ -6,6 +8,7 @@
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Avatar { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
         public States States { get; set; } = new States();
     }
 

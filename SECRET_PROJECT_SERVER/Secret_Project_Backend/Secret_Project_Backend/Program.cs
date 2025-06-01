@@ -12,6 +12,7 @@ using Secret_Project_Backend.Services;
 using Secret_Project_Backend.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Secret_Project_Backend.Services.Chat;
+using Secret_Project_Backend.Services.Status;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,6 +101,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
 builder.Services.AddScoped<IEmailService, MailKitEmailService>();
+builder.Services.AddScoped<ChangeUserStatusService>();
 
 var app = builder.Build();
 

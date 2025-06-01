@@ -1,4 +1,4 @@
-import apiClient from "@/api/apiClient";
+import { apiClient } from "@/api/apiClient";
 import { useMutation } from "@tanstack/react-query";
 
 export const useLogout = () => {
@@ -9,8 +9,8 @@ export const useLogout = () => {
     error: logoutError,
   } = useMutation({
     mutationKey: ["logout"],
-    mutationFn: async () => {
-      const response = await apiClient.Logout();
+    mutationFn: async (id: string) => {
+      const response = await apiClient.Logout(id);
       return response;
     },
   });

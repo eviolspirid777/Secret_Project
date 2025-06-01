@@ -7,13 +7,21 @@ import type {
   RegisterRequest,
   RegisterResponse,
 } from "@/types/Autorization/Register";
+import type { FriendRequest } from "@/types/Friend/Friend";
+import type {
+  MessageAddRequest,
+  MessageDeleteRequest,
+} from "@/types/Message/Message";
 import type { User } from "@/types/User/User";
 import type { AxiosInstance } from "axios";
 import axios from "axios";
 
-// const BASE_URL = import.meta.env.VITE_API_URL;
+// const BASE_AUTH_URL = import.meta.env.VITE_API_URL;
 const apiUrl = import.meta.env.VITE_API_URL;
-const BASE_URL = `${apiUrl}/Auth`;
+
+const BASE_AUTH_URL = `${apiUrl}/Auth`;
+const BASE_USER_URL = `${apiUrl}/api/User`;
+const BASE_MESSAGE_URL = `${apiUrl}/api/Message`;
 
 class ApiClient {
   client: AxiosInstance;
@@ -62,7 +70,7 @@ class ApiClient {
   async Login(data: LoginRequest) {
     try {
       const response = await this.client.post<LoginResponse>(
-        `${BASE_URL}/login`,
+        `${BASE_AUTH_URL}/login`,
         data
       );
 
@@ -72,6 +80,7 @@ class ApiClient {
 
         localStorageService.setItem("sessionToken", this.sessionToken);
         localStorageService.setItem("expiresAt", response.data.expirationDate);
+        localStorageService.setUserId(response.data.userId);
 
         this.client.defaults.headers.common[
           "Authorization"
@@ -91,15 +100,23 @@ class ApiClient {
 
   async Register(data: RegisterRequest) {
     const response = await this.client.post<RegisterResponse>(
-      `${BASE_URL}/register`,
+      `${BASE_AUTH_URL}/register`,
       data
     );
 
     return response.data;
   }
 
-  async Logout() {
-    const response = await this.client.post<boolean>(`${BASE_URL}/logout`);
+  async Logout(id: string) {
+    const response = await this.client.post<boolean>(
+      `${BASE_AUTH_URL}/logout`,
+      null,
+      {
+        params: {
+          id,
+        },
+      }
+    );
 
     if (response.status === 200) {
       this.removeAuthorization();
@@ -109,12 +126,56 @@ class ApiClient {
 
   async GetUserInformation(id: string) {
     const response = await this.client.get<User>(
-      `${BASE_URL}/user-information/${id}`
+      `${BASE_USER_URL}/user-information/${id}`
+    );
+
+    return response.data;
+  }
+
+  async SendFriendRequest(data: FriendRequest) {
+    const response = await this.client.post<never>(
+      `${BASE_USER_URL}/friend/send-request`,
+      data
+    );
+
+    return response.data;
+  }
+
+  async AcceptFriendRequest(data: FriendRequest) {
+    const response = await this.client.post<never>(
+      `${BASE_USER_URL}/friend/accept-request`,
+      data
+    );
+
+    return response.data;
+  }
+
+  async DeclineFriendRequest(data: FriendRequest) {
+    const response = await this.client.post<never>(
+      `${BASE_USER_URL}/friend/decline-request`,
+      data
+    );
+
+    return response.data;
+  }
+
+  async AddMessage(data: MessageAddRequest) {
+    const response = await this.client.post<never>(
+      `${BASE_MESSAGE_URL}/add`,
+      data
+    );
+
+    return response.data;
+  }
+
+  async DeleteMessage(data: MessageDeleteRequest) {
+    const response = await this.client.post<never>(
+      `${BASE_MESSAGE_URL}/delete`,
+      data
     );
 
     return response.data;
   }
 }
 
-const apiClient = new ApiClient();
-export default apiClient;
+export const apiClient = new ApiClient();

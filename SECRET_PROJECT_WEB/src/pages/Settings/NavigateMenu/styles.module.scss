@@ -29,3 +29,7 @@
     }
   }
 }
+
+.exit-button {
+  color: color.scale($color-danger, $lightness: 25%);
+}

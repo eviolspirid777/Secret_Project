@@ -5,6 +5,7 @@ using Secret_Project_Backend.Controllers.Requests.Auth;
 using Secret_Project_Backend.DTOs;
 using Secret_Project_Backend.Models;
 using Secret_Project_Backend.Services;
+using Secret_Project_Backend.Services.Status;
 using Secret_Project_Backend.Utils;
 
 namespace Secret_Project_Backend.Controllers
@@ -17,6 +18,7 @@ namespace Secret_Project_Backend.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
+        private readonly ChangeUserStatusService _userStatusService;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(
@@ -24,6 +26,7 @@ namespace Secret_Project_Backend.Controllers
             UserManager<ApplicationUser> userManager,
             IConfiguration configuration,
             IEmailService emailService,
+            ChangeUserStatusService userStatusService,
             ILogger<AuthController> logger
         )
         {
@@ -31,6 +34,7 @@ namespace Secret_Project_Backend.Controllers
             _userManager = userManager;
             _configuration = configuration;
             _emailService = emailService;
+            _userStatusService = userStatusService;
             _logger = logger;
         }
 
@@ -57,11 +61,12 @@ namespace Secret_Project_Backend.Controllers
 
             var user = new ApplicationUser
             {
-                UserName = model.DisplayName,
+                UserName = model.Email,
                 Email = model.Email,
-                DisplayName = model.DisplayName,
+                DisplayName = model.Email.Split("@")[0],
                 AvatarUrl = "",
                 EmailConfirmed = false,
+                Status = Models.States.Offline,
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -133,14 +138,22 @@ namespace Secret_Project_Backend.Controllers
                 return Unauthorized("Неверные учетные данные");
 
             var (token, expirationDate) = JwtToken.GenerateJwtToken(user, _configuration["Jwt:Key"]);
-            return Ok(new { token, expirationDate });
+            await _userStatusService.ChangeStatusAsync(Models.States.Online, user.Id);
+            return Ok(new { token, expirationDate, userId = user.Id });
         }
 
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout([FromQuery] string id)
         {
+            var user = await _userManager.FindByIdAsync(id);
+            if(user == null)
+            {
+                return BadRequest("Invalid user access!");
+            }
+
+            await _userStatusService.ChangeStatusAsync(Models.States.Online, user.Id);
             await _signInManager.SignOutAsync();
-            return Unauthorized();
+            return Ok();
         }
     }
 }

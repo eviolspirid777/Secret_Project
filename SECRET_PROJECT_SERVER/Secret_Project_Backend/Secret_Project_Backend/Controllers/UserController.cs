@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Secret_Project_Backend.Context;
+using Secret_Project_Backend.Controllers.Requests.User;
 using Secret_Project_Backend.DTOs;
 using Secret_Project_Backend.Mappers.User;
 using Secret_Project_Backend.Models;
+using Secret_Project_Backend.Services.Status;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -16,18 +18,21 @@ namespace Secret_Project_Backend.Controllers
     {
         private readonly PostgreSQLDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ChangeUserStatusService _userStatusService;
         public UserController(
             PostgreSQLDbContext dbContext,
-            UserManager<ApplicationUser> userManager
+            UserManager<ApplicationUser> userManager,
+            ChangeUserStatusService userStatusService
         )
         {
             _dbContext = dbContext;
             _userManager = userManager;
+            _userStatusService = userStatusService;
         }
 
         [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> GetUserInformation([FromQuery] string id)
+        [HttpGet("user-information/{id}")]
+        public async Task<IActionResult> GetUserInformation(string id)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(user => user.Id == id);
             if(user == null)
@@ -37,5 +42,75 @@ namespace Secret_Project_Backend.Controllers
             var mappedUser = UserMapper.MapUserToUserDto(user, id);
             return Ok(mappedUser);
         }
+
+        #region Friendship
+        [Authorize]
+        [HttpPost("friend/send-request")]
+        public async Task<IActionResult> SendFriendRequest([FromBody] FriendRequest data)
+        {
+            var alreadyExist = _dbContext.Friendships.Any(fs => (fs.FriendId == data.FromUserId && fs.UserId == data.ToUserId) || (fs.FriendId == data.ToUserId && fs.UserId == data.FromUserId));
+            if (alreadyExist)
+            {
+                return BadRequest();
+            }
+
+            await _dbContext.Friendships.AddAsync(new Friendship()
+            {
+                UserId = data.FromUserId,
+                FriendId = data.ToUserId,
+                Status = FriendshipStatus.Pending
+            });
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        //TODO: Логика ниже похожа и можно вынести в отдельный сервис в зависимости от того, какой статус ты передашь
+        [Authorize]
+        [HttpPost("friend/accept-request")]
+        public async Task<IActionResult> AcceptRequest([FromBody] FriendRequest data)
+        {
+            var result = await _dbContext.Friendships.FirstOrDefaultAsync(fs => (fs.FriendId == data.FromUserId && fs.UserId == data.ToUserId) || (fs.FriendId == data.ToUserId && fs.UserId == data.FromUserId));
+            if(result == null)
+            {
+                return BadRequest();
+            }
+
+            result.Status = FriendshipStatus.Accepted;
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost("friend/decline-request")]
+        public async Task<IActionResult> DeclineRequest([FromBody] FriendRequest data)
+        {
+            var result = await _dbContext.Friendships.FirstOrDefaultAsync(fs => (fs.FriendId == data.FromUserId && fs.UserId == data.ToUserId) || (fs.FriendId == data.ToUserId && fs.UserId == data.FromUserId));
+            if (result == null)
+            {
+                return BadRequest();
+            }
+
+            result.Status = FriendshipStatus.Blocked;
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+        #endregion Friendship
+        #region Status
+        [Authorize]
+        [HttpPost("status/change-status/{id}")]
+        public async Task<IActionResult> ChangeUserStatus(string id, [FromBody] Models.States state)
+        {
+            var result = await _userStatusService.ChangeStatusAsync(state,id);
+            if(result == false)
+            {
+                return BadRequest();
+            }
+            return Ok();
+        }
+        #endregion Status
     }
 }

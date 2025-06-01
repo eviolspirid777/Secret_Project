@@ -6,4 +6,5 @@ export type LoginRequest = {
 export type LoginResponse = {
   token: string;
   expirationDate: string;
+  userId: string;
 };

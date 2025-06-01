@@ -19,7 +19,7 @@ namespace Secret_Project_Backend.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpPost]
+        [HttpPost("add")]
         public async Task<IActionResult> AddMessage(MessageAddRequest data)
         {
             var channel = await _dbContext.Channels.FindAsync(data.ChannelId);
@@ -38,7 +38,7 @@ namespace Secret_Project_Backend.Controllers
             return Ok();
         }
 
-        [HttpDelete]
+        [HttpPost("delete")]
         public async Task<IActionResult> DeleteMessage(MessageDeleteRequest data)
         {
             var channel = await _dbContext.Channels.FindAsync(data.ChannelId);

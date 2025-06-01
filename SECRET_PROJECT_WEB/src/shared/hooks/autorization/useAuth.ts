@@ -1,4 +1,4 @@
-import apiClient from "@/api/apiClient";
+import { apiClient } from "@/api/apiClient";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { useState, useEffect, useCallback } from "react";
 
@@ -28,6 +28,9 @@ export const useAuth = () => {
       }
 
       apiClient.sessionToken = sessionToken;
+      apiClient.client.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${sessionToken}`;
       setIsLoggedIn(true);
     } catch (error) {
       console.error("Ошибка при проверке авторизации:", error);
@@ -49,8 +52,8 @@ export const useAuth = () => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [checkAuth]);
 
-  return { 
+  return {
     isLoggedIn,
-    checkAuth
+    checkAuth,
   };
 };

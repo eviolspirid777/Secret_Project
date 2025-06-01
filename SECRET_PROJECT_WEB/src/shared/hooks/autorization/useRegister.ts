@@ -1,4 +1,4 @@
-import apiClient from "@/api/apiClient";
+import { apiClient } from "@/api/apiClient";
 import type { RegisterRequest } from "@/types/Autorization/Register";
 import { useMutation } from "@tanstack/react-query";
 

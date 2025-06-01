@@ -1,10 +1,10 @@
 import { useSelector, useDispatch } from "react-redux";
-import type { RootState } from "@/store/store";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { TbHeadphones, TbHeadphonesOff } from "react-icons/tb";
 import {
   changeMicrophoneState,
   changeHeadphonesState,
+  getUser,
 } from "@/store/slices/User.slice";
 import { Badge } from "@/shared/components/Badge/Badge";
 import { IoSettingsSharp } from "react-icons/io5";
@@ -13,19 +13,10 @@ import { useNavigate } from "react-router";
 import styles from "./styles.module.scss";
 
 export const ShortProfile = () => {
-  const navigate = useNavigate();
-
-  const userName = useSelector((state: RootState) => state.user.name);
-  const userAvatar = useSelector((state: RootState) => state.user.avatar);
-  const userStatus = useSelector((state: RootState) => state.user.status);
-  const isMicrophoneMuted = useSelector(
-    (state: RootState) => state.user.states.isMicrophoneMuted
-  );
-  const isHeadphonesMuted = useSelector(
-    (state: RootState) => state.user.states.isHeadphonesMuted
-  );
-
+  const user = useSelector(getUser);
   const dispatch = useDispatch();
+
+  const navigate = useNavigate();
 
   const navigateToSettings = () => {
     navigate("/settings");
@@ -35,18 +26,18 @@ export const ShortProfile = () => {
     <div className={styles["short-profile-container"]}>
       <div className={styles["short-profile-container__info"]}>
         <div className={styles["short-profile-container__info-avatar-wrapper"]}>
-          <img src={userAvatar} alt="avatar" />
+          <img src={user.avatar} alt="avatar" />
           <Badge
             className={
               styles["short-profile-container__info-avatar-wrapper__badge"]
             }
-            variant={userStatus}
+            variant={user.status}
           />
         </div>
         <div>
-          <span>{userName}</span>
+          <span>{user.name}</span>
           <div className={styles["short-profile-container__controls"]}>
-            {isMicrophoneMuted ? (
+            {user.states.isMicrophoneMuted ? (
               <FaMicrophoneSlash
                 className={
                   styles["short-profile-container__controls-icon__danger"]
@@ -61,7 +52,7 @@ export const ShortProfile = () => {
                 onClick={dispatch.bind(null, changeMicrophoneState())}
               />
             )}
-            {isHeadphonesMuted ? (
+            {user.states.isHeadphonesMuted ? (
               <TbHeadphonesOff
                 className={
                   styles["short-profile-container__controls-icon__danger"]

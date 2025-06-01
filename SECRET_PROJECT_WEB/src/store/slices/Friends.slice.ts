@@ -36,7 +36,7 @@ const friendsSlice = createSlice({
   initialState,
   reducers: {
     setFriends: (state, action) => {
-      state = action.payload;
+      return action.payload;
     },
   },
   selectors: {

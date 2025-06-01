@@ -1,5 +1,5 @@
 import type { User } from "@/types/User/User";
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: User = {
   userId: "123123",
@@ -18,8 +18,8 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser: (state, action) => {
-      state = action.payload;
+    setUser: (state, action: PayloadAction<User>) => {
+      return action.payload;
     },
     changeMicrophoneState: (state) => {
       state.states.isMicrophoneMuted = !state.states.isMicrophoneMuted;
