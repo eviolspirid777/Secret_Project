@@ -3,3 +3,8 @@
 .context-menu-item__delete {
   color: $color-danger;
 }
+
+*::selection {
+  background-color: $font-selection-color;
+  color: $font-color;
+}
