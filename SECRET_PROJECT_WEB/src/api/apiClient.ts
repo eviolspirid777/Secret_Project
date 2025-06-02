@@ -143,6 +143,15 @@ class ApiClient {
     return response;
   }
 
+  async GetUserFriends(userId: string) {
+    //TODO: прописать тип получаемых friends
+    const response = await this.client.get<never>(
+      `${BASE_USER_URL}/friend/get-user-friends/${userId}`
+    );
+
+    return response.data;
+  }
+
   async SendFriendRequest(data: FriendRequest) {
     const response = await this.client.post<never>(
       `${BASE_USER_URL}/friend/send-request`,

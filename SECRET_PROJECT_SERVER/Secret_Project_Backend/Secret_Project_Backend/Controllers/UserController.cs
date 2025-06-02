@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Controllers.Requests.User;
 using Secret_Project_Backend.DTOs;
+using Secret_Project_Backend.Mappers.FriendShip;
 using Secret_Project_Backend.Mappers.User;
 using Secret_Project_Backend.Models;
 using Secret_Project_Backend.Services.Status;
@@ -70,6 +71,36 @@ namespace Secret_Project_Backend.Controllers
         #endregion User
         #region Friendship
         [Authorize]
+        [HttpGet("friend/get-user-friends/{id}")]
+        public async Task<IActionResult> GetUserFriends(string id)
+        {
+            var isUserExist = await _dbContext
+                .Users
+                .AnyAsync(u => u.Id == id);
+            if (isUserExist == false)
+            {
+                return BadRequest("Invalid userId");
+            }
+
+            var friendships = await _dbContext
+                .Friendships
+                .AsNoTracking()
+                .Include(f => f.User)
+                .Include(f => f.Friend)
+                .Where(f => (f.UserId == id || f.FriendId == id) && f.Status == FriendshipStatus.Accepted)
+                .ToListAsync();
+
+            var mappedFriendships = friendships.Select(FriendShipMapper.MapToFriendShipDto);
+            // Преобразуем список дружб в список друзей
+            //Собираем и из отправленных заявок и из полученных заявок
+            var friends = mappedFriendships.Select(f => 
+                f.User.Id == id ? f.Friend : f.User
+            ).ToList();
+
+            return Ok(friends);
+        }
+
+        [Authorize]
         [HttpPost("friend/send-request")]
         public async Task<IActionResult> SendFriendRequest([FromBody] FriendRequest data)
         {
@@ -81,6 +112,7 @@ namespace Secret_Project_Backend.Controllers
 
             await _dbContext.Friendships.AddAsync(new Friendship()
             {
+                Id = Guid.NewGuid().ToString(),
                 UserId = data.FromUserId,
                 FriendId = data.ToUserId,
                 Status = FriendshipStatus.Pending
