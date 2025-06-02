@@ -66,7 +66,7 @@ namespace Secret_Project_Backend.Controllers
                 DisplayName = model.Email.Split("@")[0],
                 AvatarUrl = "",
                 EmailConfirmed = false,
-                Status = Models.States.Offline,
+                Status = Models.ConnectionState.Offline,
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -139,7 +139,7 @@ namespace Secret_Project_Backend.Controllers
                 return Unauthorized("Неверные учетные данные");
 
             var (token, expirationDate) = JwtToken.GenerateJwtToken(user, _configuration["Jwt:Key"]);
-            await _userStatusService.ChangeStatusAsync(Models.States.Online, user.Id);
+            await _userStatusService.ChangeStatusAsync(Models.ConnectionState.Online, user.Id);
             return Ok(new { token, expirationDate, userId = user.Id });
         }
 
@@ -152,7 +152,7 @@ namespace Secret_Project_Backend.Controllers
                 return BadRequest("Invalid user access!");
             }
 
-            await _userStatusService.ChangeStatusAsync(Models.States.Online, user.Id);
+            await _userStatusService.ChangeStatusAsync(Models.ConnectionState.Online, user.Id);
             await _signInManager.SignOutAsync();
             return Ok();
         }

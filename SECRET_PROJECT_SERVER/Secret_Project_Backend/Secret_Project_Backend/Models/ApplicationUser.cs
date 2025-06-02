@@ -2,7 +2,7 @@
 
 namespace Secret_Project_Backend.Models
 {
-    public enum States
+    public enum ConnectionState
     {
         Online,
         Offline,
@@ -15,7 +15,7 @@ namespace Secret_Project_Backend.Models
         public string? AvatarUrl { get; set; } = null;
         public bool IsMicrophoneMuted { get; set; } = false;
         public bool IsHeadphonesMuted { get; set; } = false;
-        public States Status { get; set; } = States.Offline;
+        public ConnectionState Status { get; set; } = ConnectionState.Offline;
         public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
         public virtual ICollection<ChannelUser> ChannelUsers { get; set; } = new List<ChannelUser>();
         public virtual ICollection<Friendship> Friends { get; set; } = new List<Friendship>();

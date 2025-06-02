@@ -159,7 +159,7 @@ namespace Secret_Project_Backend.Controllers
         #region Status
         [Authorize]
         [HttpPost("status/change-status/{id}")]
-        public async Task<IActionResult> ChangeUserStatus(string id, [FromBody] Models.States state)
+        public async Task<IActionResult> ChangeUserStatus(string id, [FromBody] Models.ConnectionState state)
         {
             var result = await _userStatusService.ChangeStatusAsync(state,id);
             if(result == false)
@@ -169,9 +169,9 @@ namespace Secret_Project_Backend.Controllers
             return Ok();
         }
         #endregion Status
-        #region SoundStates
+        #region SoundConnectionState
         [Authorize]
-        [HttpPost("sound-states/change-microphone-state/{id}")]
+        [HttpPost("sound-ConnectionState/change-microphone-state/{id}")]
         public async Task<IActionResult> ChangeMicrophoneState(string id)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
@@ -186,7 +186,7 @@ namespace Secret_Project_Backend.Controllers
         }
 
         [Authorize]
-        [HttpPost("sound-states/change-headphones-state/{id}")]
+        [HttpPost("sound-ConnectionState/change-headphones-state/{id}")]
         public async Task<IActionResult> ChangeHeadphonesState(string id)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
@@ -199,6 +199,6 @@ namespace Secret_Project_Backend.Controllers
             await _dbContext.SaveChangesAsync();
             return Ok(user.IsHeadphonesMuted);
         }
-        #endregion SoundStates
+        #endregion SoundConnectionState
     }
 }

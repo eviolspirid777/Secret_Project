@@ -10,7 +10,7 @@ namespace Secret_Project_Backend.DTOs
         public string Email { get; set; }
         public string DisplayName { get; set; }
         public string? AvatarUrl { get; set; }
-        public States Status { get; set; }
+        public ConnectionState Status { get; set; }
     }
 
     public class FriendshipDto

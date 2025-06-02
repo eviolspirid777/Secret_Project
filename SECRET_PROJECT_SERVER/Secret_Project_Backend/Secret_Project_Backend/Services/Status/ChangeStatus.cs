@@ -14,7 +14,7 @@ namespace Secret_Project_Backend.Services.Status
         {
             _dbContext = dbContext;
         }
-        public async Task<bool> ChangeStatusAsync(States state, string id)
+        public async Task<bool> ChangeStatusAsync(ConnectionState state, string id)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)

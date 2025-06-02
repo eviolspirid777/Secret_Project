@@ -9,10 +9,10 @@ namespace Secret_Project_Backend.DTOs
         public string Email { get; set; } = string.Empty;
         public string Avatar { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
-        public SoundStates States { get; set; } = new SoundStates();
+        public SoundConnectionState ConnectionState { get; set; } = new SoundConnectionState();
     }
 
-    public class SoundStates
+    public class SoundConnectionState
     {
         public bool IsMicrophoneMuted { get; set; }
         public bool IsHeadphonesMuted { get; set; }
