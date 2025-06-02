@@ -1,0 +1,15 @@
+$avatar-size: 55px;
+
+.avatar-block {
+  width: $avatar-size;
+  height: $avatar-size;
+  border-radius: 50%;
+  overflow: hidden;
+
+  & img {
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    object-fit: cover;
+    border-radius: 50%;
+  }
+}

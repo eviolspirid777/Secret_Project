@@ -11,10 +11,39 @@ import { IoSettingsSharp } from "react-icons/io5";
 import { useNavigate } from "react-router";
 
 import styles from "./styles.module.scss";
+import { Avatar } from "@/shared/components/Avatar/Avatar";
+import { useChangeMicrophoneState } from "@/shared/hooks/user/soundState/useChangeMicrophoneState";
+import { useChangeHeadphonesState } from "@/shared/hooks/user/soundState/useChangeHeadphonesState";
+import { toast } from "sonner";
 
 export const ShortProfile = () => {
   const user = useSelector(getUser);
   const dispatch = useDispatch();
+
+  const { changeMicrophoneStateAsync } = useChangeMicrophoneState();
+  const { changeHeadphonesStateAsync } = useChangeHeadphonesState();
+
+  const changeMicrophoneStateHandler = async () => {
+    try {
+      const response = await changeMicrophoneStateAsync(user.userId);
+      if (response.status === 200) {
+        dispatch(changeMicrophoneState(response.data));
+      }
+    } catch (error) {
+      toast.error(`Ошибка при выключении микрофона! ${error}`);
+    }
+  };
+
+  const changeHeadphonesStateHandler = async () => {
+    try {
+      const response = await changeHeadphonesStateAsync(user.userId);
+      if (response.status === 200) {
+        dispatch(changeHeadphonesState(response.data));
+      }
+    } catch (error) {
+      toast.error(`Ошибка при выключении наушников! ${error}`);
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -26,7 +55,13 @@ export const ShortProfile = () => {
     <div className={styles["short-profile-container"]}>
       <div className={styles["short-profile-container__info"]}>
         <div className={styles["short-profile-container__info-avatar-wrapper"]}>
-          <img src={user.avatar} alt="avatar" />
+          <Avatar
+            src={user.avatar}
+            size="medium"
+            className={
+              styles["short-profile-container__info-avatar-wrapper__avatar"]
+            }
+          />
           <Badge
             className={
               styles["short-profile-container__info-avatar-wrapper__badge"]
@@ -43,13 +78,13 @@ export const ShortProfile = () => {
                   styles["short-profile-container__controls-icon__danger"]
                 }
                 size={25}
-                onClick={dispatch.bind(null, changeMicrophoneState())}
+                onClick={changeMicrophoneStateHandler}
               />
             ) : (
               <FaMicrophone
                 className={styles["short-profile-container__controls-icon"]}
                 size={20}
-                onClick={dispatch.bind(null, changeMicrophoneState())}
+                onClick={changeMicrophoneStateHandler}
               />
             )}
             {user.states.isHeadphonesMuted ? (
@@ -58,13 +93,10 @@ export const ShortProfile = () => {
                   styles["short-profile-container__controls-icon__danger"]
                 }
                 size={25}
-                onClick={dispatch.bind(null, changeHeadphonesState())}
+                onClick={changeHeadphonesStateHandler}
               />
             ) : (
-              <TbHeadphones
-                size={25}
-                onClick={dispatch.bind(null, changeHeadphonesState())}
-              />
+              <TbHeadphones size={25} onClick={changeHeadphonesStateHandler} />
             )}
             <IoSettingsSharp size={23} onClick={navigateToSettings} />
           </div>

@@ -12,6 +12,7 @@ import type {
   MessageAddRequest,
   MessageDeleteRequest,
 } from "@/types/Message/Message";
+import type { ChangeUserInformationRequest } from "@/types/User/ChangeUserInformationRequest";
 import type { User } from "@/types/User/User";
 import type { AxiosInstance } from "axios";
 import axios from "axios";
@@ -47,6 +48,7 @@ class ApiClient {
     }
     localStorageService.removeItem("sessionToken");
     localStorageService.removeItem("expiresAt");
+    localStorageService.removeUserId();
   }
 
   private setupTokenExpiration(expirationDate: string) {
@@ -132,6 +134,15 @@ class ApiClient {
     return response.data;
   }
 
+  async ChangeUserInformation(data: ChangeUserInformationRequest) {
+    const response = await this.client.post<User>(
+      `${BASE_USER_URL}/change-user-information`,
+      data
+    );
+
+    return response;
+  }
+
   async SendFriendRequest(data: FriendRequest) {
     const response = await this.client.post<never>(
       `${BASE_USER_URL}/friend/send-request`,
@@ -175,6 +186,22 @@ class ApiClient {
     );
 
     return response.data;
+  }
+
+  async ChangeMicrophoneState(id: string) {
+    const response = await this.client.post<boolean>(
+      `${BASE_USER_URL}/sound-states/change-microphone-state/${id}`
+    );
+
+    return response;
+  }
+
+  async ChangeHeadphonesState(id: string) {
+    const response = await this.client.post<boolean>(
+      `${BASE_USER_URL}/sound-states/change-headphones-state/${id}`
+    );
+
+    return response;
   }
 }
 

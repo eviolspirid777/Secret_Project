@@ -84,9 +84,10 @@ namespace Secret_Project_Backend.Controllers
                     message = "Для завершения регистрации проверьте вашу почту и подтвердите email"
                 });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await _userManager.DeleteAsync(user);
+                _logger.LogError(ex.Message);
                 return StatusCode(500, "Ошибка при отправке письма подтверждения. Пожалуйста, попробуйте позже.");
             }
         }

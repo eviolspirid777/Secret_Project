@@ -20,6 +20,12 @@ $avatar-size: 120px;
     height: $avatar-size;
     border-radius: 50%;
 
+    & img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     &-editing {
       cursor: pointer;
       transition: opacity 0.3s ease;
@@ -60,6 +66,7 @@ $avatar-size: 120px;
     &-name-input {
       width: 100%;
       max-width: 300px;
+      font-size: 1.2rem;
     }
 
     &-status {
@@ -86,6 +93,6 @@ $avatar-size: 120px;
     width: 30px;
     height: 30px;
     bottom: 0px;
-    left: calc($avatar-size - 30px);
+    left: calc($avatar-size - 40px);
   }
 }

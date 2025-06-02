@@ -45,6 +45,7 @@ namespace Secret_Project_Backend.Services
             using var client = new SmtpClient();
             try
             {
+                client.CheckCertificateRevocation = false;
                 await client.ConnectAsync(_smtpServer, _smtpPort, SecureSocketOptions.StartTls);
                 await client.AuthenticateAsync(_smtpUsername, _smtpPassword);
                 await client.SendAsync(emailMessage);

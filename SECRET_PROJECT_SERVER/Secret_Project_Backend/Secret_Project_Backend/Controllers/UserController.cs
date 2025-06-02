@@ -30,6 +30,7 @@ namespace Secret_Project_Backend.Controllers
             _userStatusService = userStatusService;
         }
 
+        #region User
         [Authorize]
         [HttpGet("user-information/{id}")]
         public async Task<IActionResult> GetUserInformation(string id)
@@ -43,6 +44,30 @@ namespace Secret_Project_Backend.Controllers
             return Ok(mappedUser);
         }
 
+        [Authorize]
+        [HttpPost("change-user-information")]
+        public async Task<IActionResult> ChangeUserInformation([FromBody] UserInformationRequest data)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == data.UserId);
+            if(user == null)
+            {
+                return BadRequest("Invalid UserId");
+            }
+
+            if(data.Avatar != null)
+            {
+                //TODO: здесь нужно будет добавить логику для добавления изображения
+                user.AvatarUrl = "";
+            }
+            if(data.Name != null)
+            {
+                user.DisplayName = data.Name;
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return Ok();
+        }
+        #endregion User
         #region Friendship
         [Authorize]
         [HttpPost("friend/send-request")]
@@ -112,5 +137,36 @@ namespace Secret_Project_Backend.Controllers
             return Ok();
         }
         #endregion Status
+        #region SoundStates
+        [Authorize]
+        [HttpPost("sound-states/change-microphone-state/{id}")]
+        public async Task<IActionResult> ChangeMicrophoneState(string id)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if(user == null)
+            {
+                return BadRequest("Invalid user id");
+            }
+            user.IsMicrophoneMuted = !user.IsMicrophoneMuted;
+
+            await _dbContext.SaveChangesAsync();
+            return Ok(user.IsMicrophoneMuted);
+        }
+
+        [Authorize]
+        [HttpPost("sound-states/change-headphones-state/{id}")]
+        public async Task<IActionResult> ChangeHeadphonesState(string id)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null)
+            {
+                return BadRequest("Invalid user id");
+            }
+            user.IsHeadphonesMuted = !user.IsHeadphonesMuted;
+
+            await _dbContext.SaveChangesAsync();
+            return Ok(user.IsHeadphonesMuted);
+        }
+        #endregion SoundStates
     }
 }

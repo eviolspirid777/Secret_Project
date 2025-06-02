@@ -20,6 +20,9 @@ export const localStorageService = {
   setUserId: (userId: string) => {
     localStorage.setItem("userId", userId);
   },
+  removeUserId: () => {
+    localStorage.removeItem("userId");
+  },
   clear: () => {
     localStorage.clear();
   },

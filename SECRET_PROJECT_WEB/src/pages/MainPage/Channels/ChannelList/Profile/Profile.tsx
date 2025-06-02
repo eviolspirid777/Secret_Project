@@ -8,9 +8,13 @@ import {
   ContextMenuTrigger,
 } from "@/shadcn/ui/context-menu";
 import { IoSettingsSharp } from "react-icons/io5";
+import { Avatar } from "@/shared/components/Avatar/Avatar";
+import { useSelector } from "react-redux";
+import { getUserAvatar } from "@/store/slices/User.slice";
 
 export const Profile = () => {
   const navigate = useNavigate();
+  const userAvatar = useSelector(getUserAvatar);
 
   return (
     <ContextMenu>
@@ -19,9 +23,10 @@ export const Profile = () => {
           className={styles["profile-container"]}
           onClick={() => navigate("/my-profile")}
         >
-          <img
-            src="https://avatars.mds.yandex.net/get-yapic/63032/8ATPndJL2v9vXFwpqtisTne88aw-1/orig"
-            alt=""
+          <Avatar
+            src={userAvatar}
+            size="medium"
+            className={styles["profile-container__avatar"]}
           />
         </div>
       </ContextMenuTrigger>

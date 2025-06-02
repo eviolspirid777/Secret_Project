@@ -21,11 +21,11 @@ const userSlice = createSlice({
     setUser: (state, action: PayloadAction<User>) => {
       return action.payload;
     },
-    changeMicrophoneState: (state) => {
-      state.states.isMicrophoneMuted = !state.states.isMicrophoneMuted;
+    changeMicrophoneState: (state, action: PayloadAction<boolean>) => {
+      state.states.isMicrophoneMuted = action.payload;
     },
-    changeHeadphonesState: (state) => {
-      state.states.isHeadphonesMuted = !state.states.isHeadphonesMuted;
+    changeHeadphonesState: (state, action: PayloadAction<boolean>) => {
+      state.states.isHeadphonesMuted = action.payload;
     },
     changeName: (state, action) => {
       state.name = action.payload;

@@ -10,10 +10,14 @@ import { FaPencilAlt } from "react-icons/fa";
 import { Input } from "@/shadcn/ui/input";
 import { changeName } from "@/store/slices/User.slice";
 import { useDispatch } from "react-redux";
+import { Avatar } from "@/shared/components/Avatar/Avatar";
+import { useChangeUserInformation } from "@/shared/hooks/user/useChangeUserInformation";
 
 export const MyProfile = () => {
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
+
+  const { changeUserInformationAsync } = useChangeUserInformation();
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(user.name);
@@ -21,9 +25,15 @@ export const MyProfile = () => {
   const handleSave = async () => {
     try {
       setIsEditing(false);
-      dispatch(changeName(name));
-      setName(name);
-      toast.success("Успешно сохранено!");
+      const response = await changeUserInformationAsync({
+        name,
+        userId: user.userId,
+      });
+      if (response.status === 200) {
+        dispatch(changeName(name));
+        setName(name);
+        toast.success("Успешно сохранено!");
+      }
     } catch (error) {
       console.log(error);
       toast.error("Ошибка при сохранении!");
@@ -41,9 +51,9 @@ export const MyProfile = () => {
     <div className={styles["my-profile"]}>
       <div className={styles["my-profile__avatar-block"]}>
         <div>
-          <img
+          <Avatar
             src={user.avatar}
-            alt={user.name}
+            size="large"
             className={`${styles["my-profile__avatar"]} ${
               isEditing && styles["my-profile__avatar-editing"]
             }`}

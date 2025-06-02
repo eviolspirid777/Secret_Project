@@ -7,6 +7,7 @@ import { ChannelTooltip } from "./ChannelTooltip/ChannelTooltip";
 import { ChannelContextMenu } from "./ChannelContextMenu/ChannelContextMenu";
 
 import styles from "./styles.module.scss";
+import { Avatar, AvatarImage, AvatarFallback } from "@/shadcn/ui/avatar";
 
 type ChannelProps = {
   channel: ChannelType;
@@ -23,9 +24,17 @@ export const Channel: FC<ChannelProps> = ({ channel }) => {
     <TooltipProvider>
       <ChannelContextMenu channel={channel}>
         <ChannelTooltip channel={channel}>
-          <div className={styles["channel"]} onClick={handleClick}>
-            <img src={channel.image} alt={channel.name} />
-          </div>
+          <Avatar className={styles["channel__avatar"]} onClick={handleClick}>
+            <AvatarImage src={channel.image} />
+            <AvatarFallback>
+              {channel.name
+                .split(" ")
+                .map((name, index) => {
+                  if ([0, 1].includes(index)) return name[0];
+                })
+                .join("")}
+            </AvatarFallback>
+          </Avatar>
         </ChannelTooltip>
       </ChannelContextMenu>
     </TooltipProvider>
