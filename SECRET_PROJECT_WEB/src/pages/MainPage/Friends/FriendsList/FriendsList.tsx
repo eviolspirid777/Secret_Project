@@ -38,6 +38,7 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
     <div className={styles["friends-list"]}>
       <div className={styles["friends-list__header"]}>
         <h4 className={styles["friends-list__header-title"]}>Друзья</h4>
+        {/*TODO: Не приходит почему-то sync */}
         {incomingRequests > 0 && (
           <Badge
             variant="destructive"
