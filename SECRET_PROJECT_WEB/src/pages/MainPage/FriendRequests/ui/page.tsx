@@ -39,6 +39,7 @@ export const Page = () => {
         fromUserId: localStorageService.getUserId() ?? "",
         toUserId: friendId,
       });
+      setFriends(friends?.filter((friend) => friend.userId !== friendId));
     } catch (error) {
       console.error(error);
     }
