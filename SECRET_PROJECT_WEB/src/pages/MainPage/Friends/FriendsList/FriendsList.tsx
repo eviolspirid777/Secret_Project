@@ -1,4 +1,3 @@
-import type { Friend } from "@/types/Friend/Friend";
 import { FriendCard } from "./FriendCard/FriendCard";
 
 import styles from "./styles.module.scss";
@@ -7,9 +6,10 @@ import { friendshipSignalRServiceInstance } from "@/shared/services/SignalR/Frie
 import { useEffect, useState } from "react";
 import { useFriendRequests } from "@/shared/hooks/user/friendship/useFriendRequests";
 import { useNavigate } from "react-router";
+import type { User } from "@/types/User/User";
 
 type FriendsListProps = {
-  friends: Friend[];
+  friends: User[];
 };
 
 export const FriendsList = ({ friends }: FriendsListProps) => {
@@ -24,6 +24,7 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
 
   useEffect(() => {
     friendshipSignalRServiceInstance.onReceiveFriendshipRequest(() => {
+      console.log("HERE");
       setIncomingRequests((prev) => prev + 1);
     });
   }, []);
@@ -50,7 +51,7 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
         )}
       </div>
       {friends.map((friend) => (
-        <FriendCard key={friend.id} friend={friend} />
+        <FriendCard key={friend.userId} friend={friend} />
       ))}
     </div>
   );

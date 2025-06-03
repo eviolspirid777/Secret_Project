@@ -42,6 +42,7 @@ $border-radius: 10px;
   &__messages {
     flex: 1;
     overflow-y: auto;
+    max-height: 81vh;
     padding: 10px;
     background-color: $background-color;
   }

@@ -1,5 +1,4 @@
 import { Badge } from "@/shared/components/Badge/Badge";
-import type { Friend } from "@/types/Friend/Friend";
 
 import styles from "./styles.module.scss";
 import {
@@ -10,16 +9,18 @@ import {
   ContextMenuTrigger,
 } from "@/shadcn/ui/context-menu";
 import { useNavigate } from "react-router";
+import type { User } from "@/types/User/User";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 
 type FriendCardProps = {
-  friend: Friend;
+  friend: User;
 };
 
 export const FriendCard = ({ friend }: FriendCardProps) => {
   const navigate = useNavigate();
 
   const handleFriendClick = () => {
-    navigate(`/friend-chat/${friend.id}`);
+    navigate(`/friend-chat/${friend.userId}`);
   };
 
   return (
@@ -27,11 +28,17 @@ export const FriendCard = ({ friend }: FriendCardProps) => {
       <ContextMenuTrigger>
         <div className={styles["friend-card"]} onClick={handleFriendClick}>
           <div className={styles["friend-card__avatar-wrapper"]}>
-            <img
-              className={styles["friend-card__avatar"]}
-              src={friend.avatar}
-              alt={friend.name}
-            />
+            <Avatar>
+              <AvatarImage src={friend.avatar} />
+              <AvatarFallback>
+                {friend.name
+                  ?.split(" ")
+                  .map((name, index) => {
+                    if ([0, 1].includes(index)) return name[0];
+                  })
+                  .join("")}
+              </AvatarFallback>
+            </Avatar>
             <Badge
               className={styles["friend-card__badge"]}
               variant={friend.status}

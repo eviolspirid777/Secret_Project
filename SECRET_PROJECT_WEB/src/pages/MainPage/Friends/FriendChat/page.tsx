@@ -10,22 +10,27 @@ import styles from "./styles.module.scss";
 import { useEffect, useRef, useState } from "react";
 import { addMessage, getMessages } from "@/store/slices/Message.slice";
 import { Message } from "./Message/Message";
-import { getUserAvatar } from "@/store/slices/User.slice";
+import { getUserAvatar, getUser } from "@/store/slices/User.slice";
 import { useDispatch } from "react-redux";
+import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 
 export const FriendChat = () => {
   const { friendId } = useParams();
   const messageSignalRService = useRef(messageSignalRServiceInstance);
-  const dispatch = useDispatch();
   const [message, setMessage] = useState("");
+
+  const dispatch = useDispatch();
   const messages = useSelector(getMessages);
   const userAvatar = useSelector(getUserAvatar);
   const friend = useSelector((state: RootState) =>
     getFriendById(state, friendId)
   );
+  const user = useSelector((state: RootState) => getUser(state));
 
   useEffect(() => {
     messageSignalRService.current.onReceiveMessage((message) => {
+      console.log(message);
       if (friendId) {
         dispatch(
           addMessage({
@@ -42,6 +47,14 @@ export const FriendChat = () => {
   const sendMessage = async (message: string) => {
     if (friendId && message) {
       await messageSignalRService.current.sendMessageToUser(friendId, message);
+      dispatch(
+        addMessage({
+          message,
+          createdAt: new Date(),
+          senderId: localStorageService.getUserId() ?? "",
+          receiverId: friendId,
+        })
+      );
       setMessage("");
     }
   };
@@ -54,14 +67,27 @@ export const FriendChat = () => {
     return userAvatar;
   };
 
+  const proceedSenderName = (messageId: string) => {
+    if (friend?.userId === messageId) {
+      return friend?.name;
+    }
+    return user?.name;
+  };
+
   return (
     <div className={styles["friend-chat"]}>
       <div className={styles["friend-chat__header"]}>
-        <img
-          className={styles["friend-chat__header-avatar"]}
-          src={friend?.avatar}
-          alt={friend?.name}
-        />
+        <Avatar className={styles["friend-chat__header-avatar"]}>
+          <AvatarImage src={friend?.avatar} />
+          <AvatarFallback>
+            {friend?.name
+              ?.split(" ")
+              .map((name, index) => {
+                if ([0, 1].includes(index)) return name[0];
+              })
+              .join("")}
+          </AvatarFallback>
+        </Avatar>
         <h1 className={styles["friend-chat__header-name"]}>{friend?.name}</h1>
         <div className={styles["friend-chat__header-actions"]}>
           <Button>
@@ -78,6 +104,7 @@ export const FriendChat = () => {
             key={id}
             message={message}
             avatar={proceedAvatar(message.senderId)}
+            senderName={proceedSenderName(message.senderId)}
           />
         ))}
       </div>
@@ -87,6 +114,11 @@ export const FriendChat = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Сообщение..."
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              sendMessage(message);
+            }
+          }}
         />
         <Button onClick={sendMessage.bind(null, message)}>Отправить</Button>
       </div>

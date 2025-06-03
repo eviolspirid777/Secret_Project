@@ -22,6 +22,7 @@ export const Page = () => {
           toUserId: friendId,
         });
         await friendshipSignalRServiceInstance.sendFriendshipRequest(friendId);
+        toast.success("Запрос отправлен");
       } else {
         throw new Error("ID не может быть пустым");
       }

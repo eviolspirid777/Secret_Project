@@ -152,7 +152,7 @@ namespace Secret_Project_Backend.Controllers
                 return BadRequest("Invalid user access!");
             }
 
-            await _userStatusService.ChangeStatusAsync(Models.ConnectionState.Online, user.Id);
+            await _userStatusService.ChangeStatusAsync(Models.ConnectionState.Offline, user.Id);
             await _signInManager.SignOutAsync();
             return Ok();
         }

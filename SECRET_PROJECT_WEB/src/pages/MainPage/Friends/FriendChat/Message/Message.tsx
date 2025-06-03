@@ -8,10 +8,12 @@ import {
   ContextMenuTrigger,
   ContextMenuSeparator,
 } from "@/shadcn/ui/context-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 
 type MessageProps = {
   message: MessageType;
   avatar?: string;
+  senderName?: string;
 };
 
 const formatTime = (time: Date) => {
@@ -21,16 +23,22 @@ const formatTime = (time: Date) => {
   });
 };
 
-export const Message = ({ message, avatar }: MessageProps) => {
+export const Message = ({ message, avatar, senderName }: MessageProps) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger>
         <div className={styles["message"]}>
-          <img
-            className={styles["message__avatar"]}
-            src={avatar}
-            alt="avatar"
-          />
+          <Avatar className={styles["message__avatar"]}>
+            <AvatarImage src={avatar} />
+            <AvatarFallback>
+              {senderName
+                ?.split(" ")
+                .map((name, index) => {
+                  if ([0, 1].includes(index)) return name[0];
+                })
+                .join("")}
+            </AvatarFallback>
+          </Avatar>
           <div className={styles["message__content"]}>{message.message}</div>
           <span className={styles["message__time"]}>
             {formatTime(message.createdAt)}

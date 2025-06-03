@@ -6,6 +6,7 @@ namespace Secret_Project_Backend.SignalR
     {
         public async Task SendFriendRequestToUser(string userId, string friendId)
         {
+            await Clients.User(friendId).SendAsync("ReceiveFriendRequest", friendId);
             await Clients.User(userId).SendAsync("ReceiveFriendRequest", friendId);
         }
     }
