@@ -1,10 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/api/apiClient";
 import { useDispatch } from "react-redux";
 import { setFriends } from "@/store/slices/Friends.slice";
 import { useEffect } from "react";
+
 export const useGetUserFriends = (id: string) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
 
   const {
     data: userFriends,
@@ -18,10 +20,20 @@ export const useGetUserFriends = (id: string) => {
   });
 
   useEffect(() => {
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (event?.query.queryKey[0] === "user-friends" && userFriends) {
+        dispatch(setFriends(userFriends));
+      }
+    });
+
     if (userFriendsSuccess) {
       dispatch(setFriends(userFriends));
     }
-  }, [userFriendsSuccess]);
+
+    return () => {
+      unsubscribe();
+    };
+  }, [userFriendsSuccess, userFriends, queryClient, dispatch]);
 
   return {
     userFriends,

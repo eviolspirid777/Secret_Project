@@ -15,6 +15,8 @@ import { Avatar } from "@/shared/components/Avatar/Avatar";
 import { useChangeMicrophoneState } from "@/shared/hooks/user/soundState/useChangeMicrophoneState";
 import { useChangeHeadphonesState } from "@/shared/hooks/user/soundState/useChangeHeadphonesState";
 import { toast } from "sonner";
+import { TooltipContent, TooltipTrigger } from "@/shadcn/ui/tooltip";
+import { Tooltip } from "@/shadcn/ui/tooltip";
 
 export const ShortProfile = () => {
   const user = useSelector(getUser);
@@ -51,6 +53,19 @@ export const ShortProfile = () => {
     navigate("/settings");
   };
 
+  const handleCopyUserId = (event: React.MouseEvent<HTMLSpanElement>) => {
+    event.stopPropagation();
+
+    navigator.clipboard
+      .writeText(user.userId)
+      .then(() => {
+        toast.success("ID пользователя скопирован в буфер обмена");
+      })
+      .catch(() => {
+        toast.error("Ошибка при копировании ID пользователя");
+      });
+  };
+
   return (
     <div className={styles["short-profile-container"]}>
       <div className={styles["short-profile-container__info"]}>
@@ -70,7 +85,21 @@ export const ShortProfile = () => {
           />
         </div>
         <div>
-          <span>{user.name}</span>
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger>
+              <span
+                className={styles["short-profile-container__info-name"]}
+                onClick={handleCopyUserId}
+              >
+                {user.name}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent
+              className={styles["short-profile-container__info-name-tooltip"]}
+            >
+              Скопировать id пользователя
+            </TooltipContent>
+          </Tooltip>
           <div className={styles["short-profile-container__controls"]}>
             {user.states.isMicrophoneMuted ? (
               <FaMicrophoneSlash

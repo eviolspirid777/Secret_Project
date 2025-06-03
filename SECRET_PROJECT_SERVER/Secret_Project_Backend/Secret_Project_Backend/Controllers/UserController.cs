@@ -33,6 +33,23 @@ namespace Secret_Project_Backend.Controllers
 
         #region User
         [Authorize]
+        [HttpGet("user-short-information")]
+        public async Task<IActionResult> GetUserShortInformation([FromQuery] string email)
+        {
+            var user = await _dbContext
+                                            .Users
+                                            .AsNoTracking()
+                                            .FirstOrDefaultAsync(u => u.Email == email);
+            if(user == null)
+            {
+                return BadRequest();
+            }
+
+            var result = UserMapper.MapUserToUserShortDto(user);
+            return Ok(result);
+        }
+
+        [Authorize]
         [HttpGet("user-information/{id}")]
         public async Task<IActionResult> GetUserInformation(string id)
         {
@@ -71,6 +88,27 @@ namespace Secret_Project_Backend.Controllers
         #endregion User
         #region Friendship
         [Authorize]
+        [HttpGet("friend/get-friend-requests")]
+        public async Task<IActionResult> GetFriendRequestCount([FromQuery] string id)
+        {
+            if(id == null)
+            {
+                return BadRequest();
+            }
+
+            var _friendships = await _dbContext
+                            .Friendships
+                            .AsNoTracking()
+                            .Include(f => f.Friend)
+                            .Include(f => f.User)
+                            .Where(f => f.FriendId == id && f.Status == FriendshipStatus.Pending)
+                            .ToListAsync();
+
+            var friends= _friendships.Select(FriendShipMapper.MapFriendshipToFriendshipDto).Select(f => f.User);
+            return Ok(friends);
+        }
+
+        [Authorize]
         [HttpGet("friend/get-user-friends/{id}")]
         public async Task<IActionResult> GetUserFriends(string id)
         {
@@ -90,11 +128,11 @@ namespace Secret_Project_Backend.Controllers
                 .Where(f => (f.UserId == id || f.FriendId == id) && f.Status == FriendshipStatus.Accepted)
                 .ToListAsync();
 
-            var mappedFriendships = friendships.Select(FriendShipMapper.MapToFriendShipDto);
+            var mappedFriendships = friendships.Select(FriendShipMapper.MapFriendshipToFriendshipDto);
             // Преобразуем список дружб в список друзей
             //Собираем и из отправленных заявок и из полученных заявок
             var friends = mappedFriendships.Select(f => 
-                f.User.Id == id ? f.Friend : f.User
+                f.User.UserId == id ? f.Friend : f.User
             ).ToList();
 
             return Ok(friends);
@@ -104,9 +142,19 @@ namespace Secret_Project_Backend.Controllers
         [HttpPost("friend/send-request")]
         public async Task<IActionResult> SendFriendRequest([FromBody] FriendRequest data)
         {
-            var alreadyExist = _dbContext.Friendships.Any(fs => (fs.FriendId == data.FromUserId && fs.UserId == data.ToUserId) || (fs.FriendId == data.ToUserId && fs.UserId == data.FromUserId));
+            if(!Guid.TryParse(data.ToUserId, out Guid result))
+            {
+                return BadRequest("Такого пользователя не существует");
+            }
+
+            var alreadyExist = _dbContext
+                                            .Friendships
+                                            .Any(fs => 
+                                                        (fs.FriendId == data.FromUserId && fs.UserId == data.ToUserId) ||
+                                                        (fs.FriendId == data.ToUserId && fs.UserId == data.FromUserId));
             if (alreadyExist)
             {
+                //TODO: подумай какую ошибку возвращать. Впрниципе срабатывает нормально
                 return BadRequest();
             }
 
@@ -155,6 +203,21 @@ namespace Secret_Project_Backend.Controllers
 
             return Ok();
         }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> DeleteFriend([FromBody] FriendRequest data)
+        {
+            var friendship = await _dbContext.Friendships.FirstOrDefaultAsync(f => (f.User.Id == data.FromUserId && f.Friend.Id == data.ToUserId) || (f.User.Id == data.ToUserId && f.Friend.Id == data.FromUserId));
+            if(friendship == null)
+            {
+                return BadRequest("Invalid userId");
+            }
+            _dbContext.Friendships.Remove(friendship);
+
+            await _dbContext.SaveChangesAsync();
+            return Ok();
+        }
         #endregion Friendship
         #region Status
         [Authorize]
@@ -171,7 +234,7 @@ namespace Secret_Project_Backend.Controllers
         #endregion Status
         #region SoundConnectionState
         [Authorize]
-        [HttpPost("sound-ConnectionState/change-microphone-state/{id}")]
+        [HttpPost("sound-states/change-microphone-state/{id}")]
         public async Task<IActionResult> ChangeMicrophoneState(string id)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
@@ -186,7 +249,7 @@ namespace Secret_Project_Backend.Controllers
         }
 
         [Authorize]
-        [HttpPost("sound-ConnectionState/change-headphones-state/{id}")]
+        [HttpPost("sound-states/change-headphones-state/{id}")]
         public async Task<IActionResult> ChangeHeadphonesState(string id)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);

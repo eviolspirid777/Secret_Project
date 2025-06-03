@@ -1,0 +1,19 @@
+@use "@/shared/styles/_colors.scss" as *;
+@use "sass:color";
+
+.add-friend {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  height: 100%;
+  gap: 10px;
+
+  &__input {
+    width: 100%;
+    color: $font-color;
+    &::placeholder {
+      color: color.adjust($font-color, $lightness: -20%);
+    }
+  }
+}

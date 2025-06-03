@@ -2,16 +2,24 @@ import { Search } from "../Search/Search";
 import { FriendsList } from "../FriendsList/FriendsList";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import { IoMdPersonAdd } from "react-icons/io";
 import styles from "./styles.module.scss";
+import { useNavigate } from "react-router";
 import { useGetUserFriends } from "@/shared/hooks/user/friendship/useGetUserFriends";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 
 export const Friends = () => {
   useGetUserFriends(localStorageService.getUserId() ?? "");
+
   const friends = useSelector((state: RootState) => state.friends);
   const [filteredFriends, setFilteredFriends] = useState(friends);
+
+  useEffect(() => {
+    if (friends) {
+      setFilteredFriends(friends);
+    }
+  }, [friends]);
 
   const handleSearch = (value: string) => {
     setFilteredFriends(
@@ -21,10 +29,23 @@ export const Friends = () => {
     );
   };
 
+  const navigate = useNavigate();
+
+  const handleAddFriend = () => {
+    navigate("/add-friend");
+  };
+
   return (
     <div className={styles["friends"]}>
-      <Search onChange={handleSearch} />
-      <FriendsList friends={filteredFriends} />
+      <div className={styles["friends__header"]}>
+        <Search onChange={handleSearch} />
+        <IoMdPersonAdd
+          className={styles["friends__header-icon"]}
+          size={30}
+          onClick={handleAddFriend}
+        />
+      </div>
+      <FriendsList key={friends.length} friends={filteredFriends} />
     </div>
   );
 };

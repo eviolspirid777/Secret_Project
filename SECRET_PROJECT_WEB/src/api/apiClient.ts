@@ -126,6 +126,19 @@ class ApiClient {
     }
   }
 
+  async GetUserShortInformation(email: string) {
+    const response = await this.client.get<User>(
+      `${BASE_USER_URL}/user-short-information`,
+      {
+        params: {
+          email,
+        },
+      }
+    );
+
+    return response.data;
+  }
+
   async GetUserInformation(id: string) {
     const response = await this.client.get<User>(
       `${BASE_USER_URL}/user-information/${id}`
@@ -143,9 +156,21 @@ class ApiClient {
     return response;
   }
 
+  async GetFriendRequests(id: string) {
+    const response = await this.client.get<User[]>(
+      `${BASE_USER_URL}/friend/get-friend-requests`,
+      {
+        params: {
+          id,
+        },
+      }
+    );
+
+    return response.data;
+  }
+
   async GetUserFriends(userId: string) {
-    //TODO: прописать тип получаемых friends
-    const response = await this.client.get<never>(
+    const response = await this.client.get<User[]>(
       `${BASE_USER_URL}/friend/get-user-friends/${userId}`
     );
 

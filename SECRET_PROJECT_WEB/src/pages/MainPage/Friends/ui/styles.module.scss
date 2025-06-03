@@ -1,6 +1,20 @@
+@use "@/shared/styles/colors.scss" as *;
+
 .friends {
   display: flex;
   flex-flow: column nowrap;
   gap: 10px;
   padding: 0px 10px 0px 0px;
+
+  &__header {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    align-items: center;
+
+    &-icon {
+      cursor: pointer;
+      color: $font-color;
+    }
+  }
 }

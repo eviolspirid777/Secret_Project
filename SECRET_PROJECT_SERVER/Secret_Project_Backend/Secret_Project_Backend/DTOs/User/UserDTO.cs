@@ -1,6 +1,6 @@
 ﻿using Secret_Project_Backend.Models;
 
-namespace Secret_Project_Backend.DTOs
+namespace Secret_Project_Backend.DTOs.User
 {
     public class UserDTO
     {
@@ -9,7 +9,7 @@ namespace Secret_Project_Backend.DTOs
         public string Email { get; set; } = string.Empty;
         public string Avatar { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
-        public SoundConnectionState ConnectionState { get; set; } = new SoundConnectionState();
+        public SoundConnectionState States { get; set; } = new SoundConnectionState();
     }
 
     public class SoundConnectionState

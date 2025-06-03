@@ -9,6 +9,8 @@ import { MyProfile as MyProfileSettings } from "@/pages/Settings/MyProfile/page"
 import { FriendChat } from "@/pages/MainPage/Friends/FriendChat/page";
 import { Settings } from "@/pages/Settings/ui";
 import { Security } from "@/pages/Settings/Security/page";
+import { AddFriend } from "@/pages/MainPage/AddFriend/ui";
+import { FriendRequests } from "@/pages/MainPage/FriendRequests/ui";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +35,14 @@ const router = createBrowserRouter([
               {
                 path: "friend-chat/:friendId",
                 element: <FriendChat />,
+              },
+              {
+                path: "add-friend",
+                element: <AddFriend />,
+              },
+              {
+                path: "friend-requests",
+                element: <FriendRequests />,
               },
             ],
           },
