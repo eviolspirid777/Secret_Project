@@ -6,7 +6,7 @@ import { MainPage } from "@/pages/MainPage/ui";
 import { ChannelContent } from "@/pages/MainPage/Channels/ChannelContent/ChannelContent";
 import { MyProfile } from "@/pages/MainPage/Profile/MyProfile/MyProfile";
 import { MyProfile as MyProfileSettings } from "@/pages/Settings/MyProfile/page";
-import { FriendChat } from "@/pages/MainPage/Friends/FriendChat/page";
+import { FriendChat } from "@/pages/MainPage/Friends/FriendChat/ui/page";
 import { Settings } from "@/pages/Settings/ui";
 import { Security } from "@/pages/Settings/Security/page";
 import { AddFriend } from "@/pages/MainPage/AddFriend/ui";

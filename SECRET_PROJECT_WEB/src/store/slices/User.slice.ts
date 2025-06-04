@@ -34,6 +34,7 @@ const userSlice = createSlice({
   selectors: {
     getUser: (state) => state,
     getUserAvatar: (state) => state.avatar,
+    getUserAudioStates: (state) => state.states,
   },
 });
 
@@ -43,6 +44,7 @@ export const {
   changeHeadphonesState,
   changeName,
 } = userSlice.actions;
-export const { getUser, getUserAvatar } = userSlice.selectors;
+export const { getUser, getUserAvatar, getUserAudioStates } =
+  userSlice.selectors;
 
 export default userSlice.reducer;

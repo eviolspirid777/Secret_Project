@@ -7,7 +7,6 @@ import { useSendFriendRequest } from "@/shared/hooks/user/friendship/useSendFrie
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
-import { friendshipSignalRServiceInstance } from "@/shared/services/SignalR/Friendships/FriendshipSignalRService";
 
 export const Page = () => {
   const [friendId, setFriendId] = useState("");
@@ -21,7 +20,6 @@ export const Page = () => {
           fromUserId: localStorageService.getUserId() ?? "",
           toUserId: friendId,
         });
-        await friendshipSignalRServiceInstance.sendFriendshipRequest(friendId);
         toast.success("Запрос отправлен");
       } else {
         throw new Error("ID не может быть пустым");

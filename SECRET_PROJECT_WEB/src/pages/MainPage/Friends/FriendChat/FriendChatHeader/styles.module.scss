@@ -1,0 +1,32 @@
+@use "@/shared/styles/_colors.scss" as *;
+@use "sass:color";
+
+$border-radius: 10px;
+
+.friend-chat__header {
+  display: grid;
+  grid-template-columns: 50px 30fr 100px;
+  gap: 20px;
+  align-items: center;
+  padding: 10px;
+  background-color: color.scale($background-color, $lightness: 20%);
+  border-bottom: 1px solid color.scale($background-color, $lightness: 20%);
+  border-radius: $border-radius;
+
+  &-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+  }
+
+  &-name {
+    font-size: 1.1rem;
+    color: $font-color;
+  }
+
+  &-actions {
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 10px;
+  }
+}

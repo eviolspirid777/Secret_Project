@@ -1,51 +1,23 @@
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { TbHeadphones, TbHeadphonesOff } from "react-icons/tb";
-import {
-  changeMicrophoneState,
-  changeHeadphonesState,
-  getUser,
-} from "@/store/slices/User.slice";
+import { getUser } from "@/store/slices/User.slice";
 import { Badge } from "@/shared/components/Badge/Badge";
 import { IoSettingsSharp } from "react-icons/io5";
 import { useNavigate } from "react-router";
 
 import styles from "./styles.module.scss";
 import { Avatar } from "@/shared/components/Avatar/Avatar";
-import { useChangeMicrophoneState } from "@/shared/hooks/user/soundState/useChangeMicrophoneState";
-import { useChangeHeadphonesState } from "@/shared/hooks/user/soundState/useChangeHeadphonesState";
 import { toast } from "sonner";
 import { TooltipContent, TooltipTrigger } from "@/shadcn/ui/tooltip";
 import { Tooltip } from "@/shadcn/ui/tooltip";
+import { useAudioStates } from "@/shared/hooks/audioStates/useAudioStates";
 
 export const ShortProfile = () => {
   const user = useSelector(getUser);
-  const dispatch = useDispatch();
 
-  const { changeMicrophoneStateAsync } = useChangeMicrophoneState();
-  const { changeHeadphonesStateAsync } = useChangeHeadphonesState();
-
-  const changeMicrophoneStateHandler = async () => {
-    try {
-      const response = await changeMicrophoneStateAsync(user.userId);
-      if (response.status === 200) {
-        dispatch(changeMicrophoneState(response.data));
-      }
-    } catch (error) {
-      toast.error(`Ошибка при выключении микрофона! ${error}`);
-    }
-  };
-
-  const changeHeadphonesStateHandler = async () => {
-    try {
-      const response = await changeHeadphonesStateAsync(user.userId);
-      if (response.status === 200) {
-        dispatch(changeHeadphonesState(response.data));
-      }
-    } catch (error) {
-      toast.error(`Ошибка при выключении наушников! ${error}`);
-    }
-  };
+  const { changeMicrophoneStateHandler, changeHeadphonesStateHandler } =
+    useAudioStates();
 
   const navigate = useNavigate();
 

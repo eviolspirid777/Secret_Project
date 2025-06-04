@@ -13,6 +13,7 @@ import type {
   MessageDeleteRequest,
 } from "@/types/Message/Message";
 import type { ChangeUserInformationRequest } from "@/types/User/ChangeUserInformationRequest";
+import type { ChangeUserStatusRequest } from "@/types/User/ChangeUserStatusRequest";
 import type { User } from "@/types/User/User";
 import type { AxiosInstance } from "axios";
 import axios from "axios";
@@ -216,6 +217,15 @@ class ApiClient {
   async DeleteMessage(data: MessageDeleteRequest) {
     const response = await this.client.post<never>(
       `${BASE_MESSAGE_URL}/delete`,
+      data
+    );
+
+    return response.data;
+  }
+
+  async ChangeUserStatus(data: ChangeUserStatusRequest) {
+    const response = await this.client.post<never>(
+      `${BASE_USER_URL}/change-user-status`,
       data
     );
 

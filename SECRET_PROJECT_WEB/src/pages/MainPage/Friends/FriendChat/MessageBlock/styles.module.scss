@@ -1,0 +1,33 @@
+@use "@/shared/styles/_colors.scss" as *;
+@use "sass:color";
+
+$radius: 10px;
+
+.friend-chat {
+  &__messages {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 81vh;
+    padding: 10px;
+    background-color: $background-color;
+    border-top-left-radius: $radius;
+    border-top-right-radius: $radius;
+  }
+
+  &__input {
+    padding: 10px;
+    color: $font-color;
+    font-size: 15px;
+  }
+
+  &__input-container {
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 10px;
+    padding: 10px;
+    background-color: color.scale($background-color, $lightness: 15%);
+    border-radius: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+}

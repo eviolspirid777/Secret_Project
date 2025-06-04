@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Controllers.Requests.User;
@@ -10,6 +11,8 @@ using Secret_Project_Backend.Mappers.FriendShip;
 using Secret_Project_Backend.Mappers.User;
 using Secret_Project_Backend.Models;
 using Secret_Project_Backend.Services.Status;
+using Secret_Project_Backend.Services.User;
+using Secret_Project_Backend.SignalR;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -20,18 +23,56 @@ namespace Secret_Project_Backend.Controllers
         private readonly PostgreSQLDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ChangeUserStatusService _userStatusService;
+        private readonly IHubContext<FriendRequestHub> _hubContext;
+        private readonly UserService _userService;
         public UserController(
             PostgreSQLDbContext dbContext,
             UserManager<ApplicationUser> userManager,
-            ChangeUserStatusService userStatusService
+            ChangeUserStatusService userStatusService,
+            IHubContext<FriendRequestHub> hubContext,
+            UserService userService
         )
         {
             _dbContext = dbContext;
             _userManager = userManager;
             _userStatusService = userStatusService;
+            _hubContext = hubContext;
+            _userService = userService;
         }
 
         #region User
+        [Authorize]
+        [HttpPost("change-user-status")]
+        public async Task<IActionResult> ChangeStatusUser([FromBody] ChangeUserStatusRequest data)
+        {
+            try
+            {
+                var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == data.UserId);
+                if(user == null)
+                {
+                    return BadRequest("Пользователь с таким Id не найден");
+                }
+                var parsedValue = Enum.Parse<ConnectionState>(data.Status);
+                user.Status = parsedValue;
+                await _dbContext.SaveChangesAsync();
+
+
+                /*TODO: для уведомления о смене статуса можно получить список всех друзей пользователя и через HubContext оповещать их
+                    Но нужно создать еще один Hub для статусов пользователей и не забудь в program.cs добавить его в получателей токена
+                 */
+                var friends = await _userService.GetUserFriendsAsync(data.UserId);
+                //await _hubContext.Clients.Users("234234").SendAsync("TEST", new {
+                //    userId = 123123,
+                //    test = "test"
+                //});
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Неправильный статус");
+            }
+        }
+
         [Authorize]
         [HttpGet("user-short-information")]
         public async Task<IActionResult> GetUserShortInformation([FromQuery] string email)
@@ -112,30 +153,15 @@ namespace Secret_Project_Backend.Controllers
         [HttpGet("friend/get-user-friends/{id}")]
         public async Task<IActionResult> GetUserFriends(string id)
         {
-            var isUserExist = await _dbContext
-                .Users
-                .AnyAsync(u => u.Id == id);
-            if (isUserExist == false)
+            try
             {
-                return BadRequest("Invalid userId");
+                var friends = await _userService.GetUserFriendsAsync(id);
+                return Ok(friends);
             }
-
-            var friendships = await _dbContext
-                .Friendships
-                .AsNoTracking()
-                .Include(f => f.User)
-                .Include(f => f.Friend)
-                .Where(f => (f.UserId == id || f.FriendId == id) && f.Status == FriendshipStatus.Accepted)
-                .ToListAsync();
-
-            var mappedFriendships = friendships.Select(FriendShipMapper.MapFriendshipToFriendshipDto);
-            // Преобразуем список дружб в список друзей
-            //Собираем и из отправленных заявок и из полученных заявок
-            var friends = mappedFriendships.Select(f => 
-                f.User.UserId == id ? f.Friend : f.User
-            ).ToList();
-
-            return Ok(friends);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [Authorize]
@@ -168,6 +194,7 @@ namespace Secret_Project_Backend.Controllers
 
             await _dbContext.SaveChangesAsync();
 
+            await _hubContext.Clients.User(data.ToUserId).SendAsync("ReceiveFriendRequest", data.FromUserId);
             return Ok();
         }
 

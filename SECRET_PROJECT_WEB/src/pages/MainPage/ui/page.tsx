@@ -11,6 +11,7 @@ import { Loader } from "@/shared/components/Loader/loader";
 import { useDispatch } from "react-redux";
 
 import styles from "./styles.module.scss";
+import { useChangeUserStatus } from "@/shared/hooks/user/useChangeUserStatus";
 
 export const Page = () => {
   /*TODO:
@@ -19,14 +20,65 @@ export const Page = () => {
     Если авторизован, то запрашивать данные пользователя и подставлять их в компоненты.
   */
   const dispatch = useDispatch();
+  const { changeUserStatus } = useChangeUserStatus();
 
   const { userInformation, isLoadingUserInformation, errorUserInformation } =
     useUserInformation(localStorageService.getUserId() ?? "");
+
   useEffect(() => {
     if (userInformation) {
       dispatch(setUser(userInformation));
     }
   }, [userInformation]);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      changeUserStatus({
+        userId: localStorageService.getUserId() ?? "",
+        status: "Offline",
+      });
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        changeUserStatus({
+          userId: localStorageService.getUserId() ?? "",
+          status: "Sleeping",
+        });
+      } else if (document.visibilityState === "visible") {
+        changeUserStatus({
+          userId: localStorageService.getUserId() ?? "",
+          status: "Online",
+        });
+      }
+    };
+
+    const handleBlur = () => {
+      changeUserStatus({
+        userId: localStorageService.getUserId() ?? "",
+        status: "Sleeping",
+      });
+    };
+
+    const handleFocus = () => {
+      changeUserStatus({
+        userId: localStorageService.getUserId() ?? "",
+        status: "Online",
+      });
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [changeUserStatus]);
 
   if (isLoadingUserInformation) return <Loader />;
   if (errorUserInformation) return <ErrorPage />;

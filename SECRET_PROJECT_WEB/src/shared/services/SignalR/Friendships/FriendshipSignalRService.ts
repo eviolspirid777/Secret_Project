@@ -1,7 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 import { localStorageService } from "../../localStorageService/localStorageService";
 
-class FriendshipSignalRService {
+export default class FriendshipSignalRService {
   private connection: signalR.HubConnection;
 
   constructor() {
@@ -26,11 +26,11 @@ class FriendshipSignalRService {
   public async onReceiveFriendshipRequest(
     callback: (friendId: string) => void
   ) {
-    this.connection.on("ReceiveFriendshipRequest", callback);
+    this.connection.on("ReceiveFriendRequest", callback);
   }
 
   public async sendFriendshipRequest(friendId: string) {
-    this.connection
+    await this.connection
       .invoke(
         "SendFriendRequestToUser",
         localStorageService.getUserId(),
@@ -40,5 +40,4 @@ class FriendshipSignalRService {
   }
 }
 
-const friendshipSignalRServiceInstance = new FriendshipSignalRService();
-export { friendshipSignalRServiceInstance };
+export const friendshipSignalRServiceInstance = new FriendshipSignalRService();

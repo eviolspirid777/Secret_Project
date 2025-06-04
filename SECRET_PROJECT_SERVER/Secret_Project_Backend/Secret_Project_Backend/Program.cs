@@ -13,6 +13,7 @@ using Secret_Project_Backend.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Secret_Project_Backend.Services.Chat;
 using Secret_Project_Backend.Services.Status;
+using Secret_Project_Backend.Services.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,7 +50,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddCorsService(CORS_ENUM.LOCAL);
+builder.Services.AddCorsService(CORS_ENUM.ANY);
 builder.Services.AddSignalR();
 
 builder.Services.AddDbService<PostgreSQLDbContext>(builder.Configuration.GetConnectionString("Development"));
@@ -90,7 +91,8 @@ builder.Services.AddAuthentication(options =>
             }
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+            if (!string.IsNullOrEmpty(accessToken) && 
+                (path.StartsWithSegments("/chatHub") || path.StartsWithSegments("/friendHub")))
             {
                 context.Token = accessToken;
             }
@@ -101,6 +103,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
 builder.Services.AddScoped<IEmailService, MailKitEmailService>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ChangeUserStatusService>();
 
 var app = builder.Build();

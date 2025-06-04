@@ -1,32 +1,34 @@
-import { Button } from "@/shadcn/ui/button";
-import { Input } from "@/shadcn/ui/input";
+import { getUser } from "@/store/slices/User.slice";
+import { useDispatch, useSelector } from "react-redux";
+import { Message } from "./Message/Message";
 import { getFriendById } from "@/store/slices/Friends.slice";
 import type { RootState } from "@/store/store";
-import { useSelector } from "react-redux";
-import { useParams } from "react-router";
-import { FaPhone, FaVideo } from "react-icons/fa";
-import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
-import styles from "./styles.module.scss";
-import { useEffect, useRef, useState } from "react";
 import { addMessage, getMessages } from "@/store/slices/Message.slice";
-import { Message } from "./Message/Message";
-import { getUserAvatar, getUser } from "@/store/slices/User.slice";
-import { useDispatch } from "react-redux";
-import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
+import type { FC } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export const FriendChat = () => {
-  const { friendId } = useParams();
-  const messageSignalRService = useRef(messageSignalRServiceInstance);
+import styles from "./styles.module.scss";
+import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
+import { Button } from "@/shadcn/ui/button";
+import { Input } from "@/shadcn/ui/input";
+import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
+
+type MessageBlockProps = {
+  friendId: string;
+};
+
+export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
   const [message, setMessage] = useState("");
 
-  const dispatch = useDispatch();
   const messages = useSelector(getMessages);
-  const userAvatar = useSelector(getUserAvatar);
   const friend = useSelector((state: RootState) =>
     getFriendById(state, friendId)
   );
   const user = useSelector((state: RootState) => getUser(state));
+
+  const dispatch = useDispatch();
+
+  const messageSignalRService = useRef(messageSignalRServiceInstance);
 
   useEffect(() => {
     messageSignalRService.current.onReceiveMessage((message) => {
@@ -64,7 +66,7 @@ export const FriendChat = () => {
     if (message) {
       return friend?.avatar;
     }
-    return userAvatar;
+    return user?.avatar;
   };
 
   const proceedSenderName = (messageId: string) => {
@@ -75,29 +77,7 @@ export const FriendChat = () => {
   };
 
   return (
-    <div className={styles["friend-chat"]}>
-      <div className={styles["friend-chat__header"]}>
-        <Avatar className={styles["friend-chat__header-avatar"]}>
-          <AvatarImage src={friend?.avatar} />
-          <AvatarFallback>
-            {friend?.name
-              ?.split(" ")
-              .map((name, index) => {
-                if ([0, 1].includes(index)) return name[0];
-              })
-              .join("")}
-          </AvatarFallback>
-        </Avatar>
-        <h1 className={styles["friend-chat__header-name"]}>{friend?.name}</h1>
-        <div className={styles["friend-chat__header-actions"]}>
-          <Button>
-            <FaPhone />
-          </Button>
-          <Button>
-            <FaVideo />
-          </Button>
-        </div>
-      </div>
+    <>
       <div className={styles["friend-chat__messages"]}>
         {messages.map((message, id) => (
           <Message
@@ -122,6 +102,6 @@ export const FriendChat = () => {
         />
         <Button onClick={sendMessage.bind(null, message)}>Отправить</Button>
       </div>
-    </div>
+    </>
   );
 };

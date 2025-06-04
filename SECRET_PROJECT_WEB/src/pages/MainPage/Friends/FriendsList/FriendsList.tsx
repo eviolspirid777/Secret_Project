@@ -2,7 +2,7 @@ import { FriendCard } from "./FriendCard/FriendCard";
 
 import styles from "./styles.module.scss";
 import { Badge } from "@/shadcn/ui/badge";
-import { friendshipSignalRServiceInstance } from "@/shared/services/SignalR/Friendships/FriendshipSignalRService";
+import FriendshipSignalRService from "@/shared/services/SignalR/Friendships/FriendshipSignalRService";
 import { useEffect, useState } from "react";
 import { useFriendRequests } from "@/shared/hooks/user/friendship/useFriendRequests";
 import { useNavigate } from "react-router";
@@ -23,8 +23,10 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
   }, [friendRequests]);
 
   useEffect(() => {
-    friendshipSignalRServiceInstance.onReceiveFriendshipRequest(() => {
-      console.log("HERE");
+    const service = new FriendshipSignalRService();
+    service.onReceiveFriendshipRequest((frinedId) => {
+      console.log(frinedId);
+      console.log("HELLO");
       setIncomingRequests((prev) => prev + 1);
     });
   }, []);

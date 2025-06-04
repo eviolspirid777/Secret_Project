@@ -29,7 +29,7 @@ namespace Secret_Project_Backend.Configurations
                     {
                         case CORS_ENUM.LOCAL:
                             {
-                                policy.WithOrigins("http://localhost:5173") // Разрешаем конкретный домен клиента
+                                policy.WithOrigins(new string[] { "http://172.20.5.55:5173", "http://172.20.5.65:5173" }) // Разрешаем конкретный домен клиента
                                         .AllowAnyHeader()
                                         .AllowAnyMethod()
                                         .AllowCredentials(); // Разрешаем передачу cookies и авторизационных данных
@@ -38,9 +38,10 @@ namespace Secret_Project_Backend.Configurations
                         case CORS_ENUM.ANY:
                             {
                                 policy
-                                    .AllowAnyOrigin()
+                                    .SetIsOriginAllowed(_ => true) // Разрешаем любой источник
                                     .AllowAnyHeader()
-                                    .AllowAnyMethod();
+                                    .AllowAnyMethod()
+                                    .AllowCredentials(); // Разрешаем передачу учетных данных
                                 break;
                             }
                         case CORS_ENUM.DEPLOY:
