@@ -30,6 +30,9 @@ const userSlice = createSlice({
     changeName: (state, action) => {
       state.name = action.payload;
     },
+    setUserStatus: (state, action: PayloadAction<Pick<User, "status">>) => {
+      state.status = action.payload.status;
+    },
   },
   selectors: {
     getUser: (state) => state,
@@ -43,6 +46,7 @@ export const {
   changeMicrophoneState,
   changeHeadphonesState,
   changeName,
+  setUserStatus,
 } = userSlice.actions;
 export const { getUser, getUserAvatar, getUserAudioStates } =
   userSlice.selectors;

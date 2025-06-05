@@ -12,6 +12,7 @@ import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Message
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
+import { useMessageAlert } from "@/shared/hooks/messageAlert/useMessageAlert";
 
 type MessageBlockProps = {
   friendId: string;
@@ -26,13 +27,34 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
   );
   const user = useSelector((state: RootState) => getUser(state));
 
+  const { playNotificationSound } = useMessageAlert();
+
   const dispatch = useDispatch();
 
   const messageSignalRService = useRef(messageSignalRServiceInstance);
 
   useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    let interval2: ReturnType<typeof setInterval>;
+    let provideAlerting = false;
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        provideAlerting = true;
+      }
+      if (document.visibilityState === "visible") {
+        if (interval) clearInterval(interval);
+        if (interval2) clearInterval(interval2);
+        document.title = "Chat";
+        provideAlerting = false;
+      }
+    });
+
+    Notification.requestPermission().then((permission) => {
+      console.log("Permission status:", permission);
+    });
+
     messageSignalRService.current.onReceiveMessage((message) => {
-      console.log(message);
       if (friendId) {
         dispatch(
           addMessage({
@@ -42,8 +64,34 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
             receiverId: friendId,
           })
         );
+
+        if (Notification.permission === "granted" && provideAlerting) {
+          new Notification("Новое сообщение", {
+            body: message,
+            silent: true,
+            lang: "ru",
+            icon: friend?.avatar ?? "/vite.svg",
+          });
+        }
+
+        playNotificationSound();
+
+        if (document.visibilityState === "hidden") {
+          document.title = "Пришло новое сообщение";
+          interval = setInterval(() => {
+            document.title = "Пришло новое сообщение";
+          }, 2500);
+          interval2 = setInterval(() => {
+            document.title = "Chat";
+          }, 4000);
+        }
       }
     });
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(interval2);
+    };
   }, []);
 
   const sendMessage = async (message: string) => {

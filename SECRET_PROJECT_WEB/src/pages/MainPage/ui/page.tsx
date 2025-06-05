@@ -3,7 +3,7 @@ import { Outlet } from "react-router";
 import { ShortProfile } from "../Profile/ShortProfile/ShortProfile";
 import { Friends } from "../Friends/ui/Friends";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
-import { setUser } from "@/store/slices/User.slice";
+import { setUser, setUserStatus } from "@/store/slices/User.slice";
 import { useEffect } from "react";
 import { ErrorPage } from "@/pages/ErrorPage/ui";
 import { useUserInformation } from "@/shared/hooks/user/useUserInformation";
@@ -32,11 +32,29 @@ export const Page = () => {
   }, [userInformation]);
 
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      changeUserStatus({
-        userId: localStorageService.getUserId() ?? "",
-        status: "Offline",
-      });
+    const sendOfflineStatus = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+      const confirm = window.confirm("Вы уверены?");
+
+      if (confirm) {
+        changeUserStatus({
+          status: "Offline",
+          userId: localStorageService.getUserId() ?? "",
+        });
+        // const data = new Blob(
+        //   [
+        //     JSON.stringify({
+        //       userId: localStorageService.getUserId() ?? "",
+        //       status: "Offline",
+        //     }),
+        //   ],
+        //   { type: "application/json" }
+        // );
+
+        // const apiUrl = import.meta.env.VITE_API_URL;
+        // navigator.sendBeacon(`${apiUrl}/api/User/finish-user-session`, data);
+      }
     };
 
     const handleVisibilityChange = () => {
@@ -45,11 +63,13 @@ export const Page = () => {
           userId: localStorageService.getUserId() ?? "",
           status: "Sleeping",
         });
+        dispatch(setUserStatus({ status: "Sleeping" }));
       } else if (document.visibilityState === "visible") {
         changeUserStatus({
           userId: localStorageService.getUserId() ?? "",
           status: "Online",
         });
+        dispatch(setUserStatus({ status: "Online" }));
       }
     };
 
@@ -58,6 +78,7 @@ export const Page = () => {
         userId: localStorageService.getUserId() ?? "",
         status: "Sleeping",
       });
+      dispatch(setUserStatus({ status: "Sleeping" }));
     };
 
     const handleFocus = () => {
@@ -65,15 +86,42 @@ export const Page = () => {
         userId: localStorageService.getUserId() ?? "",
         status: "Online",
       });
+      dispatch(setUserStatus({ status: "Online" }));
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    // if ("serviceWorker" in navigator) {
+    //   navigator.serviceWorker.register("/workers/ServiceWorker.js").then(
+    //     (registration) => {
+    //       console.log("Service worker registered", registration);
+    //     },
+    //     (error) => {
+    //       console.log("Service worker registration failed", error);
+    //     }
+    //   );
+
+    //   window.addEventListener("beforeunload", () => {
+    //     navigator.serviceWorker.controller?.postMessage({
+    //       type: "TAB_CLOSING",
+    //       data: {
+    //         userId: localStorageService.getUserId() ?? "",
+    //         token: localStorageService.getToken() ?? "",
+    //         status: "Offline",
+    //       },
+    //     });
+    //   });
+    // }
+    //TODO: разобраться с событиями
+    // window.addEventListener("beforeunload", sendOfflineStatus);
+    // window.addEventListener("unload", sendOfflineStatus);
+    window.addEventListener("pagehide", sendOfflineStatus);
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
 
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      // window.removeEventListener("beforeunload", sendOfflineStatus);
+      // window.removeEventListener("unload", sendOfflineStatus);
+      window.removeEventListener("pagehide", sendOfflineStatus);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);

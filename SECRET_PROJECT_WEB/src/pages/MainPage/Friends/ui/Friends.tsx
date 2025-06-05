@@ -1,6 +1,6 @@
 import { Search } from "../Search/Search";
 import { FriendsList } from "../FriendsList/FriendsList";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { useEffect, useState } from "react";
 import { IoMdPersonAdd } from "react-icons/io";
@@ -8,9 +8,19 @@ import styles from "./styles.module.scss";
 import { useNavigate } from "react-router";
 import { useGetUserFriends } from "@/shared/hooks/user/friendship/useGetUserFriends";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
+import { setFriends } from "@/store/slices/Friends.slice";
 
 export const Friends = () => {
-  useGetUserFriends(localStorageService.getUserId() ?? "");
+  const dispatch = useDispatch();
+  const { userFriends, userFriendsSuccess } = useGetUserFriends(
+    localStorageService.getUserId() ?? ""
+  );
+
+  useEffect(() => {
+    if (userFriendsSuccess && userFriends) {
+      dispatch(setFriends(userFriends));
+    }
+  }, [userFriendsSuccess]);
 
   const friends = useSelector((state: RootState) => state.friends);
   const [filteredFriends, setFilteredFriends] = useState(friends);
@@ -45,7 +55,7 @@ export const Friends = () => {
           onClick={handleAddFriend}
         />
       </div>
-      <FriendsList key={friends.length} friends={filteredFriends} />
+      <FriendsList friends={filteredFriends} />
     </div>
   );
 };

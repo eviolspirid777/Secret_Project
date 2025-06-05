@@ -13,6 +13,8 @@ using Secret_Project_Backend.Models;
 using Secret_Project_Backend.Services.Status;
 using Secret_Project_Backend.Services.User;
 using Secret_Project_Backend.SignalR;
+using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -23,20 +25,24 @@ namespace Secret_Project_Backend.Controllers
         private readonly PostgreSQLDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ChangeUserStatusService _userStatusService;
-        private readonly IHubContext<FriendRequestHub> _hubContext;
+        private readonly IHubContext<FriendRequestHub> _hubFriendContext;
+        private readonly IHubContext<StatusHub> _hubUserStatusContext;
         private readonly UserService _userService;
+
         public UserController(
             PostgreSQLDbContext dbContext,
             UserManager<ApplicationUser> userManager,
             ChangeUserStatusService userStatusService,
-            IHubContext<FriendRequestHub> hubContext,
+            IHubContext<FriendRequestHub> hubFriendContext,
+            IHubContext<StatusHub> hubUserStatusContext,
             UserService userService
         )
         {
             _dbContext = dbContext;
             _userManager = userManager;
             _userStatusService = userStatusService;
-            _hubContext = hubContext;
+            _hubFriendContext = hubFriendContext;
+            _hubUserStatusContext = hubUserStatusContext;
             _userService = userService;
         }
 
@@ -48,7 +54,7 @@ namespace Secret_Project_Backend.Controllers
             try
             {
                 var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == data.UserId);
-                if(user == null)
+                if (user == null)
                 {
                     return BadRequest("Пользователь с таким Id не найден");
                 }
@@ -56,15 +62,11 @@ namespace Secret_Project_Backend.Controllers
                 user.Status = parsedValue;
                 await _dbContext.SaveChangesAsync();
 
-
-                /*TODO: для уведомления о смене статуса можно получить список всех друзей пользователя и через HubContext оповещать их
-                    Но нужно создать еще один Hub для статусов пользователей и не забудь в program.cs добавить его в получателей токена
-                 */
                 var friends = await _userService.GetUserFriendsAsync(data.UserId);
-                //await _hubContext.Clients.Users("234234").SendAsync("TEST", new {
-                //    userId = 123123,
-                //    test = "test"
-                //});
+                foreach (var friend in friends)
+                {
+                    await _hubUserStatusContext.Clients.User(friend.UserId).SendAsync("friendStatusChange", data.UserId, data.Status);
+                }
                 return Ok();
             }
             catch (Exception ex)
@@ -194,7 +196,7 @@ namespace Secret_Project_Backend.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            await _hubContext.Clients.User(data.ToUserId).SendAsync("ReceiveFriendRequest", data.FromUserId);
+            await _hubFriendContext.Clients.User(data.ToUserId).SendAsync("ReceiveFriendRequest", data.FromUserId);
             return Ok();
         }
 

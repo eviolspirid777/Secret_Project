@@ -9,6 +9,17 @@ const friendsSlice = createSlice({
     setFriends: (state, action: PayloadAction<User[]>) => {
       return action.payload;
     },
+    setFriendStatus: (
+      state,
+      action: PayloadAction<Pick<User, "userId" | "status">>
+    ) => {
+      return state.map((friend) => {
+        if (friend.userId === action.payload.userId) {
+          return { ...friend, status: action.payload.status };
+        }
+        return friend;
+      });
+    },
   },
   selectors: {
     getFriendById: (state, id) => {
@@ -17,7 +28,7 @@ const friendsSlice = createSlice({
   },
 });
 
-export const { setFriends } = friendsSlice.actions;
+export const { setFriends, setFriendStatus } = friendsSlice.actions;
 export const { getFriendById } = friendsSlice.selectors;
 
 export default friendsSlice.reducer;

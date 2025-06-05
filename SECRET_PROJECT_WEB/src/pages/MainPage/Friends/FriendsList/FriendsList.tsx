@@ -7,6 +7,9 @@ import { useEffect, useState } from "react";
 import { useFriendRequests } from "@/shared/hooks/user/friendship/useFriendRequests";
 import { useNavigate } from "react-router";
 import type { User } from "@/types/User/User";
+import { UserStatusesSignalRService } from "@/shared/services/SignalR/UserStatuses/UserStatusesSignalRService";
+import { useDispatch } from "react-redux";
+import { setFriendStatus } from "@/store/slices/Friends.slice";
 
 type FriendsListProps = {
   friends: User[];
@@ -16,6 +19,8 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
   const { friendRequests } = useFriendRequests();
   const [incomingRequests, setIncomingRequests] = useState<number>(0);
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (friendRequests) {
       setIncomingRequests(friendRequests.length);
@@ -24,9 +29,13 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
 
   useEffect(() => {
     const service = new FriendshipSignalRService();
-    service.onReceiveFriendshipRequest((frinedId) => {
-      console.log(frinedId);
-      console.log("HELLO");
+    const userStatusesService = new UserStatusesSignalRService();
+
+    userStatusesService.onUserStatusChange((userId, status) => {
+      dispatch(setFriendStatus({ userId, status }));
+    });
+
+    service.onReceiveFriendshipRequest(() => {
       setIncomingRequests((prev) => prev + 1);
     });
   }, []);

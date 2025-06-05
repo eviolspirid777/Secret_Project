@@ -4,9 +4,9 @@ using System.Security.Claims;
 
 namespace Secret_Project_Backend.SignalR
 {
+    [Authorize]
     public class FriendRequestHub : Hub
     {
-        [Authorize]
         public async Task SendFriendRequestToUser(string userId, string friendId)
         {
             var userIdentifier = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

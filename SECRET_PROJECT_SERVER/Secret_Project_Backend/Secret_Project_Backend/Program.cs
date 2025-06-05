@@ -92,7 +92,7 @@ builder.Services.AddAuthentication(options =>
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
             if (!string.IsNullOrEmpty(accessToken) && 
-                (path.StartsWithSegments("/chatHub") || path.StartsWithSegments("/friendHub")))
+                (path.StartsWithSegments("/chatHub") || path.StartsWithSegments("/friendHub") || path.StartsWithSegments("/statusHub")))
             {
                 context.Token = accessToken;
             }
@@ -126,5 +126,6 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chatHub");
 app.MapHub<FriendRequestHub>("/friendHub");
+app.MapHub<StatusHub>("/statusHub");
 
 app.Run();
