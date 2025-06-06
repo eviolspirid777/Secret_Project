@@ -5,16 +5,15 @@ import { getFriendById } from "@/store/slices/Friends.slice";
 import type { RootState } from "@/store/store";
 import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
-
-import styles from "./styles.module.scss";
 import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
-import { Button } from "@/shadcn/ui/button";
-import { Input } from "@/shadcn/ui/input";
 import { useMessageAlert } from "@/shared/hooks/messageAlert/useMessageAlert";
 import { useGetMessages } from "@/shared/hooks/message/useGetMessages";
 import { useAddMessage } from "@/shared/hooks/message/useAddMessage";
 import type { Message as MessageType } from "@/types/Message/Message";
 import { useDeleteMessage } from "@/shared/hooks/message/useDeleteMessage";
+import { InputBlock } from "./InputBlock/InputBlock";
+
+import styles from "./styles.module.scss";
 
 type MessageBlockProps = {
   friendId: string;
@@ -166,20 +165,11 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
           />
         ))}
       </div>
-      <div className={styles["friend-chat__input-container"]}>
-        <Input
-          className={styles["friend-chat__input"]}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Сообщение..."
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              sendMessage(message);
-            }
-          }}
-        />
-        <Button onClick={sendMessage.bind(null, message)}>Отправить</Button>
-      </div>
+      <InputBlock
+        message={message}
+        setMessage={setMessage}
+        sendMessage={sendMessage}
+      />
     </>
   );
 };

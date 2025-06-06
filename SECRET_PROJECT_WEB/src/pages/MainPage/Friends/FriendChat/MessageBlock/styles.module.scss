@@ -13,21 +13,4 @@ $radius: 10px;
     border-top-left-radius: $radius;
     border-top-right-radius: $radius;
   }
-
-  &__input {
-    padding: 10px;
-    color: $font-color;
-    font-size: 15px;
-  }
-
-  &__input-container {
-    display: flex;
-    flex-flow: row nowrap;
-    gap: 10px;
-    padding: 10px;
-    background-color: color.scale($background-color, $lightness: 15%);
-    border-radius: 10px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-  }
 }
