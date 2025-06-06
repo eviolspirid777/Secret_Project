@@ -64,6 +64,14 @@ export const InputBlock: FC<InputBlockProps> = ({
     setMessage(message + emoji.native);
   };
 
+  // const computeData = async () => {
+  //   const response = await fetch(
+  //     "https://cdn.jsdelivr.net/npm/@emoji-mart/data@latest/sets/15/apple.json"
+  //   );
+
+  //   return response.json();
+  // };
+
   return (
     <div className={styles["friend-chat__input-container"]}>
       <div className={styles["emoji-picker-container"]} ref={pickerRef}>
@@ -79,10 +87,13 @@ export const InputBlock: FC<InputBlockProps> = ({
         {isPickerOpen && (
           <div className={styles["picker-wrapper"]}>
             <Picker
+              // data={computeData}
               data={data}
               onEmojiSelect={handleEmojiSelect}
               theme="dark"
-              emojiSize={30}
+              locale="ru"
+              emojiSize={25}
+              // set="apple"
               set="native"
             />
           </div>
