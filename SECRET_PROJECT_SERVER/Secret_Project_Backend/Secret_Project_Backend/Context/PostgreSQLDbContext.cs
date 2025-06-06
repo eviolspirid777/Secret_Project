@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Secret_Project_Backend.Context
 {
-    public class PostgreSQLDbContext: IdentityDbContext<ApplicationUser>
+    public class PostgreSQLDbContext : IdentityDbContext<ApplicationUser>
     {
         public PostgreSQLDbContext(DbContextOptions<PostgreSQLDbContext> options) : base(options)
         {
@@ -20,7 +20,7 @@ namespace Secret_Project_Backend.Context
                 .HasConversion<string>();
 
             modelBuilder.Entity<ChannelUser>()
-                .HasKey(cu => new {cu.UserId, cu.ChannelId});
+                .HasKey(cu => new { cu.UserId, cu.ChannelId });
 
             modelBuilder.Entity<ChannelUser>()
                 .HasOne(cu => cu.User)
@@ -33,13 +33,28 @@ namespace Secret_Project_Backend.Context
                 .HasForeignKey(cu => cu.ChannelId);
 
             modelBuilder.Entity<Message>()
-                .HasOne(m => m.Sender)
-                .WithMany(s => s.Messages)
-                .HasForeignKey(m => m.SenderId);
+                .HasKey(m => m.Id);
 
             modelBuilder.Entity<Message>()
+                .HasOne(m => m.Sender)
+                .WithMany(s => s.SentMessages)
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.Reciver)
+                .WithMany(r => r.ReceivedMessages)
+                .HasForeignKey(m => m.ReciverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChannelMessage>()
+                .HasOne(m => m.Sender)
+                .WithMany(s => s.ChannelMessages)
+                .HasForeignKey(m => m.SenderId);
+
+            modelBuilder.Entity<ChannelMessage>()
                 .HasOne(m => m.Channel)
-                .WithMany(c => c.Messages)
+                .WithMany(c => c.ChannelMessages)
                 .HasForeignKey(m => m.ChannelId);
 
             // Конфигурация Friendship
@@ -67,6 +82,7 @@ namespace Secret_Project_Backend.Context
         }
 
         public DbSet<Channel> Channels { get; set; }
+        public DbSet<ChannelMessage> ChannelMessages { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<ChannelUser> ChannelUsers { get; set; }
         public DbSet<Friendship> Friendships { get; set; }

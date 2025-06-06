@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Controllers.Requests.Messages;
-using Secret_Project_Backend.DTOs;
-using Secret_Project_Backend.Mappers.Messages;
+using Secret_Project_Backend.Models;
+using Secret_Project_Backend.Utils.FriendsParserFunc;
+using System.Linq.Expressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -12,6 +15,7 @@ namespace Secret_Project_Backend.Controllers
     public class MessageController : ControllerBase
     {
         private readonly PostgreSQLDbContext _dbContext;
+
         public MessageController(
             PostgreSQLDbContext dbContext
         )
@@ -19,41 +23,61 @@ namespace Secret_Project_Backend.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpPost("add")]
-        public async Task<IActionResult> AddMessage(MessageAddRequest data)
+        [HttpGet("get-messages")]
+        public async Task<IActionResult> GetMessages([FromBody] GetMessagesRequest data)
         {
-            var channel = await _dbContext.Channels.FindAsync(data.ChannelId);
-            if(channel == null)
+            var messagesQuerable = _dbContext
+                .Messages
+                .AsNoTracking()
+                .AsQueryable();
+
+            var isAnyMessages = await messagesQuerable
+                    .AnyAsync(FriendsParserFunc.FriendsFunc(data));
+
+            if (!isAnyMessages)
             {
-                return BadRequest("InvalidChannelId");
+                return NotFound();
             }
-            foreach(var message in data.Messages)
+
+            var messages = await messagesQuerable
+                    .Where(FriendsParserFunc.FriendsFunc(data))
+                    .ToListAsync();
+
+            return Ok(messages);
+        }
+
+        [HttpPost("add-message")]
+        public async Task<IActionResult> AddMessage([FromBody] AddMessageRequest data)
+        {
+            if(data.SenderId == null || data.ReciverId == null || string.IsNullOrEmpty(data.Content))
             {
-                //TODO: Посмотри как работает этот маппер в деле. Мб тут могу возникнуть проблемы
-                var mappedMessage = MessagesMapper.MapMessageDtoToMessage(message);
-                channel.Messages.Add(mappedMessage);
+                return BadRequest("Данные неправильные!");
             }
+
+            await _dbContext.Messages.AddAsync(new Models.Message()
+            {
+                ReciverId = data.ReciverId,
+                SenderId = data.SenderId,
+                Content = data.Content,
+                SentAt = DateTime.Now,
+            });
 
             await _dbContext.SaveChangesAsync();
             return Ok();
         }
 
-        [HttpPost("delete")]
-        public async Task<IActionResult> DeleteMessage(MessageDeleteRequest data)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteMessage([FromRoute] Guid id)
         {
-            var channel = await _dbContext.Channels.FindAsync(data.ChannelId);
-            if(channel == null)
-            {
-                return BadRequest("InvalidChannelId");
-            }
-            var message = channel.Messages.FirstOrDefault(item => item.Id == data.MessageId);
+            var message = await _dbContext.Messages.FirstOrDefaultAsync(m => m.Id == id);
             if(message == null)
             {
-                return BadRequest("InvalidMessage");
+                return BadRequest("Invalid message id");
             }
-            channel.Messages.Remove(message);
+
+            _dbContext.Messages.Remove(message);
             await _dbContext.SaveChangesAsync();
-            return Ok(data.MessageId);
+            return Ok();
         }
     }
 }

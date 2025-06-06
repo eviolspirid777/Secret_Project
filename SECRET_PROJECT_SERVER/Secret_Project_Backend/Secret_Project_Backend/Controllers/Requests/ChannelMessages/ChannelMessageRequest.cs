@@ -2,13 +2,13 @@
 
 namespace Secret_Project_Backend.Controllers.Requests.Messages
 {
-    public class MessageAddRequest
+    public class ChannelMessageAddRequest
     {
-        public IEnumerable<MessageDto> Messages { get; set; }
+        public IEnumerable<ChannelMessageDto> Messages { get; set; }
         public Guid ChannelId { get; set; }
     }
 
-    public class MessageDeleteRequest
+    public class ChannelMessageDeleteRequest
     {
         public Guid ChannelId { get; set;}
         public Guid MessageId { get; set;}

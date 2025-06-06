@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Secret_Project_Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class NewMigration : Migration
+    public partial class MIGRATION_Base : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,6 +35,7 @@ namespace Secret_Project_Backend.Migrations
                     AvatarUrl = table.Column<string>(type: "text", nullable: true),
                     IsMicrophoneMuted = table.Column<bool>(type: "boolean", nullable: false),
                     IsHeadphonesMuted = table.Column<bool>(type: "boolean", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -176,6 +177,85 @@ namespace Secret_Project_Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Friendships",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    FriendId = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Friendships", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Friendships_AspNetUsers_FriendId",
+                        column: x => x.FriendId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Friendships_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Messages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SenderId = table.Column<string>(type: "text", nullable: false),
+                    ReciverId = table.Column<string>(type: "text", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Messages_AspNetUsers_ReciverId",
+                        column: x => x.ReciverId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Messages_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ChannelMessages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    SenderId = table.Column<string>(type: "text", nullable: false),
+                    ChannelId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChannelMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChannelMessages_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ChannelMessages_Channels_ChannelId",
+                        column: x => x.ChannelId,
+                        principalTable: "Channels",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ChannelUsers",
                 columns: table => new
                 {
@@ -194,33 +274,6 @@ namespace Secret_Project_Backend.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ChannelUsers_Channels_ChannelId",
-                        column: x => x.ChannelId,
-                        principalTable: "Channels",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Messages",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Content = table.Column<string>(type: "text", nullable: false),
-                    SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SenderId = table.Column<string>(type: "text", nullable: false),
-                    ChannelId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Messages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Messages_AspNetUsers_SenderId",
-                        column: x => x.SenderId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Messages_Channels_ChannelId",
                         column: x => x.ChannelId,
                         principalTable: "Channels",
                         principalColumn: "Id",
@@ -265,14 +318,35 @@ namespace Secret_Project_Backend.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ChannelMessages_ChannelId",
+                table: "ChannelMessages",
+                column: "ChannelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChannelMessages_SenderId",
+                table: "ChannelMessages",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ChannelUsers_ChannelId",
                 table: "ChannelUsers",
                 column: "ChannelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Messages_ChannelId",
+                name: "IX_Friendships_FriendId",
+                table: "Friendships",
+                column: "FriendId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Friendships_UserId_FriendId",
+                table: "Friendships",
+                columns: new[] { "UserId", "FriendId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_ReciverId",
                 table: "Messages",
-                column: "ChannelId");
+                column: "ReciverId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messages_SenderId",
@@ -299,7 +373,13 @@ namespace Secret_Project_Backend.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "ChannelMessages");
+
+            migrationBuilder.DropTable(
                 name: "ChannelUsers");
+
+            migrationBuilder.DropTable(
+                name: "Friendships");
 
             migrationBuilder.DropTable(
                 name: "Messages");
@@ -308,10 +388,10 @@ namespace Secret_Project_Backend.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Channels");
 
             migrationBuilder.DropTable(
-                name: "Channels");
+                name: "AspNetUsers");
         }
     }
 }

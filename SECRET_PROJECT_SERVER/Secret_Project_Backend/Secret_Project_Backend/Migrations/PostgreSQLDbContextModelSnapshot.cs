@@ -256,6 +256,35 @@ namespace Secret_Project_Backend.Migrations
                     b.ToTable("Channels");
                 });
 
+            modelBuilder.Entity("Secret_Project_Backend.Models.ChannelMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChannelId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChannelId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("ChannelMessages");
+                });
+
             modelBuilder.Entity("Secret_Project_Backend.Models.ChannelUser", b =>
                 {
                     b.Property<string>("UserId")
@@ -306,10 +335,7 @@ namespace Secret_Project_Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ChannelId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Content")
+                    b.Property<string>("ReciverId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -322,7 +348,7 @@ namespace Secret_Project_Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChannelId");
+                    b.HasIndex("ReciverId");
 
                     b.HasIndex("SenderId");
 
@@ -380,6 +406,25 @@ namespace Secret_Project_Backend.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Secret_Project_Backend.Models.ChannelMessage", b =>
+                {
+                    b.HasOne("Secret_Project_Backend.Models.Channel", "Channel")
+                        .WithMany("ChannelMessages")
+                        .HasForeignKey("ChannelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Secret_Project_Backend.Models.ApplicationUser", "Sender")
+                        .WithMany("ChannelMessages")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Channel");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("Secret_Project_Backend.Models.ChannelUser", b =>
                 {
                     b.HasOne("Secret_Project_Backend.Models.Channel", "Channel")
@@ -420,39 +465,43 @@ namespace Secret_Project_Backend.Migrations
 
             modelBuilder.Entity("Secret_Project_Backend.Models.Message", b =>
                 {
-                    b.HasOne("Secret_Project_Backend.Models.Channel", "Channel")
-                        .WithMany("Messages")
-                        .HasForeignKey("ChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Secret_Project_Backend.Models.ApplicationUser", "Reciver")
+                        .WithMany("ReceivedMessages")
+                        .HasForeignKey("ReciverId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Secret_Project_Backend.Models.ApplicationUser", "Sender")
-                        .WithMany("Messages")
+                        .WithMany("SentMessages")
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Channel");
+                    b.Navigation("Reciver");
 
                     b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("Secret_Project_Backend.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("ChannelMessages");
+
                     b.Navigation("ChannelUsers");
 
                     b.Navigation("FriendOf");
 
                     b.Navigation("Friends");
 
-                    b.Navigation("Messages");
+                    b.Navigation("ReceivedMessages");
+
+                    b.Navigation("SentMessages");
                 });
 
             modelBuilder.Entity("Secret_Project_Backend.Models.Channel", b =>
                 {
-                    b.Navigation("ChannelUsers");
+                    b.Navigation("ChannelMessages");
 
-                    b.Navigation("Messages");
+                    b.Navigation("ChannelUsers");
                 });
 #pragma warning restore 612, 618
         }

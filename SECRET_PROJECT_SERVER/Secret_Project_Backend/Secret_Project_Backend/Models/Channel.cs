@@ -12,7 +12,7 @@
         public ChannelType Type { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public virtual ICollection<Message> Messages { get; set; }
+        public virtual ICollection<ChannelMessage> ChannelMessages { get; set; }
         public virtual ICollection<ChannelUser> ChannelUsers { get; set; }
     }
 }

@@ -7,7 +7,7 @@ namespace Secret_Project_Backend.Mappers.Channel
     public static partial class ChannelMapper
     {
         [MapperIgnoreTarget(nameof(Models.Channel.ChannelUsers))]
-        [MapperIgnoreTarget(nameof(Models.Channel.Messages))]
+        [MapperIgnoreTarget(nameof(Models.Channel.ChannelMessages))]
         [MapperIgnoreTarget(nameof(Models.Channel.Id))]
         private static partial Models.Channel ChannelDtoToChannel(ChannelDto data);
 

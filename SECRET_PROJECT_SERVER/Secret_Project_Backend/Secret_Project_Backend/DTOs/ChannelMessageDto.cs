@@ -1,6 +1,6 @@
 ﻿namespace Secret_Project_Backend.DTOs
 {
-    public class MessageDto
+    public class ChannelMessageDto
     {
         public Guid Id { get; set; }
         public string Content { get; set; }

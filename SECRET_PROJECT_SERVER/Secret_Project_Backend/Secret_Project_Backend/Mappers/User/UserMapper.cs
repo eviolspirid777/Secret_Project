@@ -13,7 +13,7 @@ namespace Secret_Project_Backend.Mappers.User
         [MapProperty(nameof(ApplicationUser.IsHeadphonesMuted), nameof(UserDTO.States.IsHeadphonesMuted))]
         [MapProperty(nameof(ApplicationUser.IsMicrophoneMuted), nameof(UserDTO.States.IsMicrophoneMuted))]
         [MapperIgnoreSource(nameof(ApplicationUser.Status))]
-        [MapperIgnoreSource(nameof(ApplicationUser.Messages))]
+        [MapperIgnoreSource(nameof(ApplicationUser.ChannelMessages))]
         private static partial UserDTO UserToUserDto(ApplicationUser source);
         [MapProperty(nameof(ApplicationUser.Id), nameof(UserShortDto.Id))]
         [MapProperty(nameof(ApplicationUser.DisplayName), nameof(UserShortDto.Name))]
