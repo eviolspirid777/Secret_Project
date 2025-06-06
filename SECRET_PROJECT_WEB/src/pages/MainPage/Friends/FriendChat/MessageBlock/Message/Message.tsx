@@ -7,6 +7,9 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
   ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
 } from "@/shadcn/ui/context-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 
@@ -14,16 +17,24 @@ type MessageProps = {
   message: MessageType;
   avatar?: string;
   senderName?: string;
+  deleteMessage: (messageId: string, forAllUsers: boolean) => Promise<void>;
+  isCurrentUser: boolean;
 };
 
-const formatTime = (time: Date) => {
-  return time.toLocaleTimeString("ru-RU", {
+const formatTime = (time: string) => {
+  return new Date(time).toLocaleTimeString("ru-RU", {
     hour: "2-digit",
     minute: "2-digit",
   });
 };
 
-export const Message = ({ message, avatar, senderName }: MessageProps) => {
+export const Message = ({
+  message,
+  avatar,
+  senderName,
+  deleteMessage,
+  isCurrentUser,
+}: MessageProps) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger>
@@ -39,9 +50,9 @@ export const Message = ({ message, avatar, senderName }: MessageProps) => {
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          <div className={styles["message__content"]}>{message.message}</div>
+          <div className={styles["message__content"]}>{message.content}</div>
           <span className={styles["message__time"]}>
-            {formatTime(message.createdAt)}
+            {formatTime(message.sentAt)}
           </span>
         </div>
       </ContextMenuTrigger>
@@ -50,9 +61,34 @@ export const Message = ({ message, avatar, senderName }: MessageProps) => {
         <ContextMenuItem>Переслать</ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem>Редактировать</ContextMenuItem>
-        <ContextMenuItem className="context-menu-item__delete">
-          Удалить
-        </ContextMenuItem>
+        {isCurrentUser ? (
+          <ContextMenuSub>
+            <ContextMenuSubTrigger className="context-menu-item__delete">
+              Удалить
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-44">
+              <ContextMenuItem
+                className="context-menu-item__delete"
+                onClick={deleteMessage.bind(null, message.id, false)}
+              >
+                Удалить у себя
+              </ContextMenuItem>
+              <ContextMenuItem
+                className="context-menu-item__delete"
+                onClick={deleteMessage.bind(null, message.id, true)}
+              >
+                Удалить у всех
+              </ContextMenuItem>
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        ) : (
+          <ContextMenuItem
+            className="context-menu-item__delete"
+            onClick={deleteMessage.bind(null, message.id, false)}
+          >
+            Удалить
+          </ContextMenuItem>
+        )}
       </ContextMenuContent>
     </ContextMenu>
   );

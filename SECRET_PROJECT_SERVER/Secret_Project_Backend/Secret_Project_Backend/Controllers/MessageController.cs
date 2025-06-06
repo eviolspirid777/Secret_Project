@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Controllers.Requests.Messages;
-using Secret_Project_Backend.Models;
+using Secret_Project_Backend.DTOs.Messages;
+using Secret_Project_Backend.Mappers.Messages;
+using Secret_Project_Backend.Services.Chat;
 using Secret_Project_Backend.Utils.FriendsParserFunc;
-using System.Linq.Expressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Secret_Project_Backend.Controllers
@@ -15,15 +15,18 @@ namespace Secret_Project_Backend.Controllers
     public class MessageController : ControllerBase
     {
         private readonly PostgreSQLDbContext _dbContext;
+        private readonly MessageService _messageService;
 
         public MessageController(
-            PostgreSQLDbContext dbContext
+            PostgreSQLDbContext dbContext,
+            MessageService messageService
         )
         {
             _dbContext = dbContext;
+            _messageService = messageService;
         }
 
-        [HttpGet("get-messages")]
+        [HttpPost("get-messages")]
         public async Task<IActionResult> GetMessages([FromBody] GetMessagesRequest data)
         {
             var messagesQuerable = _dbContext
@@ -43,7 +46,9 @@ namespace Secret_Project_Backend.Controllers
                     .Where(FriendsParserFunc.FriendsFunc(data))
                     .ToListAsync();
 
-            return Ok(messages);
+            var mappedMessages = messages.Select(MessageMapper.MapMessageToMessageDto);
+
+            return Ok(mappedMessages);
         }
 
         [HttpPost("add-message")]
@@ -54,22 +59,29 @@ namespace Secret_Project_Backend.Controllers
                 return BadRequest("Данные неправильные!");
             }
 
-            await _dbContext.Messages.AddAsync(new Models.Message()
+            var message = new Models.Message()
             {
                 ReciverId = data.ReciverId,
                 SenderId = data.SenderId,
                 Content = data.Content,
-                SentAt = DateTime.Now,
-            });
+                SentAt = DateTime.UtcNow,
+            };
 
+            await _dbContext.Messages.AddAsync(message);
             await _dbContext.SaveChangesAsync();
-            return Ok();
+
+            var messageDto = MessageMapper.MapMessageToMessageDto(message);
+
+            await _messageService.NotifyUserAsync(data.SenderId, messageDto);
+            await _messageService.NotifyUserAsync(data.ReciverId, messageDto);
+
+            return Ok(messageDto);
         }
 
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteMessage([FromRoute] Guid id)
+        [HttpPost("delete")]
+        public async Task<IActionResult> DeleteMessage([FromBody] DeleteMessageRequest data)
         {
-            var message = await _dbContext.Messages.FirstOrDefaultAsync(m => m.Id == id);
+            var message = await _dbContext.Messages.FirstOrDefaultAsync(m => m.Id == data.MessageId);
             if(message == null)
             {
                 return BadRequest("Invalid message id");
@@ -77,6 +89,14 @@ namespace Secret_Project_Backend.Controllers
 
             _dbContext.Messages.Remove(message);
             await _dbContext.SaveChangesAsync();
+
+            await _messageService.NotifyUserAboutMessageDeleteAsync(message.SenderId, message.Id);
+            //TODO: Этот механизм все равно удаляет с бд данные, поэтому нужно еще посмотреть что придумать
+            if(data.ForAllUsers)
+            {
+                await _messageService.NotifyUserAboutMessageDeleteAsync(message.ReciverId, message.Id);
+            }
+
             return Ok();
         }
     }

@@ -105,6 +105,7 @@ builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
 builder.Services.AddScoped<IEmailService, MailKitEmailService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ChangeUserStatusService>();
+builder.Services.AddScoped<MessageService>();
 
 var app = builder.Build();
 

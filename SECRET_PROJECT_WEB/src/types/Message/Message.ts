@@ -1,23 +1,23 @@
 export type Message = {
-  message: string;
-  senderId: string;
-  receiverId: string;
-  createdAt: Date;
-};
-
-export type MessageAddRequest = {
-  channelId: string;
-  messages: MessageDto[];
-};
-
-export type MessageDto = {
   id: string;
   content: string;
   senderId: string;
-  channelId: string;
+  reciverId: string;
+  sentAt: string;
+};
+
+export type MessageAddRequest = {
+  senderId: string;
+  reciverId: string;
+  content: string;
 };
 
 export type MessageDeleteRequest = {
-  channelId: string;
   messageId: string;
+  forAllUsers: boolean;
+};
+
+export type GetMessagesRequest = {
+  firstUserId: string;
+  secondUserId: string;
 };

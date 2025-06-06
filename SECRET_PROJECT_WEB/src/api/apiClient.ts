@@ -9,6 +9,8 @@ import type {
 } from "@/types/Autorization/Register";
 import type { FriendRequest } from "@/types/Friend/Friend";
 import type {
+  GetMessagesRequest,
+  Message,
   MessageAddRequest,
   MessageDeleteRequest,
 } from "@/types/Message/Message";
@@ -205,9 +207,18 @@ class ApiClient {
     return response.data;
   }
 
+  async GetMessages(data: GetMessagesRequest) {
+    const response = await this.client.post<Message[]>(
+      `${BASE_MESSAGE_URL}/get-messages`,
+      data
+    );
+
+    return response.data;
+  }
+
   async AddMessage(data: MessageAddRequest) {
     const response = await this.client.post<never>(
-      `${BASE_MESSAGE_URL}/add`,
+      `${BASE_MESSAGE_URL}/add-message`,
       data
     );
 

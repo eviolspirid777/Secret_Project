@@ -6,7 +6,7 @@ namespace Secret_Project_Backend.Utils.FriendsParserFunc
 {
     public class FriendsParserFunc
     {
-        public Expression<Func<Message, bool>> FriendsFunc(GetMessagesRequest data)
+        public static Expression<Func<Message, bool>> FriendsFunc(GetMessagesRequest data)
         {
             return m => (m.ReciverId == data.FirstUserId && m.SenderId == data.SecondUserId) ||
                        (m.ReciverId == data.SecondUserId && m.SenderId == data.FirstUserId);

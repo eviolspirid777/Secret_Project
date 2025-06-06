@@ -1,5 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
+import type { Message } from "@/types/Message/Message";
 
 export default class MessageSignalRService {
   private connection: signalR.HubConnection;
@@ -29,8 +30,12 @@ export default class MessageSignalRService {
       .catch((err) => console.error(err));
   }
 
-  public async onReceiveMessage(callback: (message: string) => void) {
+  public async onReceiveMessage(callback: (message: Message) => void) {
     this.connection.on("ReceiveMessage", callback);
+  }
+
+  public async onDeleteMessage(callback: (messageId: string) => void) {
+    this.connection.on("DeleteMessage", callback);
   }
 
   public async stopConnection() {

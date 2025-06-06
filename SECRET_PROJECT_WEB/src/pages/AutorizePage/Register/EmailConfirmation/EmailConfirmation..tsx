@@ -21,7 +21,7 @@ export const EmailConfirmation: FC<EmailConfirmationProps> = ({ email }) => {
         письме, чтобы подтвердить регистрацию аккаунта.
       </span>
       <Button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/autorize")}
         className={styles["email-confirmation-container__button"]}
       >
         Вернуться назад

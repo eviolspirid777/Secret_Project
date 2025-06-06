@@ -1,0 +1,24 @@
+import { apiClient } from "@/api/apiClient";
+import type { GetMessagesRequest } from "@/types/Message/Message";
+import { useQuery } from "@tanstack/react-query";
+
+export const useGetMessages = (data: GetMessagesRequest) => {
+  const {
+    data: messages,
+    isLoading: isLoadingMessages,
+    error: errorMessages,
+    isError: isErrorMessages,
+    isSuccess: isSuccessMessages,
+  } = useQuery({
+    queryKey: ["messages", data.firstUserId, data.secondUserId],
+    queryFn: async () => await apiClient.GetMessages(data),
+  });
+
+  return {
+    messages,
+    isLoadingMessages,
+    errorMessages,
+    isErrorMessages,
+    isSuccessMessages,
+  };
+};

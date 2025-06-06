@@ -1,9 +1,8 @@
 import { getUser } from "@/store/slices/User.slice";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Message } from "./Message/Message";
 import { getFriendById } from "@/store/slices/Friends.slice";
 import type { RootState } from "@/store/store";
-import { addMessage, getMessages } from "@/store/slices/Message.slice";
 import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,25 +10,51 @@ import styles from "./styles.module.scss";
 import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
-import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { useMessageAlert } from "@/shared/hooks/messageAlert/useMessageAlert";
+import { useGetMessages } from "@/shared/hooks/message/useGetMessages";
+import { useAddMessage } from "@/shared/hooks/message/useAddMessage";
+import type { Message as MessageType } from "@/types/Message/Message";
+import { useDeleteMessage } from "@/shared/hooks/message/useDeleteMessage";
 
 type MessageBlockProps = {
   friendId: string;
 };
 
 export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
-  const [message, setMessage] = useState("");
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  const messages = useSelector(getMessages);
   const friend = useSelector((state: RootState) =>
     getFriendById(state, friendId)
   );
   const user = useSelector((state: RootState) => getUser(state));
 
-  const { playNotificationSound } = useMessageAlert();
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<MessageType[]>([]);
 
-  const dispatch = useDispatch();
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
+
+  const { messages: messagesFromHook, isSuccessMessages } = useGetMessages({
+    firstUserId: user?.userId ?? "",
+    secondUserId: friendId,
+  });
+
+  useEffect(() => {
+    if (isSuccessMessages && messagesFromHook) {
+      setMessages(messagesFromHook);
+    }
+  }, [isSuccessMessages]);
+
+  const { addMessageAsync } = useAddMessage();
+  const { deleteMessageAsync } = useDeleteMessage();
+
+  const { playNotificationSound } = useMessageAlert();
 
   const messageSignalRService = useRef(messageSignalRServiceInstance);
 
@@ -54,20 +79,17 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
       console.log("Permission status:", permission);
     });
 
+    messageSignalRService.current.onDeleteMessage((messageId) => {
+      setMessages((prev) => prev.filter((message) => message.id !== messageId));
+    });
+
     messageSignalRService.current.onReceiveMessage((message) => {
       if (friendId) {
-        dispatch(
-          addMessage({
-            message,
-            createdAt: new Date(),
-            senderId: friendId,
-            receiverId: friendId,
-          })
-        );
+        setMessages((prev) => [...prev, message]);
 
         if (Notification.permission === "granted" && provideAlerting) {
           new Notification("Новое сообщение", {
-            body: message,
+            body: message.content,
             silent: true,
             lang: "ru",
             icon: friend?.avatar ?? "/vite.svg",
@@ -96,21 +118,24 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
 
   const sendMessage = async (message: string) => {
     if (friendId && message) {
-      await messageSignalRService.current.sendMessageToUser(friendId, message);
-      dispatch(
-        addMessage({
-          message,
-          createdAt: new Date(),
-          senderId: localStorageService.getUserId() ?? "",
-          receiverId: friendId,
-        })
-      );
+      await addMessageAsync({
+        content: message,
+        senderId: user?.userId ?? "",
+        reciverId: friendId,
+      });
       setMessage("");
     }
   };
 
+  const deleteMessage = async (messageId: string, forAllUsers: boolean) => {
+    await deleteMessageAsync({
+      messageId,
+      forAllUsers,
+    });
+  };
+
   const proceedAvatar = (messageId: string) => {
-    const message = messages.find((message) => message.senderId === messageId);
+    const message = messages?.find((message) => message.senderId === messageId);
     if (message) {
       return friend?.avatar;
     }
@@ -126,13 +151,18 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
 
   return (
     <>
-      <div className={styles["friend-chat__messages"]}>
-        {messages.map((message, id) => (
+      <div
+        ref={messagesContainerRef}
+        className={styles["friend-chat__messages"]}
+      >
+        {messages?.map((message, id) => (
           <Message
             key={id}
             message={message}
             avatar={proceedAvatar(message.senderId)}
             senderName={proceedSenderName(message.senderId)}
+            deleteMessage={deleteMessage}
+            isCurrentUser={message.senderId === user?.userId}
           />
         ))}
       </div>
