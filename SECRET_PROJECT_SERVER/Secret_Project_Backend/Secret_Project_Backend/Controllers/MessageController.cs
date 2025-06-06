@@ -92,10 +92,10 @@ namespace Secret_Project_Backend.Controllers
 
             await _messageService.NotifyUserAboutMessageDeleteAsync(message.SenderId, message.Id);
             //TODO: Этот механизм все равно удаляет с бд данные, поэтому нужно еще посмотреть что придумать
-            if(data.ForAllUsers)
-            {
+            //if(data.ForAllUsers)
+            //{
                 await _messageService.NotifyUserAboutMessageDeleteAsync(message.ReciverId, message.Id);
-            }
+            //}
 
             return Ok();
         }
