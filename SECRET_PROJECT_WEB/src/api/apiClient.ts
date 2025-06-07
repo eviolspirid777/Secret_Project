@@ -149,6 +149,15 @@ class ApiClient {
     return response.data;
   }
 
+  async ChangeUserAvatar(data: FormData) {
+    const response = await this.client.postForm<string>(
+      `${BASE_USER_URL}/change-user-avatar`,
+      data
+    );
+
+    return response.data;
+  }
+
   async ChangeUserInformation(data: ChangeUserInformationRequest) {
     const response = await this.client.post<User>(
       `${BASE_USER_URL}/change-user-information`,

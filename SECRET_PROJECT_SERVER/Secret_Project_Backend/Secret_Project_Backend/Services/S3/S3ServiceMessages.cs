@@ -3,7 +3,7 @@ using Amazon.S3.Transfer;
 
 namespace Secret_Project_Backend.Services.S3
 {
-    public class S3Service
+    public class S3ServiceMessages
     {
         private readonly AmazonS3Client _s3Client;
         private readonly string _bucketName = "secret-project-storage";
@@ -17,7 +17,7 @@ namespace Secret_Project_Backend.Services.S3
             ForcePathStyle = true,
         };
 
-        public S3Service()
+        public S3ServiceMessages()
         {
             _s3Client = new AmazonS3Client(access_key, secret_key, config);
         }

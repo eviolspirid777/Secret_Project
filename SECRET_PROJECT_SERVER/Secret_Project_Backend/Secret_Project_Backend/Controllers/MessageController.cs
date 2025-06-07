@@ -17,12 +17,12 @@ namespace Secret_Project_Backend.Controllers
     {
         private readonly PostgreSQLDbContext _dbContext;
         private readonly MessageService _messageService;
-        private readonly S3Service _s3Service;
+        private readonly S3ServiceMessages _s3Service;
 
         public MessageController(
             PostgreSQLDbContext dbContext,
             MessageService messageService,
-            S3Service s3Service
+            S3ServiceMessages s3Service
         )
         {
             _dbContext = dbContext;

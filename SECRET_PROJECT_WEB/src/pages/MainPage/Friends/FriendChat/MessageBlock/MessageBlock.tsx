@@ -13,10 +13,7 @@ import {
   getMessages,
   setMessages as setMessagesAction,
 } from "@/store/slices/Message.slice";
-import {
-  getSelectedChatId,
-  setSelectedChatId,
-} from "@/store/slices/SelectedChatId.slice";
+import { setSelectedChatId } from "@/store/slices/SelectedChatId.slice";
 
 import styles from "./styles.module.scss";
 import { removeUnreadedMessagesUserId } from "@/store/slices/UnreadedMessagesUsersId.slice";

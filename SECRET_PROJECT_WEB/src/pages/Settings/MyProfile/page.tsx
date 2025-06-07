@@ -4,7 +4,7 @@ import styles from "./styles.module.scss";
 import { Badge } from "@/shared/components/Badge/Badge";
 import { Button } from "@/shadcn/ui/button";
 import { StatusTranslator } from "@/shared/helpers/StatusTranslator/StatusTranslator";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { FaPencilAlt } from "react-icons/fa";
 import { Input } from "@/shadcn/ui/input";
@@ -12,12 +12,17 @@ import { changeName } from "@/store/slices/User.slice";
 import { useDispatch } from "react-redux";
 import { Avatar } from "@/shared/components/Avatar/Avatar";
 import { useChangeUserInformation } from "@/shared/hooks/user/useChangeUserInformation";
+import { useChangeUserAvatar } from "@/shared/hooks/user/useChangeUserAvatar";
 
 export const MyProfile = () => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const user = useSelector((state: RootState) => state.user);
+
   const dispatch = useDispatch();
 
   const { changeUserInformationAsync } = useChangeUserInformation();
+  const { changeUserAvatar } = useChangeUserAvatar();
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(user.name);
@@ -45,7 +50,20 @@ export const MyProfile = () => {
     setName(user.name);
   };
 
-  const handleEditAvatar = () => {};
+  const handleChangeAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("userId", user.userId);
+      changeUserAvatar(formData);
+    }
+  };
+
+  const handleEditAvatar = () => {
+    setIsEditing(true);
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className={styles["my-profile"]}>
@@ -60,10 +78,21 @@ export const MyProfile = () => {
             onClick={isEditing ? handleEditAvatar : undefined}
           />
           {isEditing && (
-            <FaPencilAlt
-              className={styles["my-profile__avatar-pencil"]}
-              size={30}
-            />
+            <>
+              <FaPencilAlt
+                className={styles["my-profile__avatar-pencil"]}
+                onClick={() => fileInputRef.current?.click()}
+                size={30}
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                onChange={handleChangeAvatar}
+                style={{
+                  display: "none",
+                }}
+              />
+            </>
           )}
           <Badge
             className={styles["my-profile__badge"]}

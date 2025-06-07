@@ -10,6 +10,7 @@ using Secret_Project_Backend.DTOs;
 using Secret_Project_Backend.Mappers.FriendShip;
 using Secret_Project_Backend.Mappers.User;
 using Secret_Project_Backend.Models;
+using Secret_Project_Backend.Services.S3;
 using Secret_Project_Backend.Services.Status;
 using Secret_Project_Backend.Services.User;
 using Secret_Project_Backend.SignalR;
@@ -28,14 +29,15 @@ namespace Secret_Project_Backend.Controllers
         private readonly IHubContext<FriendRequestHub> _hubFriendContext;
         private readonly IHubContext<StatusHub> _hubUserStatusContext;
         private readonly UserService _userService;
-
+        private readonly S3ServiceAvatars _s3ServiceAvatars;
         public UserController(
             PostgreSQLDbContext dbContext,
             UserManager<ApplicationUser> userManager,
             ChangeUserStatusService userStatusService,
             IHubContext<FriendRequestHub> hubFriendContext,
             IHubContext<StatusHub> hubUserStatusContext,
-            UserService userService
+            UserService userService,
+            S3ServiceAvatars s3ServiceAvatars
         )
         {
             _dbContext = dbContext;
@@ -44,9 +46,39 @@ namespace Secret_Project_Backend.Controllers
             _hubFriendContext = hubFriendContext;
             _hubUserStatusContext = hubUserStatusContext;
             _userService = userService;
+            _s3ServiceAvatars = s3ServiceAvatars;
         }
 
         #region User
+        [Authorize]
+        [HttpPost("change-user-avatar")]
+        public async Task<IActionResult> ChangeUserAvatar(
+            [FromForm] Guid userId,
+            [FromForm] IFormFile file
+        )
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId.ToString());
+            if(user == null)
+            {
+                return BadRequest("Invalid userId");
+            }
+
+            using var stream = file.OpenReadStream();
+
+            //TODO: могут заспамить аватарками новыми
+            //var userAvatar = await _s3ServiceAvatars.GetFileAsync(userId.ToString());
+            //if(userAvatar != null)
+            //{
+            //    await _s3ServiceAvatars.DeleteFileAsync(userId.ToString());
+            //}
+            var userAvatarUrl = await _s3ServiceAvatars.UploadAvatarAsync(stream, userId.ToString());
+
+            user.AvatarUrl = userAvatarUrl;
+
+            await _dbContext.SaveChangesAsync();
+            return Ok(userAvatarUrl);
+        }
+
         [Authorize]
         [HttpPost("change-user-status")]
         public async Task<IActionResult> ChangeStatusUser([FromBody] ChangeUserStatusRequest data)

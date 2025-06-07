@@ -18,6 +18,7 @@ export const FileDisplay: FC<FileDisplayProps> = ({ message }) => {
 
   const fileDisply = () => {
     switch (message.file?.fileType) {
+      case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
       case "application/msword":
         return (
           <div className={styles["file-display__ms-word-container"]}>

@@ -107,7 +107,9 @@ builder.Services.AddScoped<IEmailService, MailKitEmailService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ChangeUserStatusService>();
 builder.Services.AddScoped<MessageService>();
-builder.Services.AddScoped<S3Service>();
+
+builder.Services.AddScoped<S3ServiceMessages>();
+builder.Services.AddScoped<S3ServiceAvatars>();
 
 var app = builder.Build();
 
