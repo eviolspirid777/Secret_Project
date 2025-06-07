@@ -4,9 +4,6 @@
 	 viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
 <g>
 	<radialGradient id="SVGID_1_" cx="32.0001" cy="31.5" r="31.259" gradientUnits="userSpaceOnUse">
-		<stop  offset="3.036840e-07" style="stop-color:#F7E9C2"/>
-		<stop  offset="0.644" style="stop-color:#FFF3DB"/>
-		<stop  offset="1" style="stop-color:#FFF5E0"/>
 	</radialGradient>
 	<path style="fill:url(#SVGID_1_);" d="M55,43l-2.983,0c-1.308,0-2.499-0.941-2.629-2.243C49.238,39.261,50.409,38,51.875,38
 		l6.755,0c1.451,0,2.789-0.972,3.071-2.395C62.081,33.693,60.609,32,58.761,32H50v-8h11c1.657,0,3-1.343,3-3v0c0-1.657-1.343-3-3-3

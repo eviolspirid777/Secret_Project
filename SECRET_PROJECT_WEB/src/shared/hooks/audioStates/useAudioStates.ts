@@ -16,7 +16,6 @@ export const useAudioStates = () => {
 
   const changeMicrophoneStateHandler = async () => {
     try {
-      console.log(user.userId);
       const response = await changeMicrophoneStateAsync(user.userId);
       if (response.status === 200) {
         dispatch(changeMicrophoneState(response.data));

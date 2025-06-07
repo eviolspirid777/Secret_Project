@@ -12,7 +12,7 @@ namespace Secret_Project_Backend.Models
         public virtual ApplicationUser Reciver { get; set; }
         public DateTime SentAt { get; set; }
         public string? Content { get; set; }
-        public string? FileUrl { get; set; }
-        public string? FileType { get; set; }
+        public Guid? FileId { get; set; }
+        public virtual File File { get; set; }
     }
 }

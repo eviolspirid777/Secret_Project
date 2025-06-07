@@ -35,6 +35,7 @@ namespace Secret_Project_Backend.Controllers
         {
             var messagesQuerable = _dbContext
                 .Messages
+                .Include(m => m.File)
                 .AsNoTracking()
                 .AsQueryable();
 
@@ -60,8 +61,9 @@ namespace Secret_Project_Backend.Controllers
             [FromForm] string SenderId,
             [FromForm] string ReciverId,
             [FromForm] string? Content,
-            [FromForm] IFormFile File,
-            [FromForm] string? FileType
+            [FromForm] IFormFile? File,
+            [FromForm] string? FileType,
+            [FromForm] string? FileName
         )
         {
             if(SenderId == null || ReciverId == null)
@@ -74,19 +76,27 @@ namespace Secret_Project_Backend.Controllers
                 return BadRequest("Пустые данные!");
             }
 
-            using var stream = File.OpenReadStream();
-
-            var fileString = await _s3Service.UploadFileAsync(stream, Guid.NewGuid().ToString());
-
             var message = new Models.Message()
             {
                 ReciverId = ReciverId,
                 SenderId = SenderId,
                 Content = Content,
                 SentAt = DateTime.UtcNow,
-                FileUrl = fileString,
-                FileType = FileType
             };
+
+            if (File != null)
+            {
+                using var stream = File.OpenReadStream();
+
+                var fileString = await _s3Service.UploadFileAsync(stream, Guid.NewGuid().ToString());
+
+                message.File = new Models.File()
+                {
+                    FileName = FileName ?? "",
+                    FileType = FileType ?? "",
+                    FileUrl = fileString,
+                };
+            }
 
             await _dbContext.Messages.AddAsync(message);
             await _dbContext.SaveChangesAsync();
@@ -102,20 +112,29 @@ namespace Secret_Project_Backend.Controllers
         [HttpPost("delete")]
         public async Task<IActionResult> DeleteMessage([FromBody] DeleteMessageRequest data)
         {
-            var message = await _dbContext.Messages.FirstOrDefaultAsync(m => m.Id == data.MessageId);
+            var message = await _dbContext
+                .Messages
+                .Include(m => m.File)
+                .FirstOrDefaultAsync(m => m.Id == data.MessageId);
+
             if(message == null)
             {
                 return BadRequest("Invalid message id");
             }
 
+            if(message.File != null)
+            {
+                await _s3Service.DeleteFileAsync(message.File.FileName);
+            }
+
             _dbContext.Messages.Remove(message);
             await _dbContext.SaveChangesAsync();
 
-            await _messageService.NotifyUserAboutMessageDeleteAsync(message.SenderId, message.Id);
+            await _messageService.NotifyUserAboutMessageDeleteAsync(message.SenderId, message);
             //TODO: Этот механизм все равно удаляет с бд данные, поэтому нужно еще посмотреть что придумать
             //if(data.ForAllUsers)
             //{
-                await _messageService.NotifyUserAboutMessageDeleteAsync(message.ReciverId, message.Id);
+                await _messageService.NotifyUserAboutMessageDeleteAsync(message.ReciverId, message);
             //}
 
             return Ok();

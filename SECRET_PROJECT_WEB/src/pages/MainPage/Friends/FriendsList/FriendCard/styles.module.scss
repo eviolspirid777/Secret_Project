@@ -18,6 +18,22 @@
     right: -4px;
   }
 
+  &__name-wrapper {
+    position: relative;
+  }
+
+  &__unreaded-messages-badge {
+    position: absolute;
+    bottom: 0%;
+    right: 0%;
+    transform: translate(0%, -10%);
+
+    width: 10px;
+    height: 17px;
+    border-radius: 50%;
+    background-color: $color-danger !important;
+  }
+
   &__avatar {
     width: 35px;
     height: 35px;

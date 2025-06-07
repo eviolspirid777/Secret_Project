@@ -1,4 +1,6 @@
-﻿namespace Secret_Project_Backend.DTOs.Messages
+﻿using Secret_Project_Backend.DTOs.File;
+
+namespace Secret_Project_Backend.DTOs.Messages
 {
     public class MessageDto
     {
@@ -7,7 +9,6 @@
         public string SenderId { get; set; }
         public string ReciverId { get; set; }
         public DateTime SentAt { get; set; }
-        public string FileUrl { get; set; }
-        public string FileType { get; set; }
+        public FileDto File { get; set; }
     }
 }

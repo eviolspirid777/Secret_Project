@@ -27,11 +27,11 @@ namespace Secret_Project_Backend.Services.Chat
             }
         }
 
-        public async Task<bool> NotifyUserAboutMessageDeleteAsync(string userId, Guid messageId)
+        public async Task<bool> NotifyUserAboutMessageDeleteAsync(string userId, Message message)
         {
             try
             {
-                await _hubUserStatusContext.Clients.User(userId).SendAsync("DeleteMessage", messageId);
+                await _hubUserStatusContext.Clients.User(userId).SendAsync("DeleteMessage", message);
                 return true;
             }
             catch (Exception)

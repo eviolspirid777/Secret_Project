@@ -72,9 +72,16 @@ export const Page: FC<PageProps> = ({ onAutorize }) => {
     form.resetField("confirmPassword");
   };
 
+  const handleBack = () => {
+    handleResetRegister();
+    onAutorize();
+  };
+
   if (isRegisterPending) return <Loader />;
   if (isRegisterSuccess)
-    return <EmailConfirmation email={form.getValues("email")} />;
+    return (
+      <EmailConfirmation email={form.getValues("email")} onBack={handleBack} />
+    );
   if (isRegisterError)
     return (
       <Error

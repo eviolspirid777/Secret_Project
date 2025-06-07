@@ -9,6 +9,7 @@ export const useGetMessages = (data: GetMessagesRequest) => {
     error: errorMessages,
     isError: isErrorMessages,
     isSuccess: isSuccessMessages,
+    refetch: refetchMessages,
   } = useQuery({
     queryKey: ["messages", data.firstUserId, data.secondUserId],
     queryFn: async () => await apiClient.GetMessages(data),
@@ -20,5 +21,6 @@ export const useGetMessages = (data: GetMessagesRequest) => {
     errorMessages,
     isErrorMessages,
     isSuccessMessages,
+    refetchMessages,
   };
 };

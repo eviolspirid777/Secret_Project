@@ -1,16 +1,17 @@
 import { Button } from "@/shadcn/ui/button";
 import type { FC } from "react";
-import { useNavigate } from "react-router";
 
 import styles from "./styles.module.scss";
 
 type EmailConfirmationProps = {
   email: string;
+  onBack: () => void;
 };
 
-export const EmailConfirmation: FC<EmailConfirmationProps> = ({ email }) => {
-  const navigate = useNavigate();
-
+export const EmailConfirmation: FC<EmailConfirmationProps> = ({
+  email,
+  onBack,
+}) => {
   return (
     <div className={styles["email-confirmation-container"]}>
       <h3 className={styles["email-confirmation-container__title"]}>
@@ -21,7 +22,7 @@ export const EmailConfirmation: FC<EmailConfirmationProps> = ({ email }) => {
         письме, чтобы подтвердить регистрацию аккаунта.
       </span>
       <Button
-        onClick={() => navigate("/autorize")}
+        onClick={onBack}
         className={styles["email-confirmation-container__button"]}
       >
         Вернуться назад

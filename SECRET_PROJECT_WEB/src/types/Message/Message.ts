@@ -4,8 +4,13 @@ export type Message = {
   senderId: string;
   reciverId: string;
   sentAt: string;
+  file?: File;
+};
+
+export type File = {
   fileUrl?: string;
   fileType?: string;
+  fileName?: string;
 };
 
 export type MessageAddRequest = {

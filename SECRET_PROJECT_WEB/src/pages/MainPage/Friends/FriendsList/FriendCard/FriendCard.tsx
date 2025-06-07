@@ -11,12 +11,19 @@ import {
 import { useNavigate } from "react-router";
 import type { User } from "@/types/User/User";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
+import { useSelector } from "react-redux";
+import { getUnreadedMessagesUsersId } from "@/store/slices/UnreadedMessagesUsersId.slice";
+import type { RootState } from "@/store/store";
 
 type FriendCardProps = {
   friend: User;
 };
 
 export const FriendCard = ({ friend }: FriendCardProps) => {
+  const unreadedMessagesUsersId = useSelector((state: RootState) =>
+    getUnreadedMessagesUsersId(state)
+  );
+
   const navigate = useNavigate();
 
   const handleFriendClick = () => {
@@ -44,7 +51,15 @@ export const FriendCard = ({ friend }: FriendCardProps) => {
               variant={friend.status}
             />
           </div>
-          <span className={styles["friend-card__name"]}>{friend.name}</span>
+          <div className={styles["friend-card__name-wrapper"]}>
+            <span className={styles["friend-card__name"]}>{friend.name}</span>
+            {unreadedMessagesUsersId.includes(friend.userId) && (
+              <Badge
+                className={styles["friend-card__unreaded-messages-badge"]}
+                variant="destructive"
+              />
+            )}
+          </div>
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent>

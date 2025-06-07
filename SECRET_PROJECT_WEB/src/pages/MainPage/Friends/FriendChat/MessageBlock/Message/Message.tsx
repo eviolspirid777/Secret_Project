@@ -63,7 +63,7 @@ export const Message = ({
               {formatTime(message.sentAt)}
             </span>
           </div>
-          {message.fileUrl && <FileDisplay message={message} />}
+          {message.file && <FileDisplay message={message} />}
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent>

@@ -10,29 +10,29 @@ namespace Secret_Project_Backend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "FileUrl",
-                table: "Messages",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text");
+            //migrationBuilder.AlterColumn<string>(
+            //    name: "FileUrl",
+            //    table: "Messages",
+            //    type: "text",
+            //    nullable: true,
+            //    oldClrType: typeof(string),
+            //    oldType: "text");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "FileType",
-                table: "Messages",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text");
+            //migrationBuilder.AlterColumn<string>(
+            //    name: "FileType",
+            //    table: "Messages",
+            //    type: "text",
+            //    nullable: true,
+            //    oldClrType: typeof(string),
+            //    oldType: "text");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Content",
-                table: "Messages",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text");
+            //migrationBuilder.AlterColumn<string>(
+            //    name: "Content",
+            //    table: "Messages",
+            //    type: "text",
+            //    nullable: true,
+            //    oldClrType: typeof(string),
+            //    oldType: "text");
         }
 
         /// <inheritdoc />

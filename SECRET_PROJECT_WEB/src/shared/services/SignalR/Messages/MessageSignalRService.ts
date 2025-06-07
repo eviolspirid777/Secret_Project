@@ -34,7 +34,7 @@ export default class MessageSignalRService {
     this.connection.on("ReceiveMessage", callback);
   }
 
-  public async onDeleteMessage(callback: (messageId: string) => void) {
+  public async onDeleteMessage(callback: (message: Message) => void) {
     this.connection.on("DeleteMessage", callback);
   }
 

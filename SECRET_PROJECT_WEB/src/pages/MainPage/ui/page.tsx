@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 
 import styles from "./styles.module.scss";
 import { useChangeUserStatus } from "@/shared/hooks/user/useChangeUserStatus";
+import { useMessageDisplay } from "@/shared/hooks/messageAlert/useMessageDisplay";
 
 export const Page = () => {
   /*TODO:
@@ -24,6 +25,8 @@ export const Page = () => {
 
   const { userInformation, isLoadingUserInformation, errorUserInformation } =
     useUserInformation(localStorageService.getUserId() ?? "");
+
+  useMessageDisplay();
 
   useEffect(() => {
     if (userInformation) {
@@ -42,18 +45,6 @@ export const Page = () => {
           status: "Offline",
           userId: localStorageService.getUserId() ?? "",
         });
-        // const data = new Blob(
-        //   [
-        //     JSON.stringify({
-        //       userId: localStorageService.getUserId() ?? "",
-        //       status: "Offline",
-        //     }),
-        //   ],
-        //   { type: "application/json" }
-        // );
-
-        // const apiUrl = import.meta.env.VITE_API_URL;
-        // navigator.sendBeacon(`${apiUrl}/api/User/finish-user-session`, data);
       }
     };
 
@@ -89,27 +80,6 @@ export const Page = () => {
       dispatch(setUserStatus({ status: "Online" }));
     };
 
-    // if ("serviceWorker" in navigator) {
-    //   navigator.serviceWorker.register("/workers/ServiceWorker.js").then(
-    //     (registration) => {
-    //       console.log("Service worker registered", registration);
-    //     },
-    //     (error) => {
-    //       console.log("Service worker registration failed", error);
-    //     }
-    //   );
-
-    //   window.addEventListener("beforeunload", () => {
-    //     navigator.serviceWorker.controller?.postMessage({
-    //       type: "TAB_CLOSING",
-    //       data: {
-    //         userId: localStorageService.getUserId() ?? "",
-    //         token: localStorageService.getToken() ?? "",
-    //         status: "Offline",
-    //       },
-    //     });
-    //   });
-    // }
     //TODO: разобраться с событиями
     // window.addEventListener("beforeunload", sendOfflineStatus);
     // window.addEventListener("unload", sendOfflineStatus);
