@@ -29,6 +29,7 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<MessageType[]>([]);
+  const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (messagesContainerRef.current) {
@@ -116,12 +117,20 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
   }, []);
 
   const sendMessage = async (message: string) => {
-    if (friendId && message) {
-      await addMessageAsync({
-        content: message,
-        senderId: user?.userId ?? "",
-        reciverId: friendId,
-      });
+    if (friendId) {
+      const formData = new FormData();
+      console.log(file);
+      if (file) {
+        formData.append("file", file);
+        formData.append("fileType", file.type);
+      }
+      formData.append("senderId", user?.userId ?? "");
+      formData.append("reciverId", friendId);
+      if (message) {
+        formData.append("content", message);
+      }
+
+      await addMessageAsync(formData);
       setMessage("");
     }
   };
@@ -148,6 +157,10 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
     return user?.name;
   };
 
+  const sendFile = (file: File) => {
+    setFile(file);
+  };
+
   return (
     <>
       <div
@@ -169,6 +182,7 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
         message={message}
         setMessage={setMessage}
         sendMessage={sendMessage}
+        sendFile={sendFile}
       />
     </>
   );

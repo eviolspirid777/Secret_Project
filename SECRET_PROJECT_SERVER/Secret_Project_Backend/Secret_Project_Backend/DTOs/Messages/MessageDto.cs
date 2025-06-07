@@ -7,5 +7,7 @@
         public string SenderId { get; set; }
         public string ReciverId { get; set; }
         public DateTime SentAt { get; set; }
+        public string FileUrl { get; set; }
+        public string FileType { get; set; }
     }
 }

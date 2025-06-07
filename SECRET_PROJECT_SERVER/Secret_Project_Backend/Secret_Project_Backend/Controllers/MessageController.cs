@@ -5,6 +5,7 @@ using Secret_Project_Backend.Controllers.Requests.Messages;
 using Secret_Project_Backend.DTOs.Messages;
 using Secret_Project_Backend.Mappers.Messages;
 using Secret_Project_Backend.Services.Chat;
+using Secret_Project_Backend.Services.S3;
 using Secret_Project_Backend.Utils.FriendsParserFunc;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -16,14 +17,17 @@ namespace Secret_Project_Backend.Controllers
     {
         private readonly PostgreSQLDbContext _dbContext;
         private readonly MessageService _messageService;
+        private readonly S3Service _s3Service;
 
         public MessageController(
             PostgreSQLDbContext dbContext,
-            MessageService messageService
+            MessageService messageService,
+            S3Service s3Service
         )
         {
             _dbContext = dbContext;
             _messageService = messageService;
+            _s3Service = s3Service;
         }
 
         [HttpPost("get-messages")]
@@ -52,19 +56,36 @@ namespace Secret_Project_Backend.Controllers
         }
 
         [HttpPost("add-message")]
-        public async Task<IActionResult> AddMessage([FromBody] AddMessageRequest data)
+        public async Task<IActionResult> AddMessage(
+            [FromForm] string SenderId,
+            [FromForm] string ReciverId,
+            [FromForm] string? Content,
+            [FromForm] IFormFile File,
+            [FromForm] string? FileType
+        )
         {
-            if(data.SenderId == null || data.ReciverId == null || string.IsNullOrEmpty(data.Content))
+            if(SenderId == null || ReciverId == null)
             {
                 return BadRequest("Данные неправильные!");
             }
 
+            if(string.IsNullOrEmpty(Content) && File == null)
+            {
+                return BadRequest("Пустые данные!");
+            }
+
+            using var stream = File.OpenReadStream();
+
+            var fileString = await _s3Service.UploadFileAsync(stream, Guid.NewGuid().ToString());
+
             var message = new Models.Message()
             {
-                ReciverId = data.ReciverId,
-                SenderId = data.SenderId,
-                Content = data.Content,
+                ReciverId = ReciverId,
+                SenderId = SenderId,
+                Content = Content,
                 SentAt = DateTime.UtcNow,
+                FileUrl = fileString,
+                FileType = FileType
             };
 
             await _dbContext.Messages.AddAsync(message);
@@ -72,8 +93,8 @@ namespace Secret_Project_Backend.Controllers
 
             var messageDto = MessageMapper.MapMessageToMessageDto(message);
 
-            await _messageService.NotifyUserAsync(data.SenderId, messageDto);
-            await _messageService.NotifyUserAsync(data.ReciverId, messageDto);
+            await _messageService.NotifyUserAsync(SenderId, messageDto);
+            await _messageService.NotifyUserAsync(ReciverId, messageDto);
 
             return Ok(messageDto);
         }

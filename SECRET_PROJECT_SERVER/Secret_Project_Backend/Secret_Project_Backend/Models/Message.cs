@@ -11,6 +11,8 @@ namespace Secret_Project_Backend.Models
         public string ReciverId { get; set; }
         public virtual ApplicationUser Reciver { get; set; }
         public DateTime SentAt { get; set; }
-        public string Content { get; set; }
+        public string? Content { get; set; }
+        public string? FileUrl { get; set; }
+        public string? FileType { get; set; }
     }
 }

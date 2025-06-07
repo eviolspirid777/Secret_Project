@@ -12,6 +12,7 @@ import {
   ContextMenuSubTrigger,
 } from "@/shadcn/ui/context-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
+import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
 
 type MessageProps = {
   message: MessageType;
@@ -38,22 +39,31 @@ export const Message = ({
   return (
     <ContextMenu>
       <ContextMenuTrigger>
-        <div className={styles["message"]}>
-          <Avatar className={styles["message__avatar"]}>
-            <AvatarImage src={avatar} />
-            <AvatarFallback>
-              {senderName
-                ?.split(" ")
-                .map((name, index) => {
-                  if ([0, 1].includes(index)) return name[0];
-                })
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
-          <div className={styles["message__content"]}>{message.content}</div>
-          <span className={styles["message__time"]}>
-            {formatTime(message.sentAt)}
-          </span>
+        <div className={styles["message-container"]}>
+          <div className={styles["message"]}>
+            <Avatar className={styles["message__avatar"]}>
+              <AvatarImage src={avatar} />
+              <AvatarFallback>
+                {senderName
+                  ?.split(" ")
+                  .map((name, index) => {
+                    if ([0, 1].includes(index)) return name[0];
+                  })
+                  .join("")}
+              </AvatarFallback>
+            </Avatar>
+            {message.content ? (
+              <div className={styles["message__content"]}>
+                {message.content}
+              </div>
+            ) : (
+              <div />
+            )}
+            <span className={styles["message__time"]}>
+              {formatTime(message.sentAt)}
+            </span>
+          </div>
+          {message.fileUrl && <FileDisplay message={message} />}
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent>

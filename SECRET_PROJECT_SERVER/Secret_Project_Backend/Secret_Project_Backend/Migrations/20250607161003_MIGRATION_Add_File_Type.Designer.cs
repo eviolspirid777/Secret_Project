@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Secret_Project_Backend.Context;
@@ -11,9 +12,11 @@ using Secret_Project_Backend.Context;
 namespace Secret_Project_Backend.Migrations
 {
     [DbContext(typeof(PostgreSQLDbContext))]
-    partial class PostgreSQLDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250607161003_MIGRATION_Add_File_Type")]
+    partial class MIGRATION_Add_File_Type
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -336,12 +339,15 @@ namespace Secret_Project_Backend.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("FileType")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("FileUrl")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ReciverId")

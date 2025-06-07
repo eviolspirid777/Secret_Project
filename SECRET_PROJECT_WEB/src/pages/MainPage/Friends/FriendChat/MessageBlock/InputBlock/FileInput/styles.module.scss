@@ -1,0 +1,23 @@
+.file-input-container {
+  position: relative;
+  display: inline-block;
+
+  .file-input {
+    display: none;
+  }
+
+  .file-count {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 3px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+    transform: translate(40%, -30%);
+    pointer-events: none;
+  }
+}

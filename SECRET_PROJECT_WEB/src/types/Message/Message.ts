@@ -1,9 +1,11 @@
 export type Message = {
   id: string;
-  content: string;
+  content?: string;
   senderId: string;
   reciverId: string;
   sentAt: string;
+  fileUrl?: string;
+  fileType?: string;
 };
 
 export type MessageAddRequest = {

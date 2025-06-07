@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.SignalR;
 using Secret_Project_Backend.Services.Chat;
 using Secret_Project_Backend.Services.Status;
 using Secret_Project_Backend.Services.User;
+using Secret_Project_Backend.Services.S3;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -106,6 +107,7 @@ builder.Services.AddScoped<IEmailService, MailKitEmailService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ChangeUserStatusService>();
 builder.Services.AddScoped<MessageService>();
+builder.Services.AddScoped<S3Service>();
 
 var app = builder.Build();
 

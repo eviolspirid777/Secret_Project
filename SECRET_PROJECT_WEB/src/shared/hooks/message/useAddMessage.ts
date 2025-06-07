@@ -1,5 +1,4 @@
 import { apiClient } from "@/api/apiClient";
-import type { MessageAddRequest } from "@/types/Message/Message";
 import { useMutation } from "@tanstack/react-query";
 
 export const useAddMessage = () => {
@@ -10,7 +9,7 @@ export const useAddMessage = () => {
     mutateAsync: addMessageAsync,
   } = useMutation({
     mutationKey: ["add-message"],
-    mutationFn: (data: MessageAddRequest) => apiClient.AddMessage(data),
+    mutationFn: (data: FormData) => apiClient.AddMessage(data),
   });
 
   return {

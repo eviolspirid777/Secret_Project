@@ -11,7 +11,6 @@ import type { FriendRequest } from "@/types/Friend/Friend";
 import type {
   GetMessagesRequest,
   Message,
-  MessageAddRequest,
   MessageDeleteRequest,
 } from "@/types/Message/Message";
 import type { ChangeUserInformationRequest } from "@/types/User/ChangeUserInformationRequest";
@@ -216,8 +215,8 @@ class ApiClient {
     return response.data;
   }
 
-  async AddMessage(data: MessageAddRequest) {
-    const response = await this.client.post<never>(
+  async AddMessage(data: FormData) {
+    const response = await this.client.postForm<never>(
       `${BASE_MESSAGE_URL}/add-message`,
       data
     );
