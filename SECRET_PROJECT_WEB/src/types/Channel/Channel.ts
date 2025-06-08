@@ -1,6 +1,7 @@
+import type { ChannelMessage } from "../ChannelMessage/ChannelMessage";
+import type { ChannelUser } from "../ChannelUser/ChannelUser";
+
 export type Channel = {
-  id: string;
-  name: string;
-  image?: string;
-  isMuted?: boolean;
+  users: ChannelUser[];
+  messages: ChannelMessage[];
 };

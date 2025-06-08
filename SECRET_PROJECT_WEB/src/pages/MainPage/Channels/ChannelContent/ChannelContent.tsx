@@ -1,12 +1,24 @@
 import { useParams } from "react-router";
-import type { FC } from "react";
+import { useEffect, type FC } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
+import { ChannelMessageBlock } from "./ChannelMessageBlock/ChannelMessageBlock";
 
 import styles from "./styles.module.scss";
+import { useGetChannelUsers } from "@/shared/hooks/channelMessage/useGetChannelUsers";
 
 export const ChannelContent: FC = () => {
   const { channelId } = useParams();
+
+  const {
+    channelUsers,
+    channelUsersError,
+    isChannelUsersLoading,
+    isChannelUsersSuccess,
+  } = useGetChannelUsers(channelId);
+
+  useEffect(() => {}, [isChannelUsersSuccess]);
+
   const channel = useSelector((state: RootState) =>
     state.channels.find((ch) => ch.id === channelId)
   );
@@ -21,7 +33,7 @@ export const ChannelContent: FC = () => {
         <h2>{channel.name}</h2>
       </div>
       <div className={styles["channel-content__messages"]}>
-        {/* Здесь будет список сообщений */}
+        <ChannelMessageBlock channelId={channel.id} />
       </div>
     </div>
   );

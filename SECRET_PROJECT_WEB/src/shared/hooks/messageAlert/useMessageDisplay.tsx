@@ -61,7 +61,7 @@ export const useMessageDisplay = () => {
 
       if (Notification.permission === "granted" && provideAlerting) {
         new Notification("Новое сообщение", {
-          body: message.content,
+          body: message.content ?? message.file?.fileName ?? "",
           silent: true,
           lang: "ru",
           icon: "/vite.svg",

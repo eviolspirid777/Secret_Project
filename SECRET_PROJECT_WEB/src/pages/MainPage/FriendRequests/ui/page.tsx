@@ -7,8 +7,11 @@ import { useFriendRequests } from "@/shared/hooks/user/friendship/useFriendReque
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { useEffect, useState } from "react";
 import type { User } from "@/types/User/User";
+import { removeFriendRequest } from "@/store/slices/FriendsRequests.slice";
+import { useDispatch } from "react-redux";
 
 export const Page = () => {
+  const dispatch = useDispatch();
   const { friendRequests } = useFriendRequests();
   const [friends, setFriends] = useState<User[]>();
 
@@ -40,6 +43,7 @@ export const Page = () => {
         toUserId: friendId,
       });
       setFriends(friends?.filter((friend) => friend.userId !== friendId));
+      dispatch(removeFriendRequest(friendId));
     } catch (error) {
       console.error(error);
     }

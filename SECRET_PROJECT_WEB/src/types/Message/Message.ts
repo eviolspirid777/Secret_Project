@@ -13,12 +13,6 @@ export type File = {
   fileName?: string;
 };
 
-export type MessageAddRequest = {
-  senderId: string;
-  reciverId: string;
-  content: string;
-};
-
 export type MessageDeleteRequest = {
   messageId: string;
   forAllUsers: boolean;

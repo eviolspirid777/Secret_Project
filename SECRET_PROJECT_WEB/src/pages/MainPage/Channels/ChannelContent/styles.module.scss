@@ -5,14 +5,17 @@
   flex-direction: column;
   height: 100%;
   background-color: $background-color;
+  border-radius: 10px;
 
   &__header {
     padding: 1rem;
     border-bottom: 1px solid $color-border;
-    
+
     h2 {
       font-size: 1.2rem;
       font-weight: 600;
+      color: $font-color;
+      text-align: center;
     }
   }
 
@@ -21,4 +24,4 @@
     padding: 1rem;
     overflow-y: auto;
   }
-} 
+}

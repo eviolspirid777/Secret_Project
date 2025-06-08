@@ -4,7 +4,7 @@ namespace Secret_Project_Backend.Controllers.Requests.Messages
 {
     public class ChannelMessageAddRequest
     {
-        public IEnumerable<ChannelMessageDto> Messages { get; set; }
+        public ChannelMessageDto Message { get; set; }
         public Guid ChannelId { get; set; }
     }
 

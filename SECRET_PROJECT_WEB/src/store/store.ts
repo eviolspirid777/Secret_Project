@@ -6,6 +6,7 @@ import friendsReducer from "./slices/Friends.slice";
 import messagesReducer from "./slices/Message.slice";
 import { selectedChatIdReducer } from "./slices/SelectedChatId.slice";
 import { unreadedMessagesUsersIdReducer } from "./slices/UnreadedMessagesUsersId.slice";
+import { friendsRequestsReducer } from "./slices/FriendsRequests.slice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     messages: messagesReducer,
     selectedChatId: selectedChatIdReducer,
     unreadedMessagesUsersId: unreadedMessagesUsersIdReducer,
+    friendsRequests: friendsRequestsReducer,
   },
 });
 

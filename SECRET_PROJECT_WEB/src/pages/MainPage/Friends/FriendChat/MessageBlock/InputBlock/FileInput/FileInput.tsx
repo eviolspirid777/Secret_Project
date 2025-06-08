@@ -1,16 +1,21 @@
 import { Button } from "@/shadcn/ui/button";
 import { Paperclip } from "lucide-react";
-import { useRef, useState, type FC } from "react";
+import { useRef, type FC } from "react";
 
 import styles from "./styles.module.scss";
 
 type FileInputProps = {
-  sendFile: (file: File) => void;
+  sendFile: (file: File | null) => void;
+  fileCount: number;
+  setFileCount: (count: number) => void;
 };
 
-export const FileInput: FC<FileInputProps> = ({ sendFile }) => {
+export const FileInput: FC<FileInputProps> = ({
+  sendFile,
+  fileCount,
+  setFileCount,
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [fileCount, setFileCount] = useState(0);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

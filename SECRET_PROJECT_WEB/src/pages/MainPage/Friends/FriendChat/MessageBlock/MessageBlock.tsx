@@ -121,7 +121,7 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
     return user?.name;
   };
 
-  const sendFile = (file: File) => {
+  const sendFile = (file: File | null) => {
     setFile(file);
   };
 

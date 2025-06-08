@@ -5,12 +5,13 @@ import { SmileBlock } from "./SmileBlock/SmileBlock";
 import { FileInput } from "./FileInput/FileInput";
 
 import styles from "./styles.module.scss";
+import { useState } from "react";
 
 type InputBlockProps = {
   message: string;
   setMessage: (message: string) => void;
   sendMessage: (message: string) => void;
-  sendFile: (file: File) => void;
+  sendFile: (file: File | null) => void;
 };
 
 export const InputBlock: FC<InputBlockProps> = ({
@@ -19,9 +20,22 @@ export const InputBlock: FC<InputBlockProps> = ({
   sendMessage,
   sendFile,
 }) => {
+  const [fileCount, setFileCount] = useState(0);
+
+  const handleSendMessage = () => {
+    sendMessage(message);
+    setMessage("");
+    sendFile(null);
+    setFileCount(0);
+  };
+
   return (
     <div className={styles["friend-chat__input-container"]}>
-      <FileInput sendFile={sendFile} />
+      <FileInput
+        sendFile={sendFile}
+        fileCount={fileCount}
+        setFileCount={setFileCount}
+      />
       <SmileBlock setMessage={setMessage} />
       <Input
         className={styles["friend-chat__input"]}
@@ -30,11 +44,11 @@ export const InputBlock: FC<InputBlockProps> = ({
         placeholder="Сообщение..."
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            sendMessage(message);
+            handleSendMessage();
           }
         }}
       />
-      <Button onClick={() => sendMessage(message)}>Отправить</Button>
+      <Button onClick={handleSendMessage}>Отправить</Button>
     </div>
   );
 };

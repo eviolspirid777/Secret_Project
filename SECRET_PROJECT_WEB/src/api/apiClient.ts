@@ -7,6 +7,8 @@ import type {
   RegisterRequest,
   RegisterResponse,
 } from "@/types/Autorization/Register";
+import type { AddChannelMessageRequest } from "@/types/ChannelMessage/AddChannelMessageRequest";
+import type { DeleteChannelMessageRequest } from "@/types/ChannelMessage/DeleteChannelMessageRequest";
 import type { FriendRequest } from "@/types/Friend/Friend";
 import type {
   GetMessagesRequest,
@@ -209,6 +211,51 @@ class ApiClient {
   async DeclineFriendRequest(data: FriendRequest) {
     const response = await this.client.post<never>(
       `${BASE_USER_URL}/friend/decline-request`,
+      data
+    );
+
+    return response.data;
+  }
+
+  async GetChannelUsers(id: string) {
+    const response = await this.client.get<User[]>(
+      `${BASE_MESSAGE_URL}/get-channel-users`,
+      {
+        params: {
+          id,
+        },
+      }
+    );
+
+    return response.data;
+  }
+
+  async GetChannelMessages(id: string) {
+    const response = await this.client.post<Message[]>(
+      `${BASE_MESSAGE_URL}/get-channel-messages`,
+      null,
+      {
+        params: {
+          id,
+        },
+      }
+    );
+
+    return response.data;
+  }
+
+  async AddChannelMessage(data: AddChannelMessageRequest) {
+    const response = await this.client.post<never>(
+      `${BASE_MESSAGE_URL}/add-channel-message`,
+      data
+    );
+
+    return response.data;
+  }
+
+  async DeleteChannelMessage(data: DeleteChannelMessageRequest) {
+    const response = await this.client.post<never>(
+      `${BASE_MESSAGE_URL}/delete-channel-message`,
       data
     );
 

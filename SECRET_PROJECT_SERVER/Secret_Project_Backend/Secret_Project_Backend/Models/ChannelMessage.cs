@@ -3,8 +3,10 @@
     public class ChannelMessage
     {
         public Guid Id { get; set; }
-        public string Content { get; set; }
+        public string? Content { get; set; }
         public DateTime SentAt { get; set; }
+        public Guid ChannelFileId { get; set; }
+        public virtual Models.ChannelFile? ChannelFile { get; set; }
         public string SenderId { get; set; }
         public virtual ApplicationUser Sender { get; set; }
         public Guid ChannelId { get; set; }

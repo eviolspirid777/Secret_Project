@@ -3,13 +3,17 @@ import { FriendCard } from "./FriendCard/FriendCard";
 import styles from "./styles.module.scss";
 import { Badge } from "@/shadcn/ui/badge";
 import FriendshipSignalRService from "@/shared/services/SignalR/Friendships/FriendshipSignalRService";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useFriendRequests } from "@/shared/hooks/user/friendship/useFriendRequests";
 import { useNavigate } from "react-router";
 import type { User } from "@/types/User/User";
 import { UserStatusesSignalRService } from "@/shared/services/SignalR/UserStatuses/UserStatusesSignalRService";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setFriendStatus } from "@/store/slices/Friends.slice";
+import {
+  addFriendRequest,
+  getFriendsRequests,
+} from "@/store/slices/FriendsRequests.slice";
 
 type FriendsListProps = {
   friends: User[];
@@ -17,13 +21,16 @@ type FriendsListProps = {
 
 export const FriendsList = ({ friends }: FriendsListProps) => {
   const { friendRequests } = useFriendRequests();
-  const [incomingRequests, setIncomingRequests] = useState<number>(0);
+
+  const friendsRequests = useSelector(getFriendsRequests);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (friendRequests) {
-      setIncomingRequests(friendRequests.length);
+      friendRequests.forEach((request) => {
+        dispatch(addFriendRequest(request.userId));
+      });
     }
   }, [friendRequests]);
 
@@ -35,8 +42,8 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
       dispatch(setFriendStatus({ userId, status }));
     });
 
-    service.onReceiveFriendshipRequest(() => {
-      setIncomingRequests((prev) => prev + 1);
+    service.onReceiveFriendshipRequest((friendId) => {
+      dispatch(addFriendRequest(friendId));
     });
   }, []);
 
@@ -51,13 +58,13 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
       <div className={styles["friends-list__header"]}>
         <h4 className={styles["friends-list__header-title"]}>Друзья</h4>
         {/*TODO: Не приходит почему-то sync */}
-        {incomingRequests > 0 && (
+        {friendsRequests.length > 0 && (
           <Badge
             variant="destructive"
             className={styles["friends-list__header-badge"]}
             onClick={handleNavigateToFriendRequests}
           >
-            {incomingRequests}
+            {friendsRequests.length}
           </Badge>
         )}
       </div>
