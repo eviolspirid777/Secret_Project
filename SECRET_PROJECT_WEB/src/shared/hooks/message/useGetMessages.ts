@@ -13,6 +13,7 @@ export const useGetMessages = (data: GetMessagesRequest) => {
   } = useQuery({
     queryKey: ["messages", data.firstUserId, data.secondUserId],
     queryFn: async () => await apiClient.GetMessages(data),
+    refetchOnWindowFocus: false,
   });
 
   return {

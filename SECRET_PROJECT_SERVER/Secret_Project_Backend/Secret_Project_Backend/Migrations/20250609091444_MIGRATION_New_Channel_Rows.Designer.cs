@@ -12,8 +12,8 @@ using Secret_Project_Backend.Context;
 namespace Secret_Project_Backend.Migrations
 {
     [DbContext(typeof(PostgreSQLDbContext))]
-    [Migration("20250607162734_MIGRATION_Unnecessary_Fields")]
-    partial class MIGRATION_Unnecessary_Fields
+    [Migration("20250609091444_MIGRATION_New_Channel_Rows")]
+    partial class MIGRATION_New_Channel_Rows
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -244,6 +244,10 @@ namespace Secret_Project_Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ChannelAvatarUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -251,12 +255,35 @@ namespace Secret_Project_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.ToTable("Channels");
+                });
+
+            modelBuilder.Entity("Secret_Project_Backend.Models.ChannelFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChannelMessageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChannelFile");
                 });
 
             modelBuilder.Entity("Secret_Project_Backend.Models.ChannelMessage", b =>
@@ -265,11 +292,13 @@ namespace Secret_Project_Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("ChannelFileId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("ChannelId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SenderId")
@@ -280,6 +309,9 @@ namespace Secret_Project_Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ChannelFileId")
+                        .IsUnique();
 
                     b.HasIndex("ChannelId");
 
@@ -304,6 +336,35 @@ namespace Secret_Project_Backend.Migrations
                     b.HasIndex("ChannelId");
 
                     b.ToTable("ChannelUsers");
+                });
+
+            modelBuilder.Entity("Secret_Project_Backend.Models.File", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageId")
+                        .IsUnique();
+
+                    b.ToTable("File");
                 });
 
             modelBuilder.Entity("Secret_Project_Backend.Models.Friendship", b =>
@@ -341,11 +402,8 @@ namespace Secret_Project_Backend.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("text");
 
-                    b.Property<string>("FileType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileUrl")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("FileId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ReciverId")
                         .IsRequired()
@@ -420,6 +478,12 @@ namespace Secret_Project_Backend.Migrations
 
             modelBuilder.Entity("Secret_Project_Backend.Models.ChannelMessage", b =>
                 {
+                    b.HasOne("Secret_Project_Backend.Models.ChannelFile", "ChannelFile")
+                        .WithOne("ChannelMessage")
+                        .HasForeignKey("Secret_Project_Backend.Models.ChannelMessage", "ChannelFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Secret_Project_Backend.Models.Channel", "Channel")
                         .WithMany("ChannelMessages")
                         .HasForeignKey("ChannelId")
@@ -433,6 +497,8 @@ namespace Secret_Project_Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Channel");
+
+                    b.Navigation("ChannelFile");
 
                     b.Navigation("Sender");
                 });
@@ -454,6 +520,17 @@ namespace Secret_Project_Backend.Migrations
                     b.Navigation("Channel");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Secret_Project_Backend.Models.File", b =>
+                {
+                    b.HasOne("Secret_Project_Backend.Models.Message", "Message")
+                        .WithOne("File")
+                        .HasForeignKey("Secret_Project_Backend.Models.File", "MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Message");
                 });
 
             modelBuilder.Entity("Secret_Project_Backend.Models.Friendship", b =>
@@ -514,6 +591,18 @@ namespace Secret_Project_Backend.Migrations
                     b.Navigation("ChannelMessages");
 
                     b.Navigation("ChannelUsers");
+                });
+
+            modelBuilder.Entity("Secret_Project_Backend.Models.ChannelFile", b =>
+                {
+                    b.Navigation("ChannelMessage")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Secret_Project_Backend.Models.Message", b =>
+                {
+                    b.Navigation("File")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

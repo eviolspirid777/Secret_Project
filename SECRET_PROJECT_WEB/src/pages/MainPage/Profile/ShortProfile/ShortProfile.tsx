@@ -29,7 +29,7 @@ export const ShortProfile = () => {
     event.stopPropagation();
 
     navigator.clipboard
-      .writeText(user.userId)
+      .writeText(user?.userId ?? "")
       .then(() => {
         toast.success("ID пользователя скопирован в буфер обмена");
       })
@@ -43,7 +43,7 @@ export const ShortProfile = () => {
       <div className={styles["short-profile-container__info"]}>
         <div className={styles["short-profile-container__info-avatar-wrapper"]}>
           <Avatar
-            src={user.avatar}
+            src={user?.avatar}
             size="medium"
             className={
               styles["short-profile-container__info-avatar-wrapper__avatar"]
@@ -53,7 +53,7 @@ export const ShortProfile = () => {
             className={
               styles["short-profile-container__info-avatar-wrapper__badge"]
             }
-            variant={user.status}
+            variant={user?.status ?? "Offline"}
           />
         </div>
         <div>
@@ -63,7 +63,7 @@ export const ShortProfile = () => {
                 className={styles["short-profile-container__info-name"]}
                 onClick={handleCopyUserId}
               >
-                {user.name}
+                {user?.name}
               </span>
             </TooltipTrigger>
             <TooltipContent
@@ -73,7 +73,7 @@ export const ShortProfile = () => {
             </TooltipContent>
           </Tooltip>
           <div className={styles["short-profile-container__controls"]}>
-            {user.states.isMicrophoneMuted ? (
+            {user?.states.isMicrophoneMuted ? (
               <FaMicrophoneSlash
                 className={
                   styles["short-profile-container__controls-icon__danger"]
@@ -88,7 +88,7 @@ export const ShortProfile = () => {
                 onClick={changeMicrophoneStateHandler}
               />
             )}
-            {user.states.isHeadphonesMuted ? (
+            {user?.states.isHeadphonesMuted ? (
               <TbHeadphonesOff
                 className={
                   styles["short-profile-container__controls-icon__danger"]

@@ -15,7 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
 import { useSelector } from "react-redux";
-import { useGetChannelUsers } from "@/shared/hooks/channelMessage/useGetChannelUsers";
+import { useGetChannelUsers } from "@/shared/hooks/channel/useGetChannelUsers";
 
 type ChannelMessageProps = {
   message: ChannelMessageType;

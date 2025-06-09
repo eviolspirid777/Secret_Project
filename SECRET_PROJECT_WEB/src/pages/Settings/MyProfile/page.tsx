@@ -25,14 +25,14 @@ export const MyProfile = () => {
   const { changeUserAvatar } = useChangeUserAvatar();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(user.name);
+  const [name, setName] = useState(user?.name);
 
   const handleSave = async () => {
     try {
       setIsEditing(false);
       const response = await changeUserInformationAsync({
         name,
-        userId: user.userId,
+        userId: user?.userId ?? "",
       });
       if (response.status === 200) {
         dispatch(changeName(name));
@@ -47,7 +47,7 @@ export const MyProfile = () => {
 
   const handleDecline = () => {
     setIsEditing(false);
-    setName(user.name);
+    setName(user?.name);
   };
 
   const handleChangeAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +55,7 @@ export const MyProfile = () => {
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("userId", user.userId);
+      formData.append("userId", user?.userId ?? "");
       changeUserAvatar(formData);
     }
   };
@@ -70,7 +70,7 @@ export const MyProfile = () => {
       <div className={styles["my-profile__avatar-block"]}>
         <div>
           <Avatar
-            src={user.avatar}
+            src={user?.avatar}
             size="large"
             className={`${styles["my-profile__avatar"]} ${
               isEditing && styles["my-profile__avatar-editing"]
@@ -96,7 +96,7 @@ export const MyProfile = () => {
           )}
           <Badge
             className={styles["my-profile__badge"]}
-            variant={user.status}
+            variant={user?.status}
           />
         </div>
       </div>
@@ -108,10 +108,10 @@ export const MyProfile = () => {
             onChange={(e) => setName(e.target.value)}
           />
         ) : (
-          <h3 className={styles["my-profile__info-name"]}>{user.name}</h3>
+          <h3 className={styles["my-profile__info-name"]}>{user?.name}</h3>
         )}
         <span className={styles["my-profile__info-status"]}>
-          {StatusTranslator(user.status)}
+          {StatusTranslator(user?.status ?? "Offline")}
         </span>
       </div>
       <div className={styles["my-profile__controls"]}>

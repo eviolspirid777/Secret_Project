@@ -5,7 +5,7 @@ import type { RootState } from "@/store/store";
 import { ChannelMessageBlock } from "./ChannelMessageBlock/ChannelMessageBlock";
 
 import styles from "./styles.module.scss";
-import { useGetChannelUsers } from "@/shared/hooks/channelMessage/useGetChannelUsers";
+import { useGetChannelUsers } from "@/shared/hooks/channel/useGetChannelUsers";
 
 export const ChannelContent: FC = () => {
   const { channelId } = useParams();

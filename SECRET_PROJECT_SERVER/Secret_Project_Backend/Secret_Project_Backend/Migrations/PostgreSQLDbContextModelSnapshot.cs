@@ -241,6 +241,10 @@ namespace Secret_Project_Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ChannelAvatarUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -248,12 +252,35 @@ namespace Secret_Project_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.ToTable("Channels");
+                });
+
+            modelBuilder.Entity("Secret_Project_Backend.Models.ChannelFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChannelMessageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChannelFile");
                 });
 
             modelBuilder.Entity("Secret_Project_Backend.Models.ChannelMessage", b =>
@@ -262,11 +289,13 @@ namespace Secret_Project_Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("ChannelFileId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("ChannelId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SenderId")
@@ -277,6 +306,9 @@ namespace Secret_Project_Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ChannelFileId")
+                        .IsUnique();
 
                     b.HasIndex("ChannelId");
 
@@ -443,6 +475,12 @@ namespace Secret_Project_Backend.Migrations
 
             modelBuilder.Entity("Secret_Project_Backend.Models.ChannelMessage", b =>
                 {
+                    b.HasOne("Secret_Project_Backend.Models.ChannelFile", "ChannelFile")
+                        .WithOne("ChannelMessage")
+                        .HasForeignKey("Secret_Project_Backend.Models.ChannelMessage", "ChannelFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Secret_Project_Backend.Models.Channel", "Channel")
                         .WithMany("ChannelMessages")
                         .HasForeignKey("ChannelId")
@@ -456,6 +494,8 @@ namespace Secret_Project_Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Channel");
+
+                    b.Navigation("ChannelFile");
 
                     b.Navigation("Sender");
                 });
@@ -548,6 +588,12 @@ namespace Secret_Project_Backend.Migrations
                     b.Navigation("ChannelMessages");
 
                     b.Navigation("ChannelUsers");
+                });
+
+            modelBuilder.Entity("Secret_Project_Backend.Models.ChannelFile", b =>
+                {
+                    b.Navigation("ChannelMessage")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Secret_Project_Backend.Models.Message", b =>

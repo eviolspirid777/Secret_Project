@@ -21,24 +21,6 @@ namespace Secret_Project_Backend.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpGet("get-channel-users")]
-        public async Task<IActionResult> GetChannelUsers([FromQuery] Guid id)
-        {
-            var channel = await _dbContext
-                .Channels
-                .Include(c => c.ChannelUsers)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
-            if(channel == null)
-            {
-                return NotFound();
-            }
-
-            var users = channel.ChannelUsers.Select(ChannelMessagesMapper.MapChannelUserToChannelUserDto);
-
-            return Ok(users);
-        }
-
         [HttpGet("get-channel-messages")]
         public async Task<IActionResult> GetChannelMessages([FromQuery] Guid id)
         {

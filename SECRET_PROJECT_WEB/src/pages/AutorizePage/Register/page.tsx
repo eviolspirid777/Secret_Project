@@ -73,6 +73,7 @@ export const Page: FC<PageProps> = ({ onAutorize }) => {
   };
 
   const handleBack = () => {
+    console.log("HELLO");
     handleResetRegister();
     onAutorize();
   };

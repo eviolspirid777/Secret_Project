@@ -7,6 +7,7 @@ import type {
   RegisterRequest,
   RegisterResponse,
 } from "@/types/Autorization/Register";
+import type { Channel } from "@/types/Channel/Channel";
 import type { AddChannelMessageRequest } from "@/types/ChannelMessage/AddChannelMessageRequest";
 import type { DeleteChannelMessageRequest } from "@/types/ChannelMessage/DeleteChannelMessageRequest";
 import type { FriendRequest } from "@/types/Friend/Friend";
@@ -27,6 +28,8 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const BASE_AUTH_URL = `${apiUrl}/Auth`;
 const BASE_USER_URL = `${apiUrl}/api/User`;
 const BASE_MESSAGE_URL = `${apiUrl}/api/Message`;
+const BASE_CHANNEL_URL = `${apiUrl}/api/Channel`;
+const BASE_CHANNEL_MESSAGE_URL = `${apiUrl}/api/ChannelMessage`;
 
 class ApiClient {
   client: AxiosInstance;
@@ -217,9 +220,17 @@ class ApiClient {
     return response.data;
   }
 
+  async GetChannels() {
+    const response = await this.client.get<Channel[]>(
+      `${BASE_CHANNEL_URL}/get-channels`
+    );
+
+    return response.data;
+  }
+
   async GetChannelUsers(id: string) {
     const response = await this.client.get<User[]>(
-      `${BASE_MESSAGE_URL}/get-channel-users`,
+      `${BASE_CHANNEL_URL}/get-channel-users`,
       {
         params: {
           id,
@@ -232,7 +243,7 @@ class ApiClient {
 
   async GetChannelMessages(id: string) {
     const response = await this.client.post<Message[]>(
-      `${BASE_MESSAGE_URL}/get-channel-messages`,
+      `${BASE_CHANNEL_MESSAGE_URL}/get-channel-messages`,
       null,
       {
         params: {
@@ -246,7 +257,7 @@ class ApiClient {
 
   async AddChannelMessage(data: AddChannelMessageRequest) {
     const response = await this.client.post<never>(
-      `${BASE_MESSAGE_URL}/add-channel-message`,
+      `${BASE_CHANNEL_MESSAGE_URL}/add-channel-message`,
       data
     );
 
@@ -255,7 +266,7 @@ class ApiClient {
 
   async DeleteChannelMessage(data: DeleteChannelMessageRequest) {
     const response = await this.client.post<never>(
-      `${BASE_MESSAGE_URL}/delete-channel-message`,
+      `${BASE_CHANNEL_MESSAGE_URL}/delete-channel-message`,
       data
     );
 

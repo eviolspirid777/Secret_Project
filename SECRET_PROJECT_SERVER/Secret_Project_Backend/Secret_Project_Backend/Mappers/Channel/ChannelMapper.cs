@@ -1,5 +1,7 @@
 ﻿using Riok.Mapperly.Abstractions;
 using Secret_Project_Backend.DTOs;
+using Secret_Project_Backend.DTOs.ChannelUser;
+using Secret_Project_Backend.Models;
 
 namespace Secret_Project_Backend.Mappers.Channel
 {
@@ -11,11 +13,35 @@ namespace Secret_Project_Backend.Mappers.Channel
         [MapperIgnoreTarget(nameof(Models.Channel.Id))]
         private static partial Models.Channel ChannelDtoToChannel(ChannelDto data);
 
+        [MapperIgnoreSource(nameof(Models.Channel.Id))]
+        private static partial ChannelDto Map(Models.Channel channel);
+
+        [MapProperty(nameof(ChannelUser.User.DisplayName), nameof(ChannelUserDto.UserName))]
+        [MapProperty(nameof(ChannelUser.User.AvatarUrl), nameof(ChannelUserDto.AvatarUrl))]
+        [MapperIgnoreSource(nameof(ChannelUser.Role))]
+        private static partial ChannelUserDto Map(ChannelUser source);
+
         public static Models.Channel ChannelDtoToChannelCustom(ChannelDto data)
         {
             var dto = ChannelDtoToChannel(data);
             dto.Id = Guid.NewGuid();
             return dto;
+        }
+
+        public static ChannelDto ChannelToChannelDto(Models.Channel data)
+        {
+            var dto = Map(data);
+            dto.Id = data.Id.ToString();
+            return dto;
+        }
+
+        public static ChannelUserDto MapChannelUserToChannelUserDto(ChannelUser source)
+        {
+            var target = Map(source);
+            target.Role = source.Role.ToString();
+            target.Status = source.User.Status.ToString();
+
+            return target;
         }
     }
 }
