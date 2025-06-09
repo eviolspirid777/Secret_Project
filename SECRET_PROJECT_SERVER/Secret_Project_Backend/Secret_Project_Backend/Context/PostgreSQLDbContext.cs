@@ -53,10 +53,10 @@ namespace Secret_Project_Backend.Context
                 .HasForeignKey<Models.File>(f => f.MessageId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ChannelMessage>()
-                .HasOne(m => m.ChannelFile)
-                .WithOne(cf => cf.ChannelMessage)
-                .HasForeignKey<ChannelMessage>(m => m.ChannelFileId)
+            modelBuilder.Entity<ChannelFile>()
+                .HasOne(f => f.ChannelMessage)
+                .WithOne(cm => cm.ChannelFile)
+                .HasForeignKey<ChannelFile>(f => f.ChannelMessageId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ChannelMessage>()

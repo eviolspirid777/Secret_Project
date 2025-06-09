@@ -8,9 +8,10 @@ import UnknowIcon from "/icons/FileIcons/UnknowFile/file-svgrepo-com.svg";
 import styles from "./styles.module.scss";
 import { Button } from "@/shadcn/ui/button";
 import { DownloadIcon } from "lucide-react";
+import type { ChannelMessage } from "@/types/ChannelMessage/ChannelMessage";
 
 type FileDisplayProps = {
-  message: Message;
+  message: Message | ChannelMessage;
 };
 
 export const FileDisplay: FC<FileDisplayProps> = ({ message }) => {

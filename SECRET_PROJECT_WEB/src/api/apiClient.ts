@@ -7,8 +7,8 @@ import type {
   RegisterRequest,
   RegisterResponse,
 } from "@/types/Autorization/Register";
-import type { Channel } from "@/types/Channel/Channel";
-import type { AddChannelMessageRequest } from "@/types/ChannelMessage/AddChannelMessageRequest";
+import type { AddChannelRequest, ChannelDto } from "@/types/Channel/Channel";
+import type { ChannelMessage } from "@/types/ChannelMessage/ChannelMessage";
 import type { DeleteChannelMessageRequest } from "@/types/ChannelMessage/DeleteChannelMessageRequest";
 import type { FriendRequest } from "@/types/Friend/Friend";
 import type {
@@ -220,9 +220,35 @@ class ApiClient {
     return response.data;
   }
 
-  async GetChannels() {
-    const response = await this.client.get<Channel[]>(
-      `${BASE_CHANNEL_URL}/get-channels`
+  async GetChannelInformation(id: string) {
+    const response = await this.client.get<ChannelDto>(
+      `${BASE_CHANNEL_URL}/get-channel-information/${id}`
+    );
+
+    return response.data;
+  }
+
+  async AddChannel(data: AddChannelRequest) {
+    const response = await this.client.post<ChannelDto["id"]>(
+      `${BASE_CHANNEL_URL}/add-channel`,
+      data
+    );
+
+    return response.data;
+  }
+
+  async DeleteChannel(id: string) {
+    const response = await this.client.delete<ChannelDto["id"]>(
+      `${BASE_CHANNEL_URL}/delete-channel/${id}`
+    );
+
+    return response.data;
+  }
+
+  //#region ChannelUsers
+  async GetUserChannels(userId: string) {
+    const response = await this.client.get<Record<string, ChannelDto>>(
+      `${BASE_CHANNEL_URL}/get-user-channels/${userId}`
     );
 
     return response.data;
@@ -230,33 +256,42 @@ class ApiClient {
 
   async GetChannelUsers(id: string) {
     const response = await this.client.get<User[]>(
-      `${BASE_CHANNEL_URL}/get-channel-users`,
-      {
-        params: {
-          id,
-        },
-      }
+      `${BASE_CHANNEL_URL}/channel/${id}/get-channel-users`
     );
 
     return response.data;
   }
 
-  async GetChannelMessages(id: string) {
-    const response = await this.client.post<Message[]>(
-      `${BASE_CHANNEL_MESSAGE_URL}/get-channel-messages`,
-      null,
-      {
-        params: {
-          id,
-        },
-      }
-    );
-
-    return response.data;
-  }
-
-  async AddChannelMessage(data: AddChannelMessageRequest) {
+  async AddUserToChannel(channelId: string, userId: string) {
     const response = await this.client.post<never>(
+      `${BASE_CHANNEL_URL}/channel/${channelId}/add-user`,
+      { userId }
+    );
+
+    return response.data;
+  }
+
+  async DeleteUserFromChannel(channelId: string, userId: string) {
+    const response = await this.client.delete<never>(
+      `${BASE_CHANNEL_URL}/channel/${channelId}/delete-user/${userId}`
+    );
+
+    return response.data;
+  }
+
+  //#endregion ChannelUsers
+
+  //#region Channel
+  async GetChannelMessages(id: string) {
+    const response = await this.client.get<ChannelMessage[]>(
+      `${BASE_CHANNEL_MESSAGE_URL}/get-channel-messages/${id}`
+    );
+
+    return response.data;
+  }
+
+  async AddChannelMessage(data: FormData) {
+    const response = await this.client.postForm<ChannelMessage["id"]>(
       `${BASE_CHANNEL_MESSAGE_URL}/add-channel-message`,
       data
     );
@@ -272,6 +307,7 @@ class ApiClient {
 
     return response.data;
   }
+  //#endregion Channel
 
   async GetMessages(data: GetMessagesRequest) {
     const response = await this.client.post<Message[]>(

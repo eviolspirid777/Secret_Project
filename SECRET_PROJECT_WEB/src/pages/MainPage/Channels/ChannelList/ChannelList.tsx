@@ -12,8 +12,8 @@ export const ChannelList: FC = () => {
   return (
     <div className={styles["channel-list-container"]}>
       <Profile />
-      {channels?.map((channel, index) => (
-        <Channel key={index} channel={channel} />
+      {channels?.map((channel) => (
+        <Channel key={channel.id} channel={channel} />
       ))}
     </div>
   );

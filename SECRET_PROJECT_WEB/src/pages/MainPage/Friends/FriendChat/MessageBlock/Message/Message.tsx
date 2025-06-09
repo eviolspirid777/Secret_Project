@@ -13,6 +13,7 @@ import {
 } from "@/shadcn/ui/context-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
+import { formatTime } from "@/shared/helpers/timeFormater/timeFormater";
 
 type MessageProps = {
   message: MessageType;
@@ -20,13 +21,6 @@ type MessageProps = {
   senderName?: string;
   deleteMessage: (messageId: string, forAllUsers: boolean) => Promise<void>;
   isCurrentUser: boolean;
-};
-
-const formatTime = (time: string) => {
-  return new Date(time).toLocaleTimeString("ru-RU", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 };
 
 export const Message = ({

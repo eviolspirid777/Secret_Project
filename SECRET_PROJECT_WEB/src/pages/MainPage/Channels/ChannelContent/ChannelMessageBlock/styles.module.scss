@@ -1,0 +1,17 @@
+@use "@/shared/styles/_colors.scss" as *;
+@use "sass:color";
+
+$radius: 10px;
+
+.channel-chat {
+  &__messages {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 82vh;
+    max-height: 82vh;
+    padding: 10px;
+    background-color: $background-color;
+    border-top-left-radius: $radius;
+    border-top-right-radius: $radius;
+  }
+}

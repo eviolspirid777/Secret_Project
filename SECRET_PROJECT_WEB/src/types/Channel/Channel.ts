@@ -5,3 +5,15 @@ export type Channel = {
   users: ChannelUser[];
   messages: ChannelMessage[];
 };
+
+export type ChannelDto = {
+  id: string;
+  name: string;
+  channelAvatarUrl: string;
+  createdAt: string;
+};
+
+export type AddChannelRequest = {
+  name: string;
+  channelAvatarUrl: string;
+};

@@ -1,12 +1,12 @@
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/shadcn/ui/tooltip";
 
 import styles from "./ChannelTooltip.module.scss";
-import type { Channel } from "@/types/Channel/Channel";
+import type { ChannelDto } from "@/types/Channel/Channel";
 import type { FC } from "react";
 import { useState } from "react";
 
 type ChannelTooltipProps = {
-  channel: Channel;
+  channel: ChannelDto;
   children: React.ReactNode;
 };
 

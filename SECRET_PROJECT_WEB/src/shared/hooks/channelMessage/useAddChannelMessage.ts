@@ -1,5 +1,4 @@
 import { apiClient } from "@/api/apiClient";
-import type { AddChannelMessageRequest } from "@/types/ChannelMessage/AddChannelMessageRequest";
 import { useMutation } from "@tanstack/react-query";
 
 export const useAddChannelMessage = () => {
@@ -8,7 +7,7 @@ export const useAddChannelMessage = () => {
     isPending: isAddChannelMessageLoading,
     error: addChannelMessageError,
   } = useMutation({
-    mutationFn: async (data: AddChannelMessageRequest) =>
+    mutationFn: async (data: FormData) =>
       await apiClient.AddChannelMessage(data),
   });
 

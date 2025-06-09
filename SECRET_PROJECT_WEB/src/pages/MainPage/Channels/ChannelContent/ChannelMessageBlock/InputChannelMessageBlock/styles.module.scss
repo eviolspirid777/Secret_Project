@@ -1,0 +1,25 @@
+@use "@/shared/styles/_colors.scss" as *;
+@use "sass:color";
+
+.channel-chat {
+  &__input {
+    padding: 10px;
+    color: $font-color;
+    font-size: 17px;
+    line-height: 20px;
+    height: 40px;
+  }
+
+  &__input-container {
+    position: relative;
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 8px;
+    padding: 10px;
+    background-color: color.scale($background-color, $lightness: 15%);
+    border-radius: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    align-items: center;
+  }
+}

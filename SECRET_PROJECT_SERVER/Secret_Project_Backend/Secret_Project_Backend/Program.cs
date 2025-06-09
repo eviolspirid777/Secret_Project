@@ -15,6 +15,7 @@ using Secret_Project_Backend.Services.Chat;
 using Secret_Project_Backend.Services.Status;
 using Secret_Project_Backend.Services.User;
 using Secret_Project_Backend.Services.S3;
+using Secret_Project_Backend.Services.ChannelChat;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,7 +94,12 @@ builder.Services.AddAuthentication(options =>
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
             if (!string.IsNullOrEmpty(accessToken) && 
-                (path.StartsWithSegments("/chatHub") || path.StartsWithSegments("/friendHub") || path.StartsWithSegments("/statusHub")))
+                (
+                    path.StartsWithSegments("/chatHub") ||
+                    path.StartsWithSegments("/friendHub") ||
+                    path.StartsWithSegments("/statusHub") ||
+                    path.StartsWithSegments("/channelMessagesHub")
+                ))
             {
                 context.Token = accessToken;
             }
@@ -107,6 +113,8 @@ builder.Services.AddScoped<IEmailService, MailKitEmailService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ChangeUserStatusService>();
 builder.Services.AddScoped<MessageService>();
+
+builder.Services.AddScoped<ChannelChatSignlaRService>();
 
 builder.Services.AddScoped<S3ServiceMessages>();
 builder.Services.AddScoped<S3ServiceAvatars>();
@@ -130,6 +138,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapHub<ChatHub>("/chatHub");
+app.MapHub<ChannelMessagesHub>("/channelMessagesHub");
 app.MapHub<FriendRequestHub>("/friendHub");
 app.MapHub<StatusHub>("/statusHub");
 

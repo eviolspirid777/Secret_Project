@@ -4,6 +4,7 @@ using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Controllers.Requests.Channels;
 using Secret_Project_Backend.DTOs;
 using Secret_Project_Backend.Mappers.Channel;
+using Secret_Project_Backend.Mappers.User;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -19,8 +20,56 @@ namespace Secret_Project_Backend.Controllers
             _dbContext = dbContext;
         }
         #region Channel
-        [HttpGet("get-channels/{userId}")]
-        public async Task<IActionResult> Get(string userId)
+        [HttpGet("get-channel-information/{id}")]
+        public async Task<IActionResult> GetChannelInformation([FromRoute] Guid id)
+        {
+            var channel = await _dbContext
+                .Channels
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (channel == null)
+            {
+                return NotFound();
+            }
+
+            var mappedChannel = ChannelMapper.ChannelToChannelDto(channel);
+
+            return Ok(mappedChannel);
+        }
+
+        [HttpPost("add-channel")]
+        public async Task<IActionResult> AddChannel(AddNewChannelRequest data)
+        {
+
+            var channelEntity =  await _dbContext.Channels.AddAsync(new Models.Channel()
+            {
+                Name = data.Name,
+                ChannelAvatarUrl = data.ChannelAvatarUrl,
+                CreatedAt = DateTime.UtcNow
+            });
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(channelEntity.Entity.Id);
+        }
+
+        [HttpDelete("delete-channel/{id}")]
+        public async Task<IActionResult> DeleteChannel([FromRoute]Guid id)
+        {
+            var channel = await _dbContext.Channels.FindAsync(id);
+            if (channel == null)
+            {
+                return BadRequest("Invalid Id");
+            }
+            _dbContext.Channels.Remove(channel);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(channel.Id);
+        }
+        #endregion Channel
+
+        #region ChannelUser
+        [HttpGet("get-user-channels/{userId}")]
+        public async Task<IActionResult> GetUserChannels(string userId)
         {
             var user = await _dbContext
                 .Users
@@ -28,7 +77,7 @@ namespace Secret_Project_Backend.Controllers
                 .Include(u => u.ChannelUsers)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
@@ -51,36 +100,6 @@ namespace Secret_Project_Backend.Controllers
             return Ok(channelsDictionary);
         }
 
-        [HttpPost("add-channel")]
-        public async Task<IActionResult> AddChannel(AddNewChannelRequest data)
-        {
-
-            var channelEntity =  await _dbContext.Channels.AddAsync(new Models.Channel()
-            {
-                Name = data.Name,
-                ChannelAvatarUrl = data.ChannelAvatarUrl
-            });
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(channelEntity.Entity.Id);
-        }
-
-        [HttpPost("delete-channel")]
-        public async Task<IActionResult> DeleteChannel(Guid id)
-        {
-            var channel = await _dbContext.Channels.FindAsync(id);
-            if (channel == null)
-            {
-                return BadRequest("Invalid Id");
-            }
-            _dbContext.Channels.Remove(channel);
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(channel.Id);
-        }
-        #endregion Channel
-
-        #region ChannelUser
         [HttpGet("channel/{id}/get-channel-users")]
         public async Task<IActionResult> GetChannelUsers(Guid id)
         {
@@ -89,6 +108,11 @@ namespace Secret_Project_Backend.Controllers
                 .Include(c => c.ChannelUsers)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
+            if(channel == null)
+            {
+                return BadRequest("Invalid channelId");
+            }
+
             var ids = channel.ChannelUsers.Select(cu => cu.UserId);
 
             if (channel == null)
@@ -96,13 +120,10 @@ namespace Secret_Project_Backend.Controllers
                 return NotFound();
             }
 
-            var usersTest = await _dbContext.Users.Where(u => ids.Any(id => id == u.Id)).ToListAsync();
+            var users = await _dbContext.Users.Where(u => ids.Any(id => id == u.Id)).ToListAsync();
+            var mappedUsers = users.Select(u => UserMapper.MapUserToUserDto(u, u.Id));
 
-            var users = channel
-                .ChannelUsers
-                .Select(ChannelMapper.MapChannelUserToChannelUserDto);
-
-            return Ok(users);
+            return Ok(mappedUsers);
         }
 
         [HttpPost("channel/{channelId}/add-user")]
@@ -132,7 +153,7 @@ namespace Secret_Project_Backend.Controllers
             return Ok();
         }
 
-        [HttpPost("channel/{channelId}/delete-user/{userId}")]
+        [HttpDelete("channel/{channelId}/delete-user/{userId}")]
         public async Task<IActionResult> DeleteUserFromChannel([FromRoute] Guid channelId, [FromRoute] string userId)
         {
             var channelUser = await _dbContext

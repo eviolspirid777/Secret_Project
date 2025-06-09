@@ -1,4 +1,4 @@
-import type { Channel as ChannelType } from "@/types/Channel/Channel";
+import type { ChannelDto } from "@/types/Channel/Channel";
 import type { FC } from "react";
 import { useNavigate } from "react-router";
 
@@ -10,7 +10,7 @@ import styles from "./styles.module.scss";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shadcn/ui/avatar";
 
 type ChannelProps = {
-  channel: ChannelType;
+  channel: ChannelDto;
 };
 
 export const Channel: FC<ChannelProps> = ({ channel }) => {
@@ -25,7 +25,7 @@ export const Channel: FC<ChannelProps> = ({ channel }) => {
       <ChannelContextMenu channel={channel}>
         <ChannelTooltip channel={channel}>
           <Avatar className={styles["channel__avatar"]} onClick={handleClick}>
-            <AvatarImage src={channel.image} />
+            <AvatarImage src={channel.channelAvatarUrl} />
             <AvatarFallback>
               {channel.name
                 .split(" ")

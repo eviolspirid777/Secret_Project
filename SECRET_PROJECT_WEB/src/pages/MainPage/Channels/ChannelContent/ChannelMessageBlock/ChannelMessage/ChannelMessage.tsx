@@ -1,7 +1,5 @@
 import type { FC } from "react";
 import type { ChannelMessage as ChannelMessageType } from "@/types/ChannelMessage/ChannelMessage";
-
-import styles from "./styles.module.scss";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -14,16 +12,25 @@ import {
 } from "@/shadcn/ui/context-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
-import { useSelector } from "react-redux";
-import { useGetChannelUsers } from "@/shared/hooks/channel/useGetChannelUsers";
+import { formatTime } from "@/shared/helpers/timeFormater/timeFormater";
+
+import styles from "./styles.module.scss";
 
 type ChannelMessageProps = {
   message: ChannelMessageType;
+  avatar?: string;
+  senderName: string;
+  deleteMessage: (messageId: string, forAllUsers: boolean) => Promise<void>;
+  isCurrentUser: boolean;
 };
 
-export const ChannelMessage: FC<ChannelMessageProps> = ({ message }) => {
-  const user = useSelector();
-
+export const ChannelMessage: FC<ChannelMessageProps> = ({
+  message,
+  avatar,
+  senderName,
+  deleteMessage,
+  isCurrentUser,
+}) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger>

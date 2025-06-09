@@ -7,13 +7,13 @@ import {
   ContextMenuTrigger,
   ContextMenuShortcut,
 } from "@/shadcn/ui/context-menu";
-import type { Channel } from "@/types/Channel/Channel";
+import type { ChannelDto } from "@/types/Channel/Channel";
 import type { FC } from "react";
 
 import styles from "./styles.module.scss";
 
 type ChannelContextMenuProps = {
-  channel: Channel;
+  channel: ChannelDto;
   children: React.ReactNode;
 };
 
@@ -30,12 +30,12 @@ export const ChannelContextMenu: FC<ChannelContextMenuProps> = ({
       </ContextMenuItem>
       <ContextMenuSeparator />
       <ContextMenuItem inset>Пригласить в канал</ContextMenuItem>
-      <ContextMenuCheckboxItem
+      {/* <ContextMenuCheckboxItem
         checked={!channel.isMuted}
         onCheckedChange={console.log.bind(null, "checked")}
       >
         {channel.isMuted ? "Включить оповещения" : "Выключить оповещения"}
-      </ContextMenuCheckboxItem>
+      </ContextMenuCheckboxItem> */}
       <ContextMenuItem inset className="context-menu-item__delete">
         Покинуть канал
       </ContextMenuItem>
