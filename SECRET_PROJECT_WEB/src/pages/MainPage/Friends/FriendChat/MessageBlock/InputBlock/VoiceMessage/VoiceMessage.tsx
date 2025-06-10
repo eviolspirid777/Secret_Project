@@ -45,19 +45,28 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ sendAudioMessage }) => {
       audioChunks.current.push(event.data);
     };
 
+    mediaRecorder.current.start();
+  };
+
+  const handleStopRecording = () => {
+    if (!mediaRecorder.current) return;
+
     mediaRecorder.current.onstop = async () => {
       const audioBlob = new Blob(audioChunks.current);
       audioChunks.current = [];
       sendAudioMessage(audioBlob);
     };
 
-    mediaRecorder.current.start();
-  };
-
-  const handleStopRecording = () => {
     setIsRecording(false);
     mediaRecorder.current?.stop();
     toast.dismiss(toastId);
+  };
+
+  const handleInterruptRecording = () => {
+    if (!mediaRecorder.current) return;
+    mediaRecorder.current.stop();
+    toast.dismiss(toastId);
+    setIsRecording(false);
   };
 
   return (
@@ -67,7 +76,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ sendAudioMessage }) => {
       }`}
       onMouseDown={handleStartRecording}
       onMouseUp={handleStopRecording}
-      onMouseLeave={handleStopRecording}
+      onMouseLeave={handleInterruptRecording}
     >
       <TiMicrophoneOutline />
     </Button>
