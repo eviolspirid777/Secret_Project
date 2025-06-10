@@ -1,0 +1,51 @@
+@use "@/shared/styles/_colors.scss" as *;
+@use "sass:color";
+
+.voice-toaster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: $background-color;
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $font-color;
+  }
+
+  &__time-container {
+    margin: 3% 0 0 3%;
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+
+    &__time {
+      font-size: 14px;
+      font-weight: 400;
+      color: $font-color;
+    }
+
+    &__flicker {
+      width: 10px;
+      height: 10px;
+      background-color: $color-danger;
+      border-radius: 50%;
+      animation: flicker 1.5s infinite linear;
+    }
+  }
+}
+
+@keyframes flicker {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

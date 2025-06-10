@@ -6,11 +6,12 @@ import { FileInput } from "./FileInput/FileInput";
 
 import styles from "./styles.module.scss";
 import { memo, useState } from "react";
+import { VoiceMessage } from "./VoiceMessage/VoiceMessage";
 
 type InputBlockProps = {
   message: string;
   setMessage: Dispatch<React.SetStateAction<string>>;
-  sendMessage: (message: string) => void;
+  sendMessage: (message: string | null, fileLocal?: File) => void;
   sendFile: (file: File | null) => void;
 };
 
@@ -23,6 +24,11 @@ export const InputBlock: FC<InputBlockProps> = memo(
       setMessage("");
       sendFile(null);
       setFileCount(0);
+    };
+
+    const handleSendAudioMessage = (audio: Blob) => {
+      const file = new File([audio], "audio.mp3", { type: "audio/mp3" });
+      sendMessage(null, file);
     };
 
     return (
@@ -44,6 +50,7 @@ export const InputBlock: FC<InputBlockProps> = memo(
             }
           }}
         />
+        <VoiceMessage sendAudioMessage={handleSendAudioMessage} />
         <Button onClick={handleSendMessage}>Отправить</Button>
       </div>
     );

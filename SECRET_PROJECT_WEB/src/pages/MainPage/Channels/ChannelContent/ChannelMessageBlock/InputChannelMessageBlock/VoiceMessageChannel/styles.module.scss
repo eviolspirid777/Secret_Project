@@ -1,0 +1,18 @@
+@use "@/shared/styles/_colors.scss" as *;
+@use "sass:color";
+
+.voice {
+  &-message {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease-in-out;
+
+    &__recording {
+      background-color: color.adjust($color-danger, $lightness: 30%);
+    }
+  }
+}

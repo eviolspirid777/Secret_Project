@@ -8,6 +8,28 @@
   border-radius: 5px;
   margin-left: 50px;
 
+  &__audio-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    & span {
+      color: color.adjust($font-color, $lightness: -30%);
+      font-size: 0.9rem;
+      font-weight: 300;
+    }
+
+    &__play-button {
+      background-color: color.adjust($font-color, $lightness: -20%);
+      color: $background-color;
+    }
+
+    &__pause-button {
+      background-color: color.adjust($font-color, $lightness: -20%);
+      color: $background-color;
+    }
+  }
+
   &-container {
     position: relative;
   }

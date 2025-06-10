@@ -17,9 +17,14 @@ import { setSelectedChatId } from "@/store/slices/SelectedChatId.slice";
 
 import styles from "./styles.module.scss";
 import { removeUnreadedMessagesUserId } from "@/store/slices/UnreadedMessagesUsersId.slice";
+import dayjs from "dayjs";
 
 type MessageBlockProps = {
   friendId: string;
+};
+
+const isNextDay = (date1: string, date2: string) => {
+  return !dayjs(date1).isSame(dayjs(date2), "day");
 };
 
 export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
@@ -81,13 +86,13 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
   const { deleteMessageAsync } = useDeleteMessage();
 
   const sendMessage = useCallback(
-    async (message: string) => {
+    async (message: string | null, fileLocal?: File) => {
       if (friendId) {
         const formData = new FormData();
-        if (file) {
-          formData.append("file", file);
-          formData.append("fileType", file.type);
-          formData.append("fileName", file.name);
+        if (fileLocal || file) {
+          formData.append("file", fileLocal ?? file!);
+          formData.append("fileType", fileLocal?.type ?? file!.type);
+          formData.append("fileName", fileLocal?.name ?? file!.name);
         }
         formData.append("senderId", user?.userId ?? "");
         formData.append("reciverId", friendId);
@@ -145,16 +150,38 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
         ref={messagesContainerRef}
         className={styles["friend-chat__messages"]}
       >
-        {messages?.map((message, id) => (
-          <Message
-            key={id}
-            message={message}
-            avatar={proceedAvatar(message.senderId)}
-            senderName={proceedSenderName(message.senderId)}
-            deleteMessage={deleteMessage}
-            isCurrentUser={message.senderId === user?.userId}
-          />
-        ))}
+        {messages?.map((message, id, messages) => {
+          if (
+            messages[id + 1] &&
+            isNextDay(message.sentAt, messages[id + 1]?.sentAt)
+          ) {
+            return (
+              <>
+                <div className={styles["friend-chat__messages__date"]}>
+                  {dayjs(message.sentAt).format("DD.MM")}
+                </div>
+                <Message
+                  key={id}
+                  message={message}
+                  avatar={proceedAvatar(message.senderId)}
+                  senderName={proceedSenderName(message.senderId)}
+                  deleteMessage={deleteMessage}
+                  isCurrentUser={message.senderId === user?.userId}
+                />
+              </>
+            );
+          }
+          return (
+            <Message
+              key={id}
+              message={message}
+              avatar={proceedAvatar(message.senderId)}
+              senderName={proceedSenderName(message.senderId)}
+              deleteMessage={deleteMessage}
+              isCurrentUser={message.senderId === user?.userId}
+            />
+          );
+        })}
       </div>
       <InputBlock
         message={message}
