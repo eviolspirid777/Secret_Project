@@ -36,6 +36,7 @@ namespace Secret_Project_Backend.Controllers
             var channel = await _dbContext
                 .Channels
                 .Include(c => c.ChannelMessages)
+                .ThenInclude(cm => cm.ChannelFile)
                 .FirstOrDefaultAsync(c => c.Id == channelId);
 
             if(channel == null)
@@ -48,7 +49,7 @@ namespace Secret_Project_Backend.Controllers
                 .Select(ChannelMessagesMapper.ChannelMessageToChannelMessageDto);
 
 
-            return Ok(mappedChannelMessages);
+            return Ok(mappedChannelMessages.OrderBy(m => m.SentAt));
         }
 
         [HttpPost("add-channel-message")]

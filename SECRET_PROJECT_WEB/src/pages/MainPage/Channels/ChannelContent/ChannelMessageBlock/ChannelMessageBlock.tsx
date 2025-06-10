@@ -1,14 +1,16 @@
-import { useEffect, useRef, useState, type FC } from "react";
+import { useCallback, useEffect, useRef, useState, type FC } from "react";
 import { useGetChannelMessages } from "@/shared/hooks/channelMessage/useGetChannelMessages";
 
 import styles from "./styles.module.scss";
 import type { User } from "@/types/User/User";
+import type { ChannelMessage as ChannelMessageType } from "@/types/ChannelMessage/ChannelMessage";
 import { ChannelMessage } from "./ChannelMessage/ChannelMessage";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { useDeleteChannelMessage } from "@/shared/hooks/channelMessage/useDeleteChannelMessage";
 import { InputChannelMessageBlock } from "./InputChannelMessageBlock/InputChannelMessageBlock";
 import { useAddChannelMessage } from "@/shared/hooks/channelMessage/useAddChannelMessage";
 import { ChannelMessagesSignalRServiceInstance } from "@/shared/services/SignalR/ChannelMessages/ChannelMessagesSignalRService";
+import { useQueryClient } from "@tanstack/react-query";
 
 type ChannelMessageBlockProps = {
   channelId: string;
@@ -19,6 +21,8 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
   channelId,
   channelUsers,
 }) => {
+  const queryClient = useQueryClient();
+
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
@@ -30,7 +34,12 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
   useEffect(() => {
     ChannelMessagesSignalRServiceInstance.onReciveChannelMessage(
       (channelMessage) => {
-        console.log(channelMessage);
+        queryClient.setQueryData(
+          ["channel-messages", channelId],
+          (oldData: ChannelMessageType[]) => {
+            return [...oldData, channelMessage];
+          }
+        );
       }
     );
 
@@ -41,22 +50,31 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  const proceedAvatar = (senderId: string) => {
-    const user = channelUsers.find((user) => user.userId === senderId);
-    return user?.avatar;
-  };
+  const proceedAvatar = useCallback(
+    (senderId: string) => {
+      const user = channelUsers.find((user) => user.userId === senderId);
+      return user?.avatar;
+    },
+    [channelUsers]
+  );
 
-  const proceedSenderName = (senderId: string) => {
-    const user = channelUsers.find((user) => user.userId === senderId);
-    return user?.name ?? "";
-  };
+  const proceedSenderName = useCallback(
+    (senderId: string) => {
+      const user = channelUsers.find((user) => user.userId === senderId);
+      return user?.name ?? "";
+    },
+    [channelUsers]
+  );
 
-  const deleteMessage = async (messageId: string) => {
-    await deleteChannelMessageAsync({ channelId, messageId });
-  };
+  const deleteMessage = useCallback(
+    async (messageId: string) => {
+      await deleteChannelMessageAsync({ channelId, messageId });
+    },
+    [channelId]
+  );
 
   const sendMessage = async (message: string) => {
-    if (channelId) {
+    if (channelId && (message || file)) {
       const formData = new FormData();
       formData.append("senderId", localStorageService.getUserId() ?? "");
       formData.append("channelId", channelId);
@@ -72,9 +90,19 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
       setMessage("");
     }
   };
-  const sendFile = (file: File | null) => {
+
+  const sendFile = useCallback((file: File | null) => {
     setFile(file);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [channelMessages]);
 
   return (
     <>

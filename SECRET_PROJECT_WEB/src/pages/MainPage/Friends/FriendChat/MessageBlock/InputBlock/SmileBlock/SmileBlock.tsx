@@ -1,6 +1,13 @@
 import { Button } from "@/shadcn/ui/button";
 import { Smile } from "lucide-react";
-import { useEffect, useRef, useState, type FC } from "react";
+import {
+  memo,
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type FC,
+} from "react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 
@@ -14,16 +21,16 @@ type EmojiData = {
 };
 
 type SmileBlockProps = {
-  setMessage: (emoji: string) => void;
+  setMessage: Dispatch<React.SetStateAction<string>>;
 };
 
-export const SmileBlock: FC<SmileBlockProps> = ({ setMessage }) => {
+export const SmileBlock: FC<SmileBlockProps> = memo(({ setMessage }) => {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleEmojiSelect = (emoji: EmojiData) => {
-    setMessage(emoji.native);
+    setMessage((prev) => prev + emoji.native);
   };
 
   useEffect(() => {
@@ -83,4 +90,4 @@ export const SmileBlock: FC<SmileBlockProps> = ({ setMessage }) => {
       )}
     </div>
   );
-};
+});

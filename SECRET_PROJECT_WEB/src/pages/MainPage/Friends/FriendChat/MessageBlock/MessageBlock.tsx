@@ -4,7 +4,7 @@ import { Message } from "./Message/Message";
 import { getFriendById } from "@/store/slices/Friends.slice";
 import type { RootState } from "@/store/store";
 import type { FC } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useGetMessages } from "@/shared/hooks/message/useGetMessages";
 import { useAddMessage } from "@/shared/hooks/message/useAddMessage";
 import { useDeleteMessage } from "@/shared/hooks/message/useDeleteMessage";
@@ -80,50 +80,64 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
   const { addMessageAsync } = useAddMessage();
   const { deleteMessageAsync } = useDeleteMessage();
 
-  const sendMessage = async (message: string) => {
-    if (friendId) {
-      const formData = new FormData();
-      if (file) {
-        formData.append("file", file);
-        formData.append("fileType", file.type);
-        formData.append("fileName", file.name);
+  const sendMessage = useCallback(
+    async (message: string) => {
+      if (friendId) {
+        const formData = new FormData();
+        if (file) {
+          formData.append("file", file);
+          formData.append("fileType", file.type);
+          formData.append("fileName", file.name);
+        }
+        formData.append("senderId", user?.userId ?? "");
+        formData.append("reciverId", friendId);
+        if (message) {
+          formData.append("content", message);
+        }
+
+        await addMessageAsync(formData);
+        setMessage("");
       }
-      formData.append("senderId", user?.userId ?? "");
-      formData.append("reciverId", friendId);
+    },
+    [user, friendId, file, addMessageAsync]
+  );
+
+  const deleteMessage = useCallback(
+    async (messageId: string, forAllUsers: boolean) => {
+      await deleteMessageAsync({
+        messageId,
+        forAllUsers,
+      });
+    },
+    []
+  );
+
+  const proceedAvatar = useCallback(
+    (messageId: string) => {
+      const message = messages?.find(
+        (message) => message.senderId === messageId
+      );
       if (message) {
-        formData.append("content", message);
+        return friend?.avatar;
       }
+      return user?.avatar;
+    },
+    [friend, user]
+  );
 
-      await addMessageAsync(formData);
-      setMessage("");
-    }
-  };
+  const proceedSenderName = useCallback(
+    (messageId: string) => {
+      if (friend?.userId === messageId) {
+        return friend?.name;
+      }
+      return user?.name;
+    },
+    [friend, user]
+  );
 
-  const deleteMessage = async (messageId: string, forAllUsers: boolean) => {
-    await deleteMessageAsync({
-      messageId,
-      forAllUsers,
-    });
-  };
-
-  const proceedAvatar = (messageId: string) => {
-    const message = messages?.find((message) => message.senderId === messageId);
-    if (message) {
-      return friend?.avatar;
-    }
-    return user?.avatar;
-  };
-
-  const proceedSenderName = (messageId: string) => {
-    if (friend?.userId === messageId) {
-      return friend?.name;
-    }
-    return user?.name;
-  };
-
-  const sendFile = (file: File | null) => {
+  const sendFile = useCallback((file: File | null) => {
     setFile(file);
-  };
+  }, []);
 
   return (
     <>

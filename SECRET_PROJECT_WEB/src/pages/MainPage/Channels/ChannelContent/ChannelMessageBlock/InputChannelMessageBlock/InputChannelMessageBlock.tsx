@@ -1,7 +1,7 @@
 import { Input } from "@/shadcn/ui/input";
 
 import styles from "./styles.module.scss";
-import { useState, type FC } from "react";
+import { useCallback, useState, type FC } from "react";
 import { FileInput } from "@/pages/MainPage/Friends/FriendChat/MessageBlock/InputBlock/FileInput/FileInput";
 import { SmileBlock } from "@/pages/MainPage/Friends/FriendChat/MessageBlock/InputBlock/SmileBlock/SmileBlock";
 import { Button } from "@/shadcn/ui/button";
@@ -21,12 +21,12 @@ export const InputChannelMessageBlock: FC<InputChannelMessageBlockProps> = ({
 }) => {
   const [fileCount, setFileCount] = useState(0);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = useCallback(() => {
     sendMessage(message);
     setMessage("");
     sendFile(null);
     setFileCount(0);
-  };
+  }, [message, sendMessage, sendFile]);
 
   return (
     <div className={styles["channel-chat__input-container"]}>

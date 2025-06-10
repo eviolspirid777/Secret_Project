@@ -10,6 +10,7 @@ export const useGetChannelMessages = (channelId: string) => {
     queryKey: ["channel-messages", channelId],
     queryFn: async () => await apiClient.GetChannelMessages(channelId),
     enabled: !!channelId,
+    refetchOnWindowFocus: false,
   });
 
   return {
