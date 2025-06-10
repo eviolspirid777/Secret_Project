@@ -1,8 +1,17 @@
+import { cn } from "@/shadcn/lib/utils";
 import styles from "./styles.module.scss";
 
-export const Loader = () => {
+type LoaderProps = {
+  className?: string;
+  height?: "full" | "screen";
+};
+
+export const Loader = ({ className, height = "full" }: LoaderProps) => {
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div
+      className={cn(styles["loader-container"], className)}
+      style={{ height: height === "full" ? "100vh" : "100%" }}
+    >
       <span className={styles["loader"]}></span>
     </div>
   );

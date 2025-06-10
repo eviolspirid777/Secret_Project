@@ -8,7 +8,7 @@ import { Button } from "@/shadcn/ui/button";
 
 type InputChannelMessageBlockProps = {
   message: string;
-  setMessage: (message: string) => void;
+  setMessage: React.Dispatch<React.SetStateAction<string>>;
   sendMessage: (message: string) => void;
   sendFile: (file: File | null) => void;
 };

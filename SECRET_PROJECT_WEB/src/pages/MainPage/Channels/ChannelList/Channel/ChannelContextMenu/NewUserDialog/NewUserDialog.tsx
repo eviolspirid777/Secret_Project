@@ -1,11 +1,20 @@
-import type { FC } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/shadcn/ui/dialog";
+import { type FC } from "react";
 
-export const NewUserDialog: FC = () => {
+type NewUserDialogProps = {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+};
+
+export const NewUserDialog: FC<NewUserDialogProps> = ({ open, setOpen }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">Edit Profile</Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit profile</DialogTitle>
@@ -13,7 +22,6 @@ export const NewUserDialog: FC = () => {
             Make changes to your profile here. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
-        <ProfileForm />
       </DialogContent>
     </Dialog>
   );

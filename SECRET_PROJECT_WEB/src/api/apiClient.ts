@@ -7,7 +7,11 @@ import type {
   RegisterRequest,
   RegisterResponse,
 } from "@/types/Autorization/Register";
-import type { AddChannelRequest, ChannelDto } from "@/types/Channel/Channel";
+import type {
+  AddChannelRequest,
+  ChannelDto,
+  JoinChannelRequest,
+} from "@/types/Channel/Channel";
 import type { ChannelMessage } from "@/types/ChannelMessage/ChannelMessage";
 import type { DeleteChannelMessageRequest } from "@/types/ChannelMessage/DeleteChannelMessageRequest";
 import type { FriendRequest } from "@/types/Friend/Friend";
@@ -246,6 +250,15 @@ class ApiClient {
   }
 
   //#region ChannelUsers
+  async JoinChannel(data: JoinChannelRequest) {
+    const response = await this.client.post<never>(
+      `${BASE_CHANNEL_URL}/join-channel`,
+      data
+    );
+
+    return response.data;
+  }
+
   async GetUserChannels(userId: string) {
     const response = await this.client.get<Record<string, ChannelDto>>(
       `${BASE_CHANNEL_URL}/get-user-channels/${userId}`

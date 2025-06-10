@@ -17,3 +17,8 @@ export type AddChannelRequest = {
   name: string;
   channelAvatarUrl: string;
 };
+
+export type JoinChannelRequest = {
+  userId: string;
+  channelId: string;
+};

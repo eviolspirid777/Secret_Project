@@ -8,13 +8,17 @@ import styles from "./styles.module.scss";
 import { useGetChannelUsers } from "@/shared/hooks/channel/user/useGetChannelUsers";
 import { getChannelById } from "@/store/slices/Channels.slice";
 import type { User } from "@/types/User/User";
+import { Loader } from "@/shared/components/Loader/loader";
 
 export const ChannelContent: FC = () => {
   const { channelId } = useParams();
   const [channelUsers, setChannelUsers] = useState<User[]>([]);
 
-  const { channelUsers: channelUsersResponse, isChannelUsersSuccess } =
-    useGetChannelUsers(channelId);
+  const {
+    channelUsers: channelUsersResponse,
+    isChannelUsersSuccess,
+    isChannelUsersLoading,
+  } = useGetChannelUsers(channelId);
 
   useEffect(() => {
     if (channelUsersResponse) {
@@ -36,10 +40,14 @@ export const ChannelContent: FC = () => {
         <h2>{channel.name}</h2>
       </div>
       <div className={styles["channel-content__messages"]}>
-        <ChannelMessageBlock
-          channelId={channel.id}
-          channelUsers={channelUsers}
-        />
+        {isChannelUsersLoading ? (
+          <Loader height="screen" className={styles["loader"]} />
+        ) : (
+          <ChannelMessageBlock
+            channelId={channel.id}
+            channelUsers={channelUsers}
+          />
+        )}
       </div>
     </div>
   );

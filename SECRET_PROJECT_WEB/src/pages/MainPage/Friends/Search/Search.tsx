@@ -1,5 +1,5 @@
 import { Input } from "@/shadcn/ui/input";
-import type { FC } from "react";
+import { memo, type FC } from "react";
 
 import styles from "./styles.module.scss";
 
@@ -7,7 +7,7 @@ type SearchProps = {
   onChange: (value: string) => void;
 };
 
-export const Search: FC<SearchProps> = ({ onChange }) => {
+export const Search: FC<SearchProps> = memo(({ onChange }) => {
   return (
     <div className={styles["search"]}>
       <Input
@@ -17,4 +17,4 @@ export const Search: FC<SearchProps> = ({ onChange }) => {
       />
     </div>
   );
-};
+});

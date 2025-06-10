@@ -52,6 +52,30 @@ namespace Secret_Project_Backend.Controllers
             return Ok(channelEntity.Entity.Id);
         }
 
+        [HttpPost("join-channel")]
+        public async Task<IActionResult> JoinChannel([FromBody] JoinChannelRequest data)
+        {
+            var channel = await _dbContext
+                .Channels
+                .Include(c => c.ChannelUsers)
+                .FirstOrDefaultAsync(c => c.Id == data.ChannelId);
+
+            if(channel == null)
+            {
+                return BadRequest("Invalid ChannelId");
+            }
+
+            channel.ChannelUsers.Add(new Models.ChannelUser
+            {
+                UserId = data.UserId,
+                ChannelId = data.ChannelId,
+            });
+
+
+            await _dbContext.SaveChangesAsync();
+            return Ok();
+        }
+
         [HttpDelete("delete-channel/{id}")]
         public async Task<IActionResult> DeleteChannel([FromRoute]Guid id)
         {

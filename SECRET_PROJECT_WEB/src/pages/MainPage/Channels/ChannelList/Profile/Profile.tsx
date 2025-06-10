@@ -11,8 +11,9 @@ import { IoSettingsSharp } from "react-icons/io5";
 import { Avatar } from "@/shared/components/Avatar/Avatar";
 import { useSelector } from "react-redux";
 import { getUserAvatar } from "@/store/slices/User.slice";
+import { memo } from "react";
 
-export const Profile = () => {
+export const Profile = memo(() => {
   const navigate = useNavigate();
   const userAvatar = useSelector(getUserAvatar);
 
@@ -38,4 +39,4 @@ export const Profile = () => {
       </ContextMenuContent>
     </ContextMenu>
   );
-};
+});

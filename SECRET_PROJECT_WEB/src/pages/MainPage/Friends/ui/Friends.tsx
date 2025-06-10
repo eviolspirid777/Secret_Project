@@ -2,7 +2,7 @@ import { Search } from "../Search/Search";
 import { FriendsList } from "../FriendsList/FriendsList";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { IoMdPersonAdd } from "react-icons/io";
 import styles from "./styles.module.scss";
 import { useNavigate } from "react-router";
@@ -41,19 +41,25 @@ export const Friends = () => {
 
   const navigate = useNavigate();
 
-  const handleAddFriend = () => {
+  const handleAddFriend = useCallback(() => {
     navigate("/add-friend");
-  };
+  }, [navigate]);
+
+  const memorizedIoMdPersonAdd = useMemo(() => {
+    return (
+      <IoMdPersonAdd
+        className={styles["friends__header-icon"]}
+        size={30}
+        onClick={handleAddFriend}
+      />
+    );
+  }, [handleAddFriend]);
 
   return (
     <div className={styles["friends"]}>
       <div className={styles["friends__header"]}>
         <Search onChange={handleSearch} />
-        <IoMdPersonAdd
-          className={styles["friends__header-icon"]}
-          size={30}
-          onClick={handleAddFriend}
-        />
+        {memorizedIoMdPersonAdd}
       </div>
       <FriendsList friends={filteredFriends} />
     </div>

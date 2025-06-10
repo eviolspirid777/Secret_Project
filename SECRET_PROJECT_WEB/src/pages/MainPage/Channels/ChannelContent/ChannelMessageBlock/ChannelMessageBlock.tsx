@@ -11,6 +11,7 @@ import { InputChannelMessageBlock } from "./InputChannelMessageBlock/InputChanne
 import { useAddChannelMessage } from "@/shared/hooks/channelMessage/useAddChannelMessage";
 import { ChannelMessagesSignalRServiceInstance } from "@/shared/services/SignalR/ChannelMessages/ChannelMessagesSignalRService";
 import { useQueryClient } from "@tanstack/react-query";
+import { Loader } from "@/shared/components/Loader/loader";
 
 type ChannelMessageBlockProps = {
   channelId: string;
@@ -26,7 +27,8 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
-  const { channelMessages } = useGetChannelMessages(channelId);
+  const { channelMessages, isChannelMessagesLoading } =
+    useGetChannelMessages(channelId);
 
   const { deleteChannelMessageAsync } = useDeleteChannelMessage();
   const { addChannelMessageAsync } = useAddChannelMessage();
@@ -103,6 +105,10 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
       });
     }
   }, [channelMessages]);
+
+  if (isChannelMessagesLoading) {
+    return <Loader height="screen" className={styles["loader"]} />;
+  }
 
   return (
     <>

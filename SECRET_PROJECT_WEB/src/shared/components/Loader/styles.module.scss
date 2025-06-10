@@ -10,6 +10,12 @@
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
+
+  &-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 @keyframes rotation {

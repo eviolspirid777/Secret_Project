@@ -8,6 +8,10 @@
     font-size: 17px;
     line-height: 20px;
     height: 40px;
+
+    &::selection {
+      background-color: color.scale($background-color, $lightness: 45%);
+    }
   }
 
   &__input-container {

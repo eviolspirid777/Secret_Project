@@ -4,7 +4,7 @@ import { ShortProfile } from "../Profile/ShortProfile/ShortProfile";
 import { Friends } from "../Friends/ui/Friends";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { setUser } from "@/store/slices/User.slice";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { ErrorPage } from "@/pages/ErrorPage/ui";
 import { useUserInformation } from "@/shared/hooks/user/useUserInformation";
 import { Loader } from "@/shared/components/Loader/loader";
@@ -61,7 +61,9 @@ export const Page = () => {
         </div>
         <Friends />
         <div className={styles["main-page-container-content__main"]}>
-          <Outlet />
+          <Suspense fallback={<Loader />}>
+            <Outlet />
+          </Suspense>
         </div>
       </div>
     </div>
