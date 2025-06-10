@@ -1,0 +1,23 @@
+@use "@/shared/styles/_colors.scss" as *;
+@use "sass:color";
+
+.create-channel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 10px;
+
+  &__input {
+    width: 100%;
+    color: $font-color;
+    &::placeholder {
+      color: color.adjust($font-color, $lightness: -20%);
+    }
+  }
+
+  &__button {
+    min-width: 140px;
+  }
+}

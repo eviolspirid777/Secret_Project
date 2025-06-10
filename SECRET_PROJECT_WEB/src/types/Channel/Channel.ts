@@ -16,6 +16,7 @@ export type ChannelDto = {
 export type AddChannelRequest = {
   name: string;
   channelAvatarUrl: string;
+  adminId: string;
 };
 
 export type JoinChannelRequest = {

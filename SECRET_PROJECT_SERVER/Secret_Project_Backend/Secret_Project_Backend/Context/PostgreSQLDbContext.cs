@@ -91,6 +91,12 @@ namespace Secret_Project_Backend.Context
             modelBuilder.Entity<Friendship>()
                 .HasIndex(f => new { f.UserId, f.FriendId })
                 .IsUnique();
+
+            modelBuilder.Entity<Channel>()
+                .HasOne(c => c.Admin)
+                .WithMany(a => a.ChannelsAdmin)
+                .HasForeignKey(c => c.AdminId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         public DbSet<Channel> Channels { get; set; }

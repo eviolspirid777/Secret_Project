@@ -5,6 +5,7 @@ using Secret_Project_Backend.Controllers.Requests.Channels;
 using Secret_Project_Backend.DTOs;
 using Secret_Project_Backend.Mappers.Channel;
 using Secret_Project_Backend.Mappers.User;
+using Secret_Project_Backend.Models;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -38,14 +39,23 @@ namespace Secret_Project_Backend.Controllers
         }
 
         [HttpPost("add-channel")]
-        public async Task<IActionResult> AddChannel(AddNewChannelRequest data)
+        public async Task<IActionResult> AddChannel([FromBody] AddNewChannelRequest data)
         {
 
-            var channelEntity =  await _dbContext.Channels.AddAsync(new Models.Channel()
+            var channelEntity =  await _dbContext.Channels.AddAsync(new Channel()
             {
                 Name = data.Name,
                 ChannelAvatarUrl = data.ChannelAvatarUrl,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                AdminId = data.AdminId,
+                ChannelUsers = new List<ChannelUser>()
+                {
+                    new()
+                    {
+                        UserId = data.AdminId,
+                        Role = ChannelRole.Admin,
+                    }
+                }
             });
             await _dbContext.SaveChangesAsync();
 

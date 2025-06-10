@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Secret_Project_Backend.Context;
@@ -11,9 +12,11 @@ using Secret_Project_Backend.Context;
 namespace Secret_Project_Backend.Migrations
 {
     [DbContext(typeof(PostgreSQLDbContext))]
-    partial class PostgreSQLDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250610125227_MIGRATION_Admin_Relaity_Added")]
+    partial class MIGRATION_Admin_Relaity_Added
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,6 +245,7 @@ namespace Secret_Project_Backend.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("AdminId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ChannelAvatarUrl")
@@ -483,7 +487,8 @@ namespace Secret_Project_Backend.Migrations
                     b.HasOne("Secret_Project_Backend.Models.ApplicationUser", "Admin")
                         .WithMany("ChannelsAdmin")
                         .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Admin");
                 });
