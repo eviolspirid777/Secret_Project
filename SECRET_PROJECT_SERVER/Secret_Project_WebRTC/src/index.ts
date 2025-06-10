@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { v4 as uuidv4 } from "uuid";
-import { MediaServer } from "./MediaServer";
+import { MediaServer } from "./services/MediaServer";
 import { Peer } from "./types";
 
 // Загрузка переменных окружения
@@ -23,7 +23,12 @@ const port = process.env.PORT || 3000;
 const mediaServer = new MediaServer();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Инициализация медиа-сервера

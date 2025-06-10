@@ -10,9 +10,10 @@ import { getUserAudioStates } from "@/store/slices/User.slice";
 import { useSelector } from "react-redux";
 import { useAudioStates } from "@/shared/hooks/audioStates/useAudioStates";
 import type { FC } from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import styles from "./styles.module.scss";
+import { useWebRTC } from "@/shared/services/SocketIO/useWebRTC";
 
 type FriendChatAudioAndVideoBlockProps = {
   handleDisconnect: () => void;
@@ -21,6 +22,27 @@ type FriendChatAudioAndVideoBlockProps = {
 export const FriendChatAudioAndVideoBlock: FC<
   FriendChatAudioAndVideoBlockProps
 > = ({ handleDisconnect }) => {
+  const roomId = "1111";
+  const { stream, remoteStreams } = useWebRTC(roomId);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const audioRefs = useRef<(HTMLAudioElement | null)[]>([]);
+
+  useEffect(() => {
+    remoteStreams.forEach((remoteStream, idx) => {
+      if (audioRefs.current[idx]) {
+        audioRefs.current[idx]!.srcObject = remoteStream;
+      }
+    });
+  }, [remoteStreams]);
+
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream]);
+
   const [isVideoEnabled, setIsVideoEnabled] = useState(false);
   const audioStates = useSelector(getUserAudioStates);
 
@@ -30,7 +52,22 @@ export const FriendChatAudioAndVideoBlock: FC<
     <div className={styles["friend-chat-audio-and-video-block"]}>
       <div
         className={styles["friend-chat-audio-and-video-block__audio-or-video"]}
-      ></div>
+      >
+        <video ref={videoRef} autoPlay playsInline />
+        {/* Для каждого входящего аудиопотока создаём отдельный <audio> */}
+        {remoteStreams.map((remoteStream, idx) => (
+          <audio
+            key={idx}
+            ref={(el) => {
+              if (el) {
+                audioRefs.current[idx] = el;
+              }
+            }}
+            autoPlay
+            playsInline
+          />
+        ))}
+      </div>
       <div className={styles["friend-chat-audio-and-video-block__actions"]}>
         <Button
           className={

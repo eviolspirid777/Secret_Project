@@ -1,6 +1,12 @@
-import * as mediasoup from 'mediasoup';
-import { v4 as uuidv4 } from 'uuid';
-import { Room, Peer, TransportOptions, ProducerOptions, ConsumerOptions } from './types';
+import * as mediasoup from "mediasoup";
+import { v4 as uuidv4 } from "uuid";
+import {
+  Room,
+  Peer,
+  TransportOptions,
+  ProducerOptions,
+  ConsumerOptions,
+} from "../types";
 
 export class MediaServer {
   private worker!: mediasoup.types.Worker;
@@ -13,44 +19,44 @@ export class MediaServer {
   async initialize() {
     // Создаем медиа-воркер
     this.worker = await mediasoup.createWorker({
-      logLevel: 'warn',
+      logLevel: "warn",
       rtcMinPort: 10000,
       rtcMaxPort: 10100,
     });
 
-    console.log('mediasoup worker создан');
+    console.log("mediasoup worker создан");
   }
 
   async createRoom(roomId: string): Promise<Room> {
     if (this.rooms.has(roomId)) {
-      throw new Error('Комната уже существует');
+      throw new Error("Комната уже существует");
     }
 
     // Создаем медиа-роутер
     const router = await this.worker.createRouter({
       mediaCodecs: [
         {
-          kind: 'audio',
-          mimeType: 'audio/opus',
+          kind: "audio",
+          mimeType: "audio/opus",
           clockRate: 48000,
           channels: 2,
         },
         {
-          kind: 'video',
-          mimeType: 'video/VP8',
+          kind: "video",
+          mimeType: "video/VP8",
           clockRate: 90000,
           parameters: {
-            'x-google-start-bitrate': 1000,
+            "x-google-start-bitrate": 1000,
           },
         },
         {
-          kind: 'video',
-          mimeType: 'video/H264',
+          kind: "video",
+          mimeType: "video/H264",
           clockRate: 90000,
           parameters: {
-            'packetization-mode': 1,
-            'profile-level-id': '42e01f',
-            'level-asymmetry-allowed': 1,
+            "packetization-mode": 1,
+            "profile-level-id": "42e01f",
+            "level-asymmetry-allowed": 1,
           },
         },
       ],
@@ -66,17 +72,20 @@ export class MediaServer {
     return room;
   }
 
-  async createWebRtcTransport(roomId: string, peerId: string): Promise<TransportOptions> {
+  async createWebRtcTransport(
+    roomId: string,
+    peerId: string
+  ): Promise<TransportOptions> {
     const room = this.rooms.get(roomId);
     if (!room) {
-      throw new Error('Комната не найдена');
+      throw new Error("Комната не найдена");
     }
 
     const transport = await room.router.createWebRtcTransport({
       listenIps: [
         {
-          ip: '0.0.0.0',
-          announcedIp: process.env.MEDIASOUP_ANNOUNCED_IP || '127.0.0.1',
+          ip: "0.0.0.0",
+          announcedIp: process.env.MEDIASOUP_ANNOUNCED_IP || "127.0.0.1",
         },
       ],
       enableUdp: true,
@@ -86,7 +95,7 @@ export class MediaServer {
 
     const peer = room.peers.get(peerId);
     if (!peer) {
-      throw new Error('Пир не найден');
+      throw new Error("Пир не найден");
     }
 
     peer.transports.set(transport.id, transport);
@@ -108,17 +117,17 @@ export class MediaServer {
   ): Promise<void> {
     const room = this.rooms.get(roomId);
     if (!room) {
-      throw new Error('Комната не найдена');
+      throw new Error("Комната не найдена");
     }
 
     const peer = room.peers.get(peerId);
     if (!peer) {
-      throw new Error('Пир не найден');
+      throw new Error("Пир не найден");
     }
 
     const transport = peer.transports.get(transportId);
     if (!transport) {
-      throw new Error('Транспорт не найден');
+      throw new Error("Транспорт не найден");
     }
 
     await transport.connect({ dtlsParameters });
@@ -128,22 +137,22 @@ export class MediaServer {
     roomId: string,
     peerId: string,
     transportId: string,
-    kind: 'audio' | 'video',
+    kind: "audio" | "video",
     rtpParameters: any
   ): Promise<ProducerOptions> {
     const room = this.rooms.get(roomId);
     if (!room) {
-      throw new Error('Комната не найдена');
+      throw new Error("Комната не найдена");
     }
 
     const peer = room.peers.get(peerId);
     if (!peer) {
-      throw new Error('Пир не найден');
+      throw new Error("Пир не найден");
     }
 
     const transport = peer.transports.get(transportId);
     if (!transport) {
-      throw new Error('Транспорт не найден');
+      throw new Error("Транспорт не найден");
     }
 
     const producer = await transport.produce({
@@ -169,21 +178,21 @@ export class MediaServer {
   ): Promise<ConsumerOptions> {
     const room = this.rooms.get(roomId);
     if (!room) {
-      throw new Error('Комната не найдена');
+      throw new Error("Комната не найдена");
     }
 
     const peer = room.peers.get(peerId);
     if (!peer) {
-      throw new Error('Пир не найден');
+      throw new Error("Пир не найден");
     }
 
     if (!room.router.canConsume({ producerId, rtpCapabilities })) {
-      throw new Error('Невозможно создать консьюмер');
+      throw new Error("Невозможно создать консьюмер");
     }
 
     const transport = Array.from(peer.transports.values())[0];
     if (!transport) {
-      throw new Error('Транспорт не найден');
+      throw new Error("Транспорт не найден");
     }
 
     const consumer = await transport.consume({
@@ -207,7 +216,7 @@ export class MediaServer {
   getRouterRtpCapabilities(roomId: string) {
     const room = this.rooms.get(roomId);
     if (!room) {
-      throw new Error('Комната не найдена');
+      throw new Error("Комната не найдена");
     }
 
     return room.router.rtpCapabilities;
@@ -260,7 +269,7 @@ export class MediaServer {
   getRoom(roomId: string): Room {
     const room = this.rooms.get(roomId);
     if (!room) {
-      throw new Error('Комната не найдена');
+      throw new Error("Комната не найдена");
     }
     return room;
   }
@@ -268,4 +277,4 @@ export class MediaServer {
   getRooms(): Map<string, Room> {
     return this.rooms;
   }
-} 
+}
