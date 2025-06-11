@@ -9,6 +9,9 @@
         public string? AdminId { get; set; }
         public ApplicationUser? Admin { get; set; }
 
+        public Guid? RoomId { get; set; }
+        public Room? Room { get; set; }
+
         public virtual ICollection<ChannelMessage> ChannelMessages { get; set; }
         public virtual ICollection<ChannelUser> ChannelUsers { get; set; }
     }

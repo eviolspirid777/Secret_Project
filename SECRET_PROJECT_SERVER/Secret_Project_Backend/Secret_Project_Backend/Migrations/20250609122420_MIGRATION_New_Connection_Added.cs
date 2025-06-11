@@ -10,27 +10,27 @@ namespace Secret_Project_Backend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_ChannelMessages_ChannelFile_ChannelFileId",
-                table: "ChannelMessages");
+            //migrationBuilder.DropForeignKey(
+            //    name: "FK_ChannelMessages_ChannelFile_ChannelFileId",
+            //    table: "ChannelMessages");
 
-            migrationBuilder.DropIndex(
-                name: "IX_ChannelMessages_ChannelFileId",
-                table: "ChannelMessages");
+            //migrationBuilder.DropIndex(
+            //    name: "IX_ChannelMessages_ChannelFileId",
+            //    table: "ChannelMessages");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_ChannelFile_ChannelMessageId",
-                table: "ChannelFile",
-                column: "ChannelMessageId",
-                unique: true);
+            //migrationBuilder.CreateIndex(
+            //    name: "IX_ChannelFile_ChannelMessageId",
+            //    table: "ChannelFile",
+            //    column: "ChannelMessageId",
+            //    unique: true);
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_ChannelFile_ChannelMessages_ChannelMessageId",
-                table: "ChannelFile",
-                column: "ChannelMessageId",
-                principalTable: "ChannelMessages",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+            //migrationBuilder.AddForeignKey(
+            //    name: "FK_ChannelFile_ChannelMessages_ChannelMessageId",
+            //    table: "ChannelFile",
+            //    column: "ChannelMessageId",
+            //    principalTable: "ChannelMessages",
+            //    principalColumn: "Id",
+            //    onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />

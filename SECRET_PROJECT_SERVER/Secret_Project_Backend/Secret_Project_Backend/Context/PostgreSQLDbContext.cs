@@ -97,6 +97,12 @@ namespace Secret_Project_Backend.Context
                 .WithMany(a => a.ChannelsAdmin)
                 .HasForeignKey(c => c.AdminId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Channel>()
+                .HasOne(c => c.Room)
+                .WithOne(r => r.Channel)
+                .HasForeignKey<Channel>(c => c.RoomId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
 
         public DbSet<Channel> Channels { get; set; }
@@ -104,5 +110,6 @@ namespace Secret_Project_Backend.Context
         public DbSet<Message> Messages { get; set; }
         public DbSet<ChannelUser> ChannelUsers { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
+        public DbSet<Room> Rooms { get; set; }
     }
 }

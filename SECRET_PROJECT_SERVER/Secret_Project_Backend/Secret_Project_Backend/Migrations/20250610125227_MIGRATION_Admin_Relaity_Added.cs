@@ -10,25 +10,25 @@ namespace Secret_Project_Backend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "AdminId",
-                table: "Channels",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
+            //migrationBuilder.AddColumn<string>(
+            //    name: "AdminId",
+            //    table: "Channels",
+            //    type: "text",
+            //    nullable: false,
+            //    defaultValue: "");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Channels_AdminId",
-                table: "Channels",
-                column: "AdminId");
+            //migrationBuilder.CreateIndex(
+            //    name: "IX_Channels_AdminId",
+            //    table: "Channels",
+            //    column: "AdminId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Channels_AspNetUsers_AdminId",
-                table: "Channels",
-                column: "AdminId",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+            //migrationBuilder.AddForeignKey(
+            //    name: "FK_Channels_AspNetUsers_AdminId",
+            //    table: "Channels",
+            //    column: "AdminId",
+            //    principalTable: "AspNetUsers",
+            //    principalColumn: "Id",
+            //    onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />

@@ -20,6 +20,7 @@ import type {
   Message,
   MessageDeleteRequest,
 } from "@/types/Message/Message";
+import type { Room } from "@/types/Room/Room";
 import type { ChangeUserInformationRequest } from "@/types/User/ChangeUserInformationRequest";
 import type { ChangeUserStatusRequest } from "@/types/User/ChangeUserStatusRequest";
 import type { User } from "@/types/User/User";
@@ -321,6 +322,80 @@ class ApiClient {
     return response.data;
   }
   //#endregion Channel
+
+  //#region Room
+  async GetRoomInformation(channelId: string) {
+    const response = await this.client.get<Room>(
+      `${BASE_CHANNEL_URL}/channel/${channelId}/room`
+    );
+
+    return response.data;
+  }
+
+  async CreateRoom(channelId: string) {
+    const response = await this.client.post<string>(
+      `${BASE_CHANNEL_URL}/channel/${channelId}/room/create-room`
+    );
+
+    return response.data;
+  }
+
+  async DeleteRoom(channelId: string) {
+    const response = await this.client.post(
+      `${BASE_CHANNEL_URL}/channel/${channelId}/room/delete-room`
+    );
+
+    return response.data;
+  }
+
+  async RoomBlockUser(channelId: string, userId: string) {
+    const response = await this.client.post(
+      `${BASE_CHANNEL_URL}/channel/${channelId}/room/block-user/${userId}`
+    );
+
+    return response.data;
+  }
+
+  async RoomUnblockUser(channelId: string, userId: string) {
+    const response = await this.client.post(
+      `${BASE_CHANNEL_URL}/channel/${channelId}/room/unblock-user/${userId}`
+    );
+
+    return response.data;
+  }
+
+  async RoomMuteAudioUser(channelId: string, userId: string) {
+    const response = await this.client.post(
+      `${BASE_CHANNEL_URL}/channel/${channelId}/room/mute-audio-user/${userId}`
+    );
+
+    return response.data;
+  }
+
+  async RoomUnmuteAudioUser(channelId: string, userId: string) {
+    const response = await this.client.post(
+      `${BASE_CHANNEL_URL}/channel/${channelId}/room/unmute-audio-user/${userId}`
+    );
+
+    return response.data;
+  }
+
+  async RoomMuteVideoUser(channelId: string, userId: string) {
+    const response = await this.client.post(
+      `${BASE_CHANNEL_URL}/channel/${channelId}/room/mute-video-user/${userId}`
+    );
+
+    return response.data;
+  }
+
+  async RoomUnmuteVideoUser(channelId: string, userId: string) {
+    const response = await this.client.post(
+      `${BASE_CHANNEL_URL}/channel/${channelId}/room/unmute-video-user/${userId}`
+    );
+
+    return response.data;
+  }
+  //#endregion Room
 
   async GetMessages(data: GetMessagesRequest) {
     const response = await this.client.post<Message[]>(

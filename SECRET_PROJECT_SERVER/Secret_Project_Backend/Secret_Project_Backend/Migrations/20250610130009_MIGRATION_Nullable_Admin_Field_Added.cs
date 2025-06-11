@@ -10,13 +10,13 @@ namespace Secret_Project_Backend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "AdminId",
-                table: "Channels",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text");
+            //migrationBuilder.AlterColumn<string>(
+            //    name: "AdminId",
+            //    table: "Channels",
+            //    type: "text",
+            //    nullable: true,
+            //    oldClrType: typeof(string),
+            //    oldType: "text");
         }
 
         /// <inheritdoc />
