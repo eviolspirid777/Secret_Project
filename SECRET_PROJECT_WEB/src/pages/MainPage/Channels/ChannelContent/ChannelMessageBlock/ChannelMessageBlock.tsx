@@ -45,8 +45,18 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
       }
     );
 
+    ChannelMessagesSignalRServiceInstance.OnReciveAudioRoomCreated((room) => {
+      console.log("roomId", room);
+    });
+
+    ChannelMessagesSignalRServiceInstance.OnReciveAudioRoomDeleted((roomId) => {
+      console.log("roomId", roomId);
+    });
+
     return () => {
-      ChannelMessagesSignalRServiceInstance.stopReciveChannelMessage();
+      ChannelMessagesSignalRServiceInstance.StopReciveChannelMessage();
+      ChannelMessagesSignalRServiceInstance.StopReciveAudioRoomCreated();
+      ChannelMessagesSignalRServiceInstance.StopReciveAudioRoomDeleted();
     };
   }, []);
 

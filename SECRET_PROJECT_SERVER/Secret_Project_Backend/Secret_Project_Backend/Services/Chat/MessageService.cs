@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Secret_Project_Backend.DTOs.Messages;
+using Secret_Project_Backend.DTOs.Room;
 using Secret_Project_Backend.Models;
 using Secret_Project_Backend.SignalR;
 
@@ -7,19 +8,19 @@ namespace Secret_Project_Backend.Services.Chat
 {
     public class MessageService
     {
-        private readonly IHubContext<ChatHub> _hubUserStatusContext;
+        private readonly IHubContext<ChatHub> _userHub;
         public MessageService(
-            IHubContext<ChatHub> hubUserStatusContext
+            IHubContext<ChatHub> userHub
         )
         {
-            _hubUserStatusContext = hubUserStatusContext;
+            _userHub = userHub;
         }
 
         public async Task<bool> NotifyUserAsync(string userId, MessageDto message)
         {
             try
             {
-                await _hubUserStatusContext.Clients.User(userId).SendAsync("ReceiveMessage", message);
+                await _userHub.Clients.User(userId).SendAsync("ReceiveMessage", message);
                 return true;
             } catch (Exception)
             {
@@ -31,13 +32,23 @@ namespace Secret_Project_Backend.Services.Chat
         {
             try
             {
-                await _hubUserStatusContext.Clients.User(userId).SendAsync("DeleteMessage", message);
+                await _userHub.Clients.User(userId).SendAsync("DeleteMessage", message);
                 return true;
             }
             catch (Exception)
             {
                 return false;
             }
+        }
+
+        public async Task SendRoomWasCreatedToUserAsync(string userId, RoomDto room)
+        {
+            await _userHub.Clients.User(userId).SendAsync("roomCreated", room);
+        }
+
+        public async Task SendRoomWasDeletedToUserAsync(string userId, Guid roomId)
+        {
+            await _userHub.Clients.User(userId).SendAsync("roomDeleted", roomId);
         }
     }
 }

@@ -4,6 +4,7 @@ using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Controllers.Requests.Messages;
 using Secret_Project_Backend.DTOs.Messages;
 using Secret_Project_Backend.Mappers.Messages;
+using Secret_Project_Backend.Mappers.Room;
 using Secret_Project_Backend.Services.Chat;
 using Secret_Project_Backend.Services.S3;
 using Secret_Project_Backend.Utils.FriendsParserFunc;
@@ -139,5 +140,93 @@ namespace Secret_Project_Backend.Controllers
 
             return Ok();
         }
+
+        #region Room
+        [HttpGet("user/{userId}/room")] 
+        public async Task<IActionResult> GetRoomInformation([FromRoute] string userId)
+        {
+            var user = await _dbContext.Users.Include(u => u.Room).FirstOrDefaultAsync(u => u.Id == userId);
+
+            if(user == null)
+            {
+                return BadRequest("Invalid user data");
+            }
+
+            if(user.Room == null)
+            {
+                return BadRequest("Invalid room data");
+            }
+
+            var mappedRoom = RoomMapper.MapRoomToRoomDto(user.Room);
+
+            return Ok(mappedRoom);
+        }
+
+        [HttpPost("user/{userId}/room/create-room")]
+        public async Task<IActionResult> CreateRoom([FromRoute] string userId)
+        {
+            var user = await _dbContext
+                .Users
+                .Include(u => u.Room)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+            
+            if(user == null)
+            {
+                return BadRequest("Invalid userId");
+            }
+
+            if(user.Room != null)
+            {
+                return BadRequest("Room is already exist");
+            }
+
+            var roomId = Guid.NewGuid();
+
+            user.Room = new Models.Room
+            {
+                UserId = userId,
+                Id = roomId,
+            };
+
+            await _dbContext.SaveChangesAsync();
+
+            await _messageService.SendRoomWasCreatedToUserAsync(userId, new DTOs.Room.RoomDto
+            {
+                Id = roomId,
+            });
+            
+            return Ok(roomId);
+        }
+
+        [HttpPost("user/{userId}/room/delete-room/{roomId}")]
+        public async Task<IActionResult> DeleteRoom([FromRoute] string userId, [FromRoute] string roomId)
+        {
+            var user = await _dbContext
+                .Users
+                .Include(u => u.Room)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+
+            if (user == null)
+            {
+                return BadRequest("Invalid userId");
+            }
+
+            if (user.Room == null)
+            {
+                return NotFound("Room is not exist");
+            }
+
+            var roomIdFromBase = user.Room.Id;
+
+
+            _dbContext.Rooms.Remove(user.Room);
+
+            await _dbContext.SaveChangesAsync();
+
+            await _messageService.SendRoomWasDeletedToUserAsync(userId, roomIdFromBase);
+            return Ok();
+        }
+        #endregion Room
     }
 }

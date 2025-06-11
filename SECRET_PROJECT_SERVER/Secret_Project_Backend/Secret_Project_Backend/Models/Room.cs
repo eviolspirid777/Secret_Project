@@ -11,10 +11,13 @@ namespace Secret_Project_Backend.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public Guid[] MutedAudioUserIds { get; set; }
-        public Guid[] MutedVideoUserIds { get; set; }
-        public Guid[] BlockedUsers { get; set; }
+        public Guid[]? MutedAudioUserIds { get; set; }
+        public Guid[]? MutedVideoUserIds { get; set; }
+        public Guid[]? BlockedUsers { get; set; }
+
         public Guid? ChannelId { get; set; }
         public Channel? Channel { get; set; }
+        public string? UserId { get; set; }
+        public ApplicationUser? User { get; set; }
     }
 }

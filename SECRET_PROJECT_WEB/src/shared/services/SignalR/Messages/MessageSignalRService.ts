@@ -1,6 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import type { Message } from "@/types/Message/Message";
+import type { Room } from "@/types/Room/Room";
 
 export default class MessageSignalRService {
   private connection: signalR.HubConnection;
@@ -32,6 +33,22 @@ export default class MessageSignalRService {
 
   public async onReceiveMessage(callback: (message: Message) => void) {
     this.connection.on("ReceiveMessage", callback);
+  }
+
+  public async onReceiveRoomCreated(callback: (room: Room) => void) {
+    this.connection.on("roomCreated", callback);
+  }
+
+  public async onReceiveRoomDeleted(callback: (roomId: string) => void) {
+    this.connection.on("roomDeleted", callback);
+  }
+
+  public async stopOnReceiveRoomCreated() {
+    this.connection.off("roomCreated");
+  }
+
+  public async stopOnReceiveRoomDeleted() {
+    this.connection.off("roomDeleted");
   }
 
   public async onDeleteMessage(callback: (message: Message) => void) {

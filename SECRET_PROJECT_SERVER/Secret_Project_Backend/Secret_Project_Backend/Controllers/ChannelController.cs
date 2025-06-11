@@ -7,6 +7,7 @@ using Secret_Project_Backend.Mappers.Channel;
 using Secret_Project_Backend.Mappers.Room;
 using Secret_Project_Backend.Mappers.User;
 using Secret_Project_Backend.Models;
+using Secret_Project_Backend.Services.ChannelChat;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -15,11 +16,14 @@ namespace Secret_Project_Backend.Controllers
     public class ChannelController : ControllerBase
     {
         private readonly PostgreSQLDbContext _dbContext;
+        private readonly ChannelChatSignlaRService _channelMessageHub;
         public ChannelController(
-            PostgreSQLDbContext dbContext    
+            PostgreSQLDbContext dbContext,
+            ChannelChatSignlaRService channelMessageHub
         )
         {
             _dbContext = dbContext;
+            _channelMessageHub = channelMessageHub;
         }
         #region Channel
         [HttpGet("get-channel-information/{id}")]
@@ -234,6 +238,7 @@ namespace Secret_Project_Backend.Controllers
             var channel = await _dbContext
                 .Channels
                 .Include(ch => ch.Room)
+                .Include(ch => ch.ChannelUsers)
                 .FirstOrDefaultAsync(ch => ch.Id == channelId);
 
             if(channel == null)
@@ -244,16 +249,32 @@ namespace Secret_Project_Backend.Controllers
             if (channel.Room != null) return Problem("Room is already exist!");
 
                 var roomId = Guid.NewGuid();
+
                 channel.Room = new Room
                 {
                     ChannelId = channelId,
-                    Id = Guid.NewGuid(),
+                    Id = roomId,
                     BlockedUsers = [],
                     MutedAudioUserIds = [],
                     MutedVideoUserIds = []
                 };
 
                 await _dbContext.SaveChangesAsync();
+
+                if(channel.ChannelUsers != null)
+                {
+                    foreach(var user in channel.ChannelUsers)
+                    {
+                        await _channelMessageHub.SendRoomWasCreatedToUserAsync(user.UserId, new DTOs.Room.RoomDto
+                        {
+                            Id = roomId,
+                            BlockedUsers = [],
+                            MutedAudioUserIds = [],
+                            MutedVideoUserIds = []
+                        });
+                    }
+                }
+
                 return Ok(roomId);
         }
 
@@ -263,6 +284,7 @@ namespace Secret_Project_Backend.Controllers
             var channel = await _dbContext
                 .Channels
                 .Include(ch => ch.Room)
+                .Include(ch => ch.ChannelUsers)
                 .FirstOrDefaultAsync(ch => ch.Id == channelId);
 
             if (channel == null)
@@ -272,9 +294,19 @@ namespace Secret_Project_Backend.Controllers
 
             if (channel.Room == null) return Problem("Room is not exist");
 
+            var roomId = channel.RoomId;
+
             _dbContext.Rooms.Remove(channel.Room);
 
             await _dbContext.SaveChangesAsync();
+
+            if (channel.ChannelUsers != null)
+            {
+                foreach (var user in channel.ChannelUsers)
+                {
+                    await _channelMessageHub.SendRoomWasDeletedToUserAsync(user.UserId, roomId ?? Guid.Empty);
+                }
+            }
 
             return Ok();
         }

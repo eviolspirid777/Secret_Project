@@ -16,6 +16,8 @@ namespace Secret_Project_Backend.Models
         public bool IsMicrophoneMuted { get; set; } = false;
         public bool IsHeadphonesMuted { get; set; } = false;
         public ConnectionState Status { get; set; } = ConnectionState.Offline;
+        public Guid? RoomId { get; set; }
+        public Room? Room { get; set; }
         public virtual ICollection<Channel>? ChannelsAdmin { get; set; } = new List<Channel>();
         public virtual ICollection<Message> SentMessages { get; set; } = new List<Message>();
         public virtual ICollection<Message> ReceivedMessages { get; set; } = new List<Message>();

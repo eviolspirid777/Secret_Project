@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 
 import styles from "./styles.module.scss";
 import { useWebRTC } from "@/shared/services/SocketIO/useWebRTC";
+import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
 
 type FriendChatAudioAndVideoBlockProps = {
   handleDisconnect: () => void;
@@ -47,6 +48,21 @@ export const FriendChatAudioAndVideoBlock: FC<
   const audioStates = useSelector(getUserAudioStates);
 
   const { changeMicrophoneStateHandler } = useAudioStates();
+
+  useEffect(() => {
+    messageSignalRServiceInstance.onReceiveRoomCreated((room) => {
+      console.log("room", room);
+    });
+
+    messageSignalRServiceInstance.onReceiveRoomDeleted((roomId) => {
+      console.log("roomId", roomId);
+    });
+
+    return () => {
+      messageSignalRServiceInstance.stopOnReceiveRoomCreated();
+      messageSignalRServiceInstance.stopOnReceiveRoomDeleted();
+    };
+  }, []);
 
   return (
     <div className={styles["friend-chat-audio-and-video-block"]}>

@@ -1,6 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 import { localStorageService } from "../../localStorageService/localStorageService";
 import type { ChannelMessage } from "@/types/ChannelMessage/ChannelMessage";
+import type { Room } from "@/types/Room/Room";
 
 export default class ChannelMessagesSignalRService {
   private connection: signalR.HubConnection;
@@ -30,7 +31,23 @@ export default class ChannelMessagesSignalRService {
     this.connection.on("channelMessageRecived", callback);
   }
 
-  public async stopReciveChannelMessage() {
+  public async OnReciveAudioRoomCreated(callback: (room: Room) => void) {
+    this.connection.on("roomCreated", callback);
+  }
+
+  public async OnReciveAudioRoomDeleted(callback: (roomId: string) => void) {
+    this.connection.on("roomDeleted", callback);
+  }
+
+  public async StopReciveAudioRoomCreated() {
+    this.connection.off("roomCreated");
+  }
+
+  public async StopReciveAudioRoomDeleted() {
+    this.connection.off("roomDeleted");
+  }
+
+  public async StopReciveChannelMessage() {
     this.connection.off("channelMessageRecived");
   }
 }

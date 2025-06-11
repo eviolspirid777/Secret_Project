@@ -103,6 +103,12 @@ namespace Secret_Project_Backend.Context
                 .WithOne(r => r.Channel)
                 .HasForeignKey<Channel>(c => c.RoomId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.Room)
+                .WithOne(r => r.User)
+                .HasForeignKey<ApplicationUser>(u => u.RoomId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
 
         public DbSet<Channel> Channels { get; set; }

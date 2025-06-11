@@ -323,7 +323,7 @@ class ApiClient {
   }
   //#endregion Channel
 
-  //#region Room
+  //#region ChannelRoom
   async GetRoomInformation(channelId: string) {
     const response = await this.client.get<Room>(
       `${BASE_CHANNEL_URL}/channel/${channelId}/room`
@@ -395,7 +395,33 @@ class ApiClient {
 
     return response.data;
   }
-  //#endregion Room
+  //#endregion ChannelRoom
+
+  //#region UserRoom
+  async GetUserRoomInformation(userId: string) {
+    const response = await this.client.get<Room>(
+      `${BASE_MESSAGE_URL}/user/${userId}/room`
+    );
+
+    return response.data;
+  }
+
+  async CreateUserRoom(userId: string) {
+    const response = await this.client.post<string>(
+      `${BASE_MESSAGE_URL}/user/${userId}/room/create-room`
+    );
+
+    return response.data;
+  }
+
+  async DeleteUserRoom(userId: string) {
+    const response = await this.client.post(
+      `${BASE_MESSAGE_URL}/user/${userId}/room/delete-room`
+    );
+
+    return response.data;
+  }
+  //#endregion UserRoom
 
   async GetMessages(data: GetMessagesRequest) {
     const response = await this.client.post<Message[]>(
