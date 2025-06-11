@@ -104,11 +104,17 @@ namespace Secret_Project_Backend.Context
                 .HasForeignKey<Channel>(c => c.RoomId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Room)
-                .WithOne(r => r.User)
-                .HasForeignKey<ApplicationUser>(u => u.RoomId)
-                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<UserRoom>()
+                .HasOne(r => r.LeftUser)
+                .WithMany(u => u.LeftRooms)
+                .HasForeignKey(r => r.LeftUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserRoom>()
+                .HasOne(r => r.RightUser)
+                .WithMany(u => u.RightRooms)
+                .HasForeignKey(r => r.RightUserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         public DbSet<Channel> Channels { get; set; }
@@ -117,5 +123,6 @@ namespace Secret_Project_Backend.Context
         public DbSet<ChannelUser> ChannelUsers { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
         public DbSet<Room> Rooms { get; set; }
+        public DbSet<UserRoom> UserRooms { get; set; }
     }
 }

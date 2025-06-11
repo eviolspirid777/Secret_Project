@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Secret_Project_Backend.Context;
@@ -11,9 +12,11 @@ using Secret_Project_Backend.Context;
 namespace Secret_Project_Backend.Migrations
 {
     [DbContext(typeof(PostgreSQLDbContext))]
-    partial class PostgreSQLDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250611095558_MIGRATION_Added_Linking_To_User_In_Room_And_Unneccassary_Fields")]
+    partial class MIGRATION_Added_Linking_To_User_In_Room_And_Unneccassary_Fields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -209,6 +212,9 @@ namespace Secret_Project_Backend.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("RoomId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -231,6 +237,9 @@ namespace Secret_Project_Backend.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
+
+                    b.HasIndex("RoomId")
+                        .IsUnique();
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -440,50 +449,23 @@ namespace Secret_Project_Backend.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<Guid[]>("BlockedUsers")
-                        .IsRequired()
                         .HasColumnType("uuid[]");
 
                     b.Property<Guid?>("ChannelId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid[]>("MutedAudioUserIds")
-                        .IsRequired()
                         .HasColumnType("uuid[]");
 
                     b.Property<Guid[]>("MutedVideoUserIds")
-                        .IsRequired()
                         .HasColumnType("uuid[]");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("Rooms");
-                });
-
-            modelBuilder.Entity("Secret_Project_Backend.Models.UserRoom", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("LeftUserId")
-                        .HasColumnType("text");
-
-                    b.Property<Guid[]>("MutedAudioUserIds")
-                        .HasColumnType("uuid[]");
-
-                    b.Property<Guid[]>("MutedVideoUserIds")
-                        .HasColumnType("uuid[]");
-
-                    b.Property<string>("RightUserId")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LeftUserId");
-
-                    b.HasIndex("RightUserId");
-
-                    b.ToTable("UserRooms");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -535,6 +517,16 @@ namespace Secret_Project_Backend.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Secret_Project_Backend.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("Secret_Project_Backend.Models.Room", "Room")
+                        .WithOne("User")
+                        .HasForeignKey("Secret_Project_Backend.Models.ApplicationUser", "RoomId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("Secret_Project_Backend.Models.Channel", b =>
@@ -652,23 +644,6 @@ namespace Secret_Project_Backend.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("Secret_Project_Backend.Models.UserRoom", b =>
-                {
-                    b.HasOne("Secret_Project_Backend.Models.ApplicationUser", "LeftUser")
-                        .WithMany("LeftRooms")
-                        .HasForeignKey("LeftUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Secret_Project_Backend.Models.ApplicationUser", "RightUser")
-                        .WithMany("RightRooms")
-                        .HasForeignKey("RightUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("LeftUser");
-
-                    b.Navigation("RightUser");
-                });
-
             modelBuilder.Entity("Secret_Project_Backend.Models.ApplicationUser", b =>
                 {
                     b.Navigation("ChannelMessages");
@@ -681,11 +656,7 @@ namespace Secret_Project_Backend.Migrations
 
                     b.Navigation("Friends");
 
-                    b.Navigation("LeftRooms");
-
                     b.Navigation("ReceivedMessages");
-
-                    b.Navigation("RightRooms");
 
                     b.Navigation("SentMessages");
                 });
@@ -711,6 +682,8 @@ namespace Secret_Project_Backend.Migrations
             modelBuilder.Entity("Secret_Project_Backend.Models.Room", b =>
                 {
                     b.Navigation("Channel");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

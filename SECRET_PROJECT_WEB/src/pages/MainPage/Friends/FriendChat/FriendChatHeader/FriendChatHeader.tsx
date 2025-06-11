@@ -7,19 +7,28 @@ import type { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import { getFriendById } from "@/store/slices/Friends.slice";
 import type { FC } from "react";
+import { VscCallIncoming } from "react-icons/vsc";
 
 type FriendChatHeaderProps = {
   friendId: string;
   openAudioAndVideoBlock: (type: "audio" | "video") => void;
+  roomId: string | null;
+  connectToCall: () => Promise<void>;
 };
 
 export const FriendChatHeader: FC<FriendChatHeaderProps> = ({
   friendId,
   openAudioAndVideoBlock,
+  connectToCall,
+  roomId,
 }) => {
   const friend = useSelector((state: RootState) =>
     getFriendById(state, friendId)
   );
+
+  const handleConnectToCall = () => {
+    connectToCall();
+  };
 
   return (
     <div className={styles["friend-chat__header"]}>
@@ -35,14 +44,22 @@ export const FriendChatHeader: FC<FriendChatHeaderProps> = ({
         </AvatarFallback>
       </Avatar>
       <h1 className={styles["friend-chat__header-name"]}>{friend?.name}</h1>
-      <div className={styles["friend-chat__header-actions"]}>
-        <Button onClick={openAudioAndVideoBlock.bind(null, "audio")}>
-          <FaPhone />
-        </Button>
-        <Button onClick={openAudioAndVideoBlock.bind(null, "video")}>
-          <FaVideo />
-        </Button>
-      </div>
+      {roomId ? (
+        <div className={styles["friend-chat__header-actions"]}>
+          <Button onClick={handleConnectToCall}>
+            <VscCallIncoming />
+          </Button>
+        </div>
+      ) : (
+        <div className={styles["friend-chat__header-actions"]}>
+          <Button onClick={openAudioAndVideoBlock.bind(null, "audio")}>
+            <FaPhone />
+          </Button>
+          <Button onClick={openAudioAndVideoBlock.bind(null, "video")}>
+            <FaVideo />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,9 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiClient } from "@/api/apiClient";
+import type { CreateUserRoomRequest } from "@/types/UserRoom/UserRoom";
 
 export const useCreateUserRoom = () => {
-  return useMutation({
+  const {
+    mutateAsync: createUserRoomAsync,
+    isPending: isCreateUserRoomPending,
+  } = useMutation({
     mutationKey: ["createUserRoom"],
-    mutationFn: (userId: string) => apiClient.CreateUserRoom(userId),
+    mutationFn: (data: CreateUserRoomRequest) => apiClient.CreateUserRoom(data),
   });
+
+  return {
+    createUserRoomAsync,
+    isCreateUserRoomPending,
+  };
 };

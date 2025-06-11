@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Secret_Project_Backend.Context;
@@ -11,9 +12,11 @@ using Secret_Project_Backend.Context;
 namespace Secret_Project_Backend.Migrations
 {
     [DbContext(typeof(PostgreSQLDbContext))]
-    partial class PostgreSQLDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250611113511_MIGRATION_User_Room_Refactoring")]
+    partial class MIGRATION_User_Room_Refactoring
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -466,6 +469,7 @@ namespace Secret_Project_Backend.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("LeftUserId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid[]>("MutedAudioUserIds")
@@ -475,6 +479,7 @@ namespace Secret_Project_Backend.Migrations
                         .HasColumnType("uuid[]");
 
                     b.Property<string>("RightUserId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -657,12 +662,14 @@ namespace Secret_Project_Backend.Migrations
                     b.HasOne("Secret_Project_Backend.Models.ApplicationUser", "LeftUser")
                         .WithMany("LeftRooms")
                         .HasForeignKey("LeftUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Secret_Project_Backend.Models.ApplicationUser", "RightUser")
                         .WithMany("RightRooms")
                         .HasForeignKey("RightUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("LeftUser");
 

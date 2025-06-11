@@ -14,8 +14,6 @@ using Secret_Project_Backend.Services.S3;
 using Secret_Project_Backend.Services.Status;
 using Secret_Project_Backend.Services.User;
 using Secret_Project_Backend.SignalR;
-using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Secret_Project_Backend.Controllers
 {

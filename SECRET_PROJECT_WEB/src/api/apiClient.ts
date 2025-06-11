@@ -24,6 +24,13 @@ import type { Room } from "@/types/Room/Room";
 import type { ChangeUserInformationRequest } from "@/types/User/ChangeUserInformationRequest";
 import type { ChangeUserStatusRequest } from "@/types/User/ChangeUserStatusRequest";
 import type { User } from "@/types/User/User";
+import type {
+  CreateUserRoomRequest,
+  DeleteUserRoomRequest,
+  GetUserRoomInformationRequest,
+  JoinUserRoomRequest,
+  UserRoom,
+} from "@/types/UserRoom/UserRoom";
 import type { AxiosInstance } from "axios";
 import axios from "axios";
 
@@ -398,25 +405,39 @@ class ApiClient {
   //#endregion ChannelRoom
 
   //#region UserRoom
-  async GetUserRoomInformation(userId: string) {
-    const response = await this.client.get<Room>(
-      `${BASE_MESSAGE_URL}/user/${userId}/room`
+  async GetUserRoomInformation(data: GetUserRoomInformationRequest) {
+    const response = await this.client.get<UserRoom>(
+      `${BASE_MESSAGE_URL}/user/room`,
+      {
+        params: data,
+      }
     );
 
     return response.data;
   }
 
-  async CreateUserRoom(userId: string) {
+  async JoinUserRoom(data: JoinUserRoomRequest) {
+    const response = await this.client.post<UserRoom>(
+      `${BASE_MESSAGE_URL}/user/room/join`,
+      data
+    );
+
+    return response.data;
+  }
+
+  async CreateUserRoom(data: CreateUserRoomRequest) {
     const response = await this.client.post<string>(
-      `${BASE_MESSAGE_URL}/user/${userId}/room/create-room`
+      `${BASE_MESSAGE_URL}/user/room/create`,
+      data
     );
 
     return response.data;
   }
 
-  async DeleteUserRoom(userId: string) {
+  async DeleteUserRoom(data: DeleteUserRoomRequest) {
     const response = await this.client.post(
-      `${BASE_MESSAGE_URL}/user/${userId}/room/delete-room`
+      `${BASE_MESSAGE_URL}/user/room/delete-room`,
+      data
     );
 
     return response.data;

@@ -14,16 +14,16 @@ import { useEffect, useRef, useState } from "react";
 
 import styles from "./styles.module.scss";
 import { useWebRTC } from "@/shared/services/SocketIO/useWebRTC";
-import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
+import { useDeleteUserRoom } from "@/shared/hooks/message/room/useDeleteUserRoom";
 
 type FriendChatAudioAndVideoBlockProps = {
   handleDisconnect: () => void;
+  roomId: string | null;
 };
 
 export const FriendChatAudioAndVideoBlock: FC<
   FriendChatAudioAndVideoBlockProps
-> = ({ handleDisconnect }) => {
-  const roomId = "1111";
+> = ({ handleDisconnect, roomId }) => {
   const { stream, remoteStreams } = useWebRTC(roomId);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -49,20 +49,14 @@ export const FriendChatAudioAndVideoBlock: FC<
 
   const { changeMicrophoneStateHandler } = useAudioStates();
 
-  useEffect(() => {
-    messageSignalRServiceInstance.onReceiveRoomCreated((room) => {
-      console.log("room", room);
-    });
+  const { deleteUserRoomAsync } = useDeleteUserRoom();
 
-    messageSignalRServiceInstance.onReceiveRoomDeleted((roomId) => {
-      console.log("roomId", roomId);
-    });
-
-    return () => {
-      messageSignalRServiceInstance.stopOnReceiveRoomCreated();
-      messageSignalRServiceInstance.stopOnReceiveRoomDeleted();
-    };
-  }, []);
+  const handleDropCall = async () => {
+    if (roomId) {
+      await deleteUserRoomAsync({ roomId });
+      handleDisconnect();
+    }
+  };
 
   return (
     <div className={styles["friend-chat-audio-and-video-block"]}>
@@ -136,7 +130,7 @@ export const FriendChatAudioAndVideoBlock: FC<
           className={
             styles["friend-chat-audio-and-video-block__actions-button"]
           }
-          onClick={handleDisconnect}
+          onClick={handleDropCall}
         >
           <FaPhoneSlash
             className={

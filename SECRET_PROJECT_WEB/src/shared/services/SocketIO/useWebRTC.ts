@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import * as mediasoupClient from "mediasoup-client";
 
-export const useWebRTC = (roomId: string) => {
+export const useWebRTC = (roomId: string | null) => {
   const socketRef = useRef<any>(null);
   const deviceRef = useRef<any>(null);
   const sendTransportRef = useRef<any>(null);

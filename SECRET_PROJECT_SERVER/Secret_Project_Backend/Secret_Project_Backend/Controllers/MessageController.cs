@@ -2,13 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Controllers.Requests.Messages;
-using Secret_Project_Backend.DTOs.Messages;
+using Secret_Project_Backend.Controllers.Requests.User.Room;
 using Secret_Project_Backend.Mappers.Messages;
-using Secret_Project_Backend.Mappers.Room;
+using Secret_Project_Backend.Mappers.UserRoom;
 using Secret_Project_Backend.Services.Chat;
 using Secret_Project_Backend.Services.S3;
 using Secret_Project_Backend.Utils.FriendsParserFunc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -142,89 +141,87 @@ namespace Secret_Project_Backend.Controllers
         }
 
         #region Room
-        [HttpGet("user/{userId}/room")] 
-        public async Task<IActionResult> GetRoomInformation([FromRoute] string userId)
+        [HttpGet("user/room")] 
+        public async Task<IActionResult> GetRoomInformation([FromQuery] string LeftUserId, [FromQuery] string RightUserId)
         {
-            var user = await _dbContext.Users.Include(u => u.Room).FirstOrDefaultAsync(u => u.Id == userId);
+            var userRoom = await _dbContext
+                .UserRooms
+                .AsNoTracking()
+                .Include(ur => ur.LeftUser)
+                .Include(ur => ur.RightUser)
+                .FirstOrDefaultAsync(ur => (ur.LeftUser.Id == LeftUserId && ur.RightUser.Id == RightUserId) ||
+                                                            (ur.RightUser.Id == LeftUserId && ur.LeftUser.Id == RightUserId));
 
-            if(user == null)
+            if(userRoom == null)
             {
                 return BadRequest("Invalid user data");
             }
 
-            if(user.Room == null)
-            {
-                return BadRequest("Invalid room data");
-            }
-
-            var mappedRoom = RoomMapper.MapRoomToRoomDto(user.Room);
+            var mappedRoom = UserRoomMapper.MapUserRoomToUserRoomDto(userRoom);
 
             return Ok(mappedRoom);
         }
 
-        [HttpPost("user/{userId}/room/create-room")]
-        public async Task<IActionResult> CreateRoom([FromRoute] string userId)
+        [HttpPost("user/room/create")]
+        public async Task<IActionResult> CreateRoom([FromBody] UserRoomCreateRequest data)
         {
-            var user = await _dbContext
-                .Users
-                .Include(u => u.Room)
-                .FirstOrDefaultAsync(u => u.Id == userId);
-            
-            if(user == null)
+
+            var isRoomExist = await _dbContext
+                .UserRooms
+                .Include(ur => ur.LeftUser)
+                .Include(ur => ur.RightUser)
+                .AnyAsync(ur => (ur.LeftUser.Id == data.FromUserId && ur.RightUser.Id == data.ToUserId) ||
+                                            (ur.LeftUser.Id == data.ToUserId && ur.RightUser.Id == data.FromUserId));
+
+            if(isRoomExist)
             {
-                return BadRequest("Invalid userId");
+                return BadRequest("Room already exist!");
             }
 
-            if(user.Room != null)
+            var addEntityEntry = await _dbContext.UserRooms.AddAsync(new Models.UserRoom
             {
-                return BadRequest("Room is already exist");
-            }
-
-            var roomId = Guid.NewGuid();
-
-            user.Room = new Models.Room
-            {
-                UserId = userId,
-                Id = roomId,
-            };
+                LeftUserId = data.FromUserId,
+                RightUserId = data.ToUserId
+            });
 
             await _dbContext.SaveChangesAsync();
 
-            await _messageService.SendRoomWasCreatedToUserAsync(userId, new DTOs.Room.RoomDto
-            {
-                Id = roomId,
-            });
-            
-            return Ok(roomId);
+            return Ok(addEntityEntry.Entity.Id);
         }
 
-        [HttpPost("user/{userId}/room/delete-room/{roomId}")]
-        public async Task<IActionResult> DeleteRoom([FromRoute] string userId, [FromRoute] string roomId)
+        [HttpPost("user/room/join")]
+        public async Task<IActionResult> JoinRoom([FromBody] UserRoomJoinRequest data)
         {
-            var user = await _dbContext
-                .Users
-                .Include(u => u.Room)
-                .FirstOrDefaultAsync(u => u.Id == userId);
 
+            var userRoom = await _dbContext
+                .UserRooms
+                .FirstOrDefaultAsync(ur => ur.Id == data.RoomId);
 
-            if (user == null)
+            if(userRoom == null)
             {
-                return BadRequest("Invalid userId");
+                return BadRequest("Invalid roomId");
             }
 
-            if (user.Room == null)
+            userRoom.RightUserId = data.UserId;
+
+            await _dbContext.SaveChangesAsync();
+            return Ok(userRoom);
+        }
+
+        [HttpPost("user/room/delete-room")]
+        public async Task<IActionResult> DeleteRoom([FromBody] UserRoomDeleteRequest data)
+        {
+            var userRoom = await _dbContext.UserRooms.FirstOrDefaultAsync(ur => ur.Id == data.RoomId);
+            
+            if(userRoom == null)
             {
-                return NotFound("Room is not exist");
+                return BadRequest("Room was not found!");
             }
 
-            var roomIdFromBase = user.Room.Id;
-
-
-            _dbContext.Rooms.Remove(user.Room);
+            _dbContext.UserRooms.Remove(userRoom);
 
             await _dbContext.SaveChangesAsync();
 
-            await _messageService.SendRoomWasDeletedToUserAsync(userId, roomIdFromBase);
             return Ok();
         }
         #endregion Room

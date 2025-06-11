@@ -1,9 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiClient } from "@/api/apiClient";
+import type { DeleteUserRoomRequest } from "@/types/UserRoom/UserRoom";
 
 export const useDeleteUserRoom = () => {
-  return useMutation({
+  const {
+    mutateAsync: deleteUserRoomAsync,
+    isPending: isDeleteUserRoomPending,
+  } = useMutation({
     mutationKey: ["deleteUserRoom"],
-    mutationFn: (userId: string) => apiClient.DeleteUserRoom(userId),
+    mutationFn: (data: DeleteUserRoomRequest) => apiClient.DeleteUserRoom(data),
   });
+
+  return {
+    deleteUserRoomAsync,
+    isDeleteUserRoomPending,
+  };
 };
