@@ -52,6 +52,8 @@ io.on("connection", async (socket) => {
       }
 
       const peer: Peer = {
+        //TODO: вместо socket.id можно использовать id пользователя с бд.
+        //  Так будет правильнее и проще регулировать текущие состояния
         id: socket.id,
         socket,
         transports: new Map(),
@@ -92,7 +94,18 @@ io.on("connection", async (socket) => {
   // Подключение транспорта
   socket.on(
     "connect-transport",
-    async ({ roomId, transportId, dtlsParameters }, callback) => {
+    async (
+      {
+        roomId,
+        transportId,
+        dtlsParameters,
+      }: {
+        roomId: string;
+        transportId: string;
+        dtlsParameters: any;
+      },
+      callback
+    ) => {
       try {
         await mediaServer.connectTransport(
           roomId,
@@ -126,6 +139,7 @@ io.on("connection", async (socket) => {
         socket.to(roomId).emit("new-producer", {
           producerId: producer.id,
           kind: producer.kind,
+          peerId: socket.id,
         });
       } catch (error) {
         console.error("Ошибка при создании продюсера:", error);

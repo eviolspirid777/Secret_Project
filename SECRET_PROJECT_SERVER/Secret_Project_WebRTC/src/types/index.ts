@@ -1,5 +1,10 @@
-import { Router, Transport, Producer, Consumer } from 'mediasoup/node/lib/types';
-import { Socket } from 'socket.io';
+import {
+  Router,
+  Transport,
+  Producer,
+  Consumer,
+} from "mediasoup/node/lib/types";
+import { Socket } from "socket.io";
 
 export interface Peer {
   id: string;
@@ -25,7 +30,7 @@ export interface TransportOptions {
 
 export interface ProducerOptions {
   id: string;
-  kind: 'audio' | 'video';
+  kind: "audio" | "video";
   rtpParameters: any;
   appData: any;
 }
@@ -33,7 +38,7 @@ export interface ProducerOptions {
 export interface ConsumerOptions {
   id: string;
   producerId: string;
-  kind: 'audio' | 'video';
+  kind: "audio" | "video";
   rtpParameters: any;
   appData: any;
-} 
+}

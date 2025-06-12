@@ -1,8 +1,6 @@
 import * as mediasoup from "mediasoup";
-import { v4 as uuidv4 } from "uuid";
 import {
   Room,
-  Peer,
   TransportOptions,
   ProducerOptions,
   ConsumerOptions,
