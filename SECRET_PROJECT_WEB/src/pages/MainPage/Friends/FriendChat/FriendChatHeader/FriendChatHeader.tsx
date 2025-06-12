@@ -46,7 +46,10 @@ export const FriendChatHeader: FC<FriendChatHeaderProps> = ({
       <h1 className={styles["friend-chat__header-name"]}>{friend?.name}</h1>
       {roomId ? (
         <div className={styles["friend-chat__header-actions"]}>
-          <Button onClick={handleConnectToCall}>
+          <Button
+            onClick={handleConnectToCall}
+            className={styles["friend-chat__header-actions__connect"]}
+          >
             <VscCallIncoming />
           </Button>
         </div>

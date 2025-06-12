@@ -2,7 +2,7 @@ import { useParams } from "react-router";
 import styles from "./styles.module.scss";
 import { MessageBlock } from "../MessageBlock/MessageBlock";
 import { FriendChatHeader } from "../FriendChatHeader/FriendChatHeader";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FriendChatAudioAndVideoBlock } from "../FriendChatAudioAndVideoBlock/FriendChatAudioAndVideoBlock";
 import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
 import { useCreateUserRoom } from "@/shared/hooks/message/room/useCreateUserRoom";
@@ -10,12 +10,15 @@ import { localStorageService } from "@/shared/services/localStorageService/local
 import { useDeleteUserRoom } from "@/shared/hooks/message/room/useDeleteUserRoom";
 import { useJoinUserRoom } from "@/shared/hooks/message/room/useJoinUserRoom";
 import { useGetUserRoomInformation } from "@/shared/hooks/message/room/useGetUserRoomInformation";
+import { useConnectionAlert } from "@/shared/hooks/connectionAlert/useConnectionAlert";
+import { useDisconnectionAlert } from "@/shared/hooks/connectionAlert/useDisconnectionAlert";
 
 export const FriendChat = () => {
-  const { friendId } = useParams();
+  const { friendId, acceptCall } = useParams();
 
-  const [isAudioAndVideoBlockOpen, setIsAudioAndVideoBlockOpen] =
-    useState(false);
+  const [isAudioAndVideoBlockOpen, setIsAudioAndVideoBlockOpen] = useState<
+    boolean | null
+  >(null);
 
   const [roomId, setRoomId] = useState<string | null>(null);
 
@@ -32,21 +35,31 @@ export const FriendChat = () => {
     if (userRoomInformation) {
       setRoomId(userRoomInformation.id);
     }
-  }, [isGetUserRoomInformationSuccess]);
+  }, [isGetUserRoomInformationSuccess, userRoomInformation]);
 
   const { createUserRoomAsync } = useCreateUserRoom();
   const { deleteUserRoomAsync } = useDeleteUserRoom();
   const { joinUserRoomAsync } = useJoinUserRoom();
 
+  const { playConnectionSound } = useConnectionAlert();
+  const { playDisconnectionSound } = useDisconnectionAlert();
+
   useEffect(() => {
-    messageSignalRServiceInstance.onReceiveRoomCreated((room) => {
-      console.log("room", room);
+    if (isAudioAndVideoBlockOpen === true) {
+      playConnectionSound();
+    } else if (isAudioAndVideoBlockOpen === false) {
+      playDisconnectionSound();
+    }
+  }, [isAudioAndVideoBlockOpen]);
+
+  useEffect(() => {
+    messageSignalRServiceInstance.onReceiveRoomCreated(() => {
       refetchGetUserRoomInformation();
     });
 
-    messageSignalRServiceInstance.onReceiveRoomDeleted((roomId) => {
-      console.log("roomId", roomId);
+    messageSignalRServiceInstance.onReceiveRoomDeleted(() => {
       setRoomId(null);
+      setIsAudioAndVideoBlockOpen(false);
     });
 
     return () => {
@@ -55,22 +68,32 @@ export const FriendChat = () => {
     };
   }, []);
 
-  const handleConnectToCall = async () => {
+  const handleConnectToCall = useCallback(async () => {
     const room = await joinUserRoomAsync({
       roomId: roomId ?? "",
       userId: localStorageService.getUserId() ?? "",
     });
     setRoomId(room.id);
     setIsAudioAndVideoBlockOpen(true);
-  };
+  }, [joinUserRoomAsync, roomId]);
+
+  useEffect(() => {
+    if (acceptCall && isGetUserRoomInformationSuccess && userRoomInformation) {
+      handleConnectToCall();
+    }
+  }, [
+    acceptCall,
+    isGetUserRoomInformationSuccess,
+    userRoomInformation,
+    handleConnectToCall,
+  ]);
 
   const handleCreateCall = async (type: "audio" | "video") => {
     console.dir(type);
-    const roomId = await createUserRoomAsync({
+    await createUserRoomAsync({
       fromUserId: localStorageService.getUserId() ?? "",
       toUserId: friendId ?? "",
     });
-    setRoomId(roomId);
     setIsAudioAndVideoBlockOpen(true);
   };
 
@@ -81,6 +104,7 @@ export const FriendChat = () => {
       setIsAudioAndVideoBlockOpen(false);
     }
   };
+
   return (
     <div className={styles["friend-chat"]}>
       {isAudioAndVideoBlockOpen ? (

@@ -2,6 +2,7 @@ import * as signalR from "@microsoft/signalr";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import type { Message } from "@/types/Message/Message";
 import type { Room } from "@/types/Room/Room";
+import type { UserShortDto } from "@/types/User/User";
 
 export default class MessageSignalRService {
   private connection: signalR.HubConnection;
@@ -31,6 +32,14 @@ export default class MessageSignalRService {
       .catch((err) => console.error(err));
   }
 
+  public async onIncommingCallReceive(callback: (user: UserShortDto) => void) {
+    this.connection.on("incommingCall", callback);
+  }
+
+  public async onIncommingCallAbort(callback: (user: UserShortDto) => void) {
+    this.connection.on("abortIncommingCall", callback);
+  }
+
   public async onReceiveMessage(callback: (message: Message) => void) {
     this.connection.on("ReceiveMessage", callback);
   }
@@ -53,6 +62,14 @@ export default class MessageSignalRService {
 
   public async onDeleteMessage(callback: (message: Message) => void) {
     this.connection.on("DeleteMessage", callback);
+  }
+
+  public async stopOnIncommingCallReceive() {
+    this.connection.off("incommingCall");
+  }
+
+  public async stopOnIncommingCallAbort() {
+    this.connection.off("abortIncommingCall");
   }
 
   public async stopConnection() {

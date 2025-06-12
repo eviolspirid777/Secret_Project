@@ -11,10 +11,11 @@ import { useSelector } from "react-redux";
 import { useAudioStates } from "@/shared/hooks/audioStates/useAudioStates";
 import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
+import { useWebRTC } from "@/shared/services/SocketIO/useWebRTC";
+import { Participant } from "@/shared/components/Participant/Participant";
 
 import styles from "./styles.module.scss";
-import { useWebRTC } from "@/shared/services/SocketIO/useWebRTC";
-import { useDeleteUserRoom } from "@/shared/hooks/message/room/useDeleteUserRoom";
+import { useGetRoomUsers } from "@/shared/hooks/message/room/useGetRoomUsers";
 
 type FriendChatAudioAndVideoBlockProps = {
   handleDisconnect: () => void;
@@ -49,14 +50,13 @@ export const FriendChatAudioAndVideoBlock: FC<
 
   const { changeMicrophoneStateHandler } = useAudioStates();
 
-  const { deleteUserRoomAsync } = useDeleteUserRoom();
-
   const handleDropCall = async () => {
     if (roomId) {
-      await deleteUserRoomAsync({ roomId });
       handleDisconnect();
     }
   };
+
+  const { roomUsers } = useGetRoomUsers(roomId);
 
   return (
     <div className={styles["friend-chat-audio-and-video-block"]}>
@@ -77,6 +77,18 @@ export const FriendChatAudioAndVideoBlock: FC<
             playsInline
           />
         ))}
+        <div
+          className={
+            styles[
+              "friend-chat-audio-and-video-block__audio-or-video__caller-block"
+            ]
+          }
+        >
+          {roomUsers &&
+            roomUsers.map((user) => (
+              <Participant key={user.userId} user={user} />
+            ))}
+        </div>
       </div>
       <div className={styles["friend-chat-audio-and-video-block__actions"]}>
         <Button

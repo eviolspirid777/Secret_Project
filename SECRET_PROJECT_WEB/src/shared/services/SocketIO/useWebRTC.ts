@@ -12,21 +12,19 @@ export const useWebRTC = (roomId: string | null) => {
   const [remoteStreams, setRemoteStreams] = useState<MediaStream[]>([]);
 
   useEffect(() => {
-    // 1. Подключение к серверу
-    socketRef.current = io(import.meta.env.VITE_WEBRTC_URL); // или ваш адрес сервера
+    socketRef.current = io(import.meta.env.VITE_WEBRTC_URL);
 
-    // 2. Присоединение к комнате
     socketRef.current.emit("join-room", { roomId }, async (response: any) => {
       if (response.error) {
         alert(response.error);
         return;
       }
+
       deviceRef.current = new mediasoupClient.Device();
       await deviceRef.current.load({
         routerRtpCapabilities: response.rtpCapabilities,
       });
 
-      // Создание транспорта для отправки
       socketRef.current.emit(
         "create-transport",
         { roomId },
@@ -49,66 +47,71 @@ export const useWebRTC = (roomId: string | null) => {
             }
           );
 
-          // Получение медиа с устройства пользователя
           const localStream = await navigator.mediaDevices.getUserMedia({
             audio: true,
-            video: true,
           });
           setStream(localStream);
 
-          // Отправка аудио
           const audioTrack = localStream.getAudioTracks()[0];
           if (audioTrack) {
-            sendTransportRef.current.produce({ track: audioTrack });
+            const producer = await sendTransportRef.current.produce({
+              track: audioTrack,
+            });
+
+            socketRef.current.emit(
+              "produce",
+              {
+                roomId,
+                transportId: sendTransportRef.current.id,
+                kind: producer.kind,
+                rtpParameters: producer.rtpParameters,
+              },
+              (response: any) => {
+                console.log("Producer registered on server", response);
+              }
+            );
           }
-          // Отправка видео (если нужно)
-          // const videoTrack = localStream.getVideoTracks()[0];
-          // if (videoTrack) {
-          //   sendTransportRef.current.produce({ track: videoTrack });
-          // }
         }
       );
     });
 
-    // Слушаем новых продюсеров (других пользователей)
     socketRef.current.on("new-producer", async ({ producerId, kind }) => {
-      if (kind !== "audio") return; // если нужен только звук
+      if (kind !== "audio") return;
 
-      // Создаём транспорт для приёма, если ещё не создан
+      const createRecvTransport = async () => {
+        return new Promise((resolve) => {
+          socketRef.current.emit(
+            "create-transport",
+            { roomId },
+            async ({ transportOptions }: any) => {
+              recvTransportRef.current =
+                deviceRef.current.createRecvTransport(transportOptions);
+
+              recvTransportRef.current.on(
+                "connect",
+                ({ dtlsParameters }: any, callback: any) => {
+                  socketRef.current.emit(
+                    "connect-transport",
+                    {
+                      roomId,
+                      transportId: recvTransportRef.current.id,
+                      dtlsParameters,
+                    },
+                    callback
+                  );
+                }
+              );
+
+              resolve(true);
+            }
+          );
+        });
+      };
+
       if (!recvTransportRef.current) {
-        socketRef.current.emit(
-          "create-transport",
-          { roomId },
-          async ({ transportOptions }: any) => {
-            recvTransportRef.current =
-              deviceRef.current.createRecvTransport(transportOptions);
-
-            recvTransportRef.current.on(
-              "connect",
-              ({ dtlsParameters }: any, callback: any) => {
-                socketRef.current.emit(
-                  "connect-transport",
-                  {
-                    roomId,
-                    transportId: recvTransportRef.current.id,
-                    dtlsParameters,
-                  },
-                  callback
-                );
-              }
-            );
-
-            // После создания транспорта сразу пробуем создать consumer
-            consumeAudio(producerId);
-          }
-        );
-      } else {
-        consumeAudio(producerId);
+        await createRecvTransport();
       }
-    });
 
-    // Функция для создания consumer и добавления трека в remoteStreams
-    const consumeAudio = (producerId: string) => {
       socketRef.current.emit(
         "consume",
         {
@@ -126,11 +129,10 @@ export const useWebRTC = (roomId: string | null) => {
 
           const remoteStream = new MediaStream();
           remoteStream.addTrack(newConsumer.track);
-
           setRemoteStreams((prev) => [...prev, remoteStream]);
         }
       );
-    };
+    });
 
     return () => {
       socketRef.current.disconnect();
@@ -138,7 +140,7 @@ export const useWebRTC = (roomId: string | null) => {
   }, [roomId]);
 
   return {
-    stream, // твой локальный поток (для <video> и <audio>)
-    remoteStreams, // массив потоков других пользователей (для <audio>)
+    stream,
+    remoteStreams,
   };
 };

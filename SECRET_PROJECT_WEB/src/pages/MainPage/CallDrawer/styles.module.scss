@@ -1,0 +1,80 @@
+@use "@/shared/styles/colors.scss" as *;
+@use "sass:color";
+
+.call-drawer {
+  background-color: color.adjust(
+    $background-color,
+    $alpha: -0.05,
+    $lightness: 3
+  );
+
+  &-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: $font-color;
+    text-align: center;
+  }
+
+  &-description {
+    font-size: 1rem;
+    font-weight: 400;
+    color: color.adjust($font-color, $alpha: -0.5);
+    text-align: center;
+  }
+
+  &-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &-footer {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+
+    &-button,
+    &-button-reject {
+      transition: all 0.3s ease;
+      width: 100px;
+      height: 40px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: $font-color;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    &-button {
+      border: 1px solid color.adjust($color-accept, $alpha: -0.5);
+      background-color: color.adjust($color-accept, $alpha: -0.7);
+    }
+
+    &-button-reject {
+      border: 1px solid color.adjust($color-danger, $alpha: -0.5);
+      background-color: color.adjust($color-danger, $alpha: -0.7);
+    }
+  }
+
+  &-avatar {
+    width: 100px;
+    height: 100px;
+    box-shadow: 0 0 10px 0 $color-accept;
+    animation: call-request 5s infinite linear forwards;
+  }
+}
+
+@keyframes call-request {
+  0% {
+    box-shadow: 0 0 10px 0 $color-accept;
+  }
+  50% {
+    box-shadow: 0 0 5px 0 $color-accept;
+  }
+  100% {
+    box-shadow: 0 0 13px 0 $color-accept;
+  }
+}

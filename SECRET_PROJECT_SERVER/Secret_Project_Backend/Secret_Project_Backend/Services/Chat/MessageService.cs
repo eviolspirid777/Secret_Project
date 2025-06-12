@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Secret_Project_Backend.DTOs.Messages;
 using Secret_Project_Backend.DTOs.Room;
+using Secret_Project_Backend.DTOs.User;
+using Secret_Project_Backend.DTOs.UserRoom;
 using Secret_Project_Backend.Models;
 using Secret_Project_Backend.SignalR;
 
@@ -41,7 +43,7 @@ namespace Secret_Project_Backend.Services.Chat
             }
         }
 
-        public async Task SendRoomWasCreatedToUserAsync(string userId, RoomDto room)
+        public async Task SendRoomWasCreatedToUserAsync(string userId, UserRoomDto room)
         {
             await _userHub.Clients.User(userId).SendAsync("roomCreated", room);
         }
@@ -49,6 +51,15 @@ namespace Secret_Project_Backend.Services.Chat
         public async Task SendRoomWasDeletedToUserAsync(string userId, Guid roomId)
         {
             await _userHub.Clients.User(userId).SendAsync("roomDeleted", roomId);
+        }
+        public async Task SendCallingRequestToUserAsync(string userId, UserShortDto user)
+        {
+            await _userHub.Clients.User(userId).SendAsync("incommingCall", user);
+        }
+
+        public async Task AbortCallingRequestToUserAsync(string userId, UserShortDto user)
+        {
+            await _userHub.Clients.User(userId).SendAsync("abortIncommingCall", user);
         }
     }
 }

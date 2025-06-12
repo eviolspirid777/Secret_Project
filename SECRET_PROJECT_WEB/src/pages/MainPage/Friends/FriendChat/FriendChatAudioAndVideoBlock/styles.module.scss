@@ -18,6 +18,12 @@ $radius: 10px;
     height: 100%;
     background-color: color.adjust($background-color, $lightness: 5%);
     border-radius: $radius;
+
+    &__caller-block {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      justify-items: center;
+    }
   }
 
   &__actions {

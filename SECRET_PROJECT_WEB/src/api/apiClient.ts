@@ -405,6 +405,14 @@ class ApiClient {
   //#endregion ChannelRoom
 
   //#region UserRoom
+  async GetRoomUsers(roomId: string) {
+    const response = await this.client.get<User[]>(
+      `${BASE_MESSAGE_URL}/user/room/${roomId}/users`
+    );
+
+    return response.data;
+  }
+
   async GetUserRoomInformation(data: GetUserRoomInformationRequest) {
     const response = await this.client.get<UserRoom>(
       `${BASE_MESSAGE_URL}/user/room`,

@@ -11,3 +11,10 @@ export type User = {
     isHeadphonesMuted: boolean;
   };
 };
+
+export type UserShortDto = {
+  id: string;
+  name: string;
+  status: string;
+  avatar: string;
+};

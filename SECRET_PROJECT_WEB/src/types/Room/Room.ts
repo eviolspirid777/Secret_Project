@@ -4,3 +4,9 @@ export type Room = {
   mutedVideoUserIds: string[];
   blockedUsers: string[];
 };
+
+export type UserRoom = {
+  id: string;
+  leftUserId: string;
+  rightUserId: string;
+};

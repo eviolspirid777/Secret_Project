@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Controllers.Requests.Messages;
 using Secret_Project_Backend.Controllers.Requests.User.Room;
+using Secret_Project_Backend.DTOs.User;
 using Secret_Project_Backend.Mappers.Messages;
+using Secret_Project_Backend.Mappers.User;
 using Secret_Project_Backend.Mappers.UserRoom;
 using Secret_Project_Backend.Services.Chat;
 using Secret_Project_Backend.Services.S3;
@@ -154,12 +156,33 @@ namespace Secret_Project_Backend.Controllers
 
             if(userRoom == null)
             {
-                return BadRequest("Invalid user data");
+                return NoContent();
             }
 
             var mappedRoom = UserRoomMapper.MapUserRoomToUserRoomDto(userRoom);
 
             return Ok(mappedRoom);
+        }
+
+        [HttpGet("user/room/{roomId}/users")]
+        public async Task<IActionResult> GetRoomUsers([FromRoute] Guid roomId)
+        {
+            var userRoom = await _dbContext
+                .UserRooms
+                .AsNoTracking()
+                .Include(ur => ur.LeftUser)
+                .Include(ur => ur.RightUser)
+                .FirstOrDefaultAsync(r => r.Id == roomId);
+
+            if(userRoom == null)
+            {
+                return NotFound();
+            }
+
+            var leftUser = UserMapper.MapUserToUserDto(userRoom.LeftUser, userRoom.LeftUserId);
+            var rightUser = UserMapper.MapUserToUserDto(userRoom.RightUser, userRoom.RightUserId);
+
+            return Ok(new List<UserDTO>() { leftUser, rightUser});
         }
 
         [HttpPost("user/room/create")]
@@ -178,6 +201,11 @@ namespace Secret_Project_Backend.Controllers
                 return BadRequest("Room already exist!");
             }
 
+            var callReciver = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == data.FromUserId);
+
+            if (callReciver == null) return BadRequest("Invalid UserId");
+
+
             var addEntityEntry = await _dbContext.UserRooms.AddAsync(new Models.UserRoom
             {
                 LeftUserId = data.FromUserId,
@@ -185,6 +213,33 @@ namespace Secret_Project_Backend.Controllers
             });
 
             await _dbContext.SaveChangesAsync();
+
+
+            await _messageService.SendRoomWasCreatedToUserAsync(data.FromUserId, new DTOs.UserRoom.UserRoomDto
+            {
+                Id = addEntityEntry.Entity.Id,
+                LeftUserId = data.FromUserId,
+                RightUserId = data.ToUserId,
+                MutedAudioUserIds = [],
+                MutedVideoUserIds = []
+            });
+
+            await _messageService.SendRoomWasCreatedToUserAsync(data.ToUserId, new DTOs.UserRoom.UserRoomDto
+            {
+                Id = addEntityEntry.Entity.Id,
+                LeftUserId = data.FromUserId,
+                RightUserId = data.ToUserId,
+                MutedAudioUserIds = [],
+                MutedVideoUserIds = []
+            });
+
+            await _messageService.SendCallingRequestToUserAsync(data.ToUserId, new DTOs.User.UserShortDto
+            {
+                Id = callReciver.Id,
+                Avatar = callReciver.AvatarUrl ?? "",
+                Name = callReciver.DisplayName,
+                Status = callReciver.Status.ToString()
+            });
 
             return Ok(addEntityEntry.Entity.Id);
         }
@@ -211,16 +266,37 @@ namespace Secret_Project_Backend.Controllers
         [HttpPost("user/room/delete-room")]
         public async Task<IActionResult> DeleteRoom([FromBody] UserRoomDeleteRequest data)
         {
-            var userRoom = await _dbContext.UserRooms.FirstOrDefaultAsync(ur => ur.Id == data.RoomId);
+            var userRoom = await _dbContext
+                .UserRooms
+                .Include(ur => ur.RightUser)
+                .Include(ur => ur.LeftUser)
+                .FirstOrDefaultAsync(ur => ur.Id == data.RoomId);
             
             if(userRoom == null)
             {
                 return BadRequest("Room was not found!");
             }
 
+            var leftUser = userRoom.LeftUser;
+            var rightUser = userRoom.RightUser;
+
+
             _dbContext.UserRooms.Remove(userRoom);
 
             await _dbContext.SaveChangesAsync();
+
+            if (leftUser == null || rightUser == null) return BadRequest("Users are not exist!");
+
+            await _messageService.SendRoomWasDeletedToUserAsync(leftUser.Id ?? "", data.RoomId);
+            await _messageService.SendRoomWasDeletedToUserAsync(rightUser.Id ?? "", data.RoomId);
+
+            await _messageService.AbortCallingRequestToUserAsync(rightUser.Id, new DTOs.User.UserShortDto
+            {
+                Id = rightUser.Id,
+                Avatar = rightUser.AvatarUrl,
+                Name = rightUser.DisplayName,
+                Status = rightUser.Status.ToString()
+            });
 
             return Ok();
         }

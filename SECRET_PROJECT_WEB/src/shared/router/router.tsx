@@ -76,6 +76,12 @@ const router = createBrowserRouter([
               {
                 path: "friend-chat/:friendId",
                 element: <FriendChat />,
+                children: [
+                  {
+                    path: ":acceptCall",
+                    element: <FriendChat />,
+                  },
+                ],
               },
               {
                 path: "add-friend",

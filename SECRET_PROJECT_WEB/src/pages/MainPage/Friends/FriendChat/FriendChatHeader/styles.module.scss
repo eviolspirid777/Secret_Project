@@ -28,5 +28,13 @@ $border-radius: 10px;
     display: flex;
     flex-flow: row nowrap;
     gap: 10px;
+
+    &__connect {
+      background-color: color.scale($color-accept, $lightness: 10%);
+
+      &:hover {
+        background-color: $color-accept;
+      }
+    }
   }
 }
