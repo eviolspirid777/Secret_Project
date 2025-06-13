@@ -38,6 +38,7 @@ export const useWebRTC = (roomId: string | null) => {
           sendTransportRef.current =
             deviceRef.current?.createSendTransport(transportOptions);
 
+          // Добавляем обработчик connect
           sendTransportRef.current?.on(
             "connect",
             ({ dtlsParameters }: any, callback: any) => {
@@ -47,6 +48,23 @@ export const useWebRTC = (roomId: string | null) => {
                   roomId,
                   transportId: sendTransportRef.current?.id,
                   dtlsParameters,
+                },
+                callback
+              );
+            }
+          );
+
+          // Добавляем обработчик produce
+          sendTransportRef.current?.on(
+            "produce",
+            async ({ kind, rtpParameters }, callback) => {
+              socketRef.current?.emit(
+                "produce",
+                {
+                  roomId,
+                  transportId: sendTransportRef.current?.id,
+                  kind,
+                  rtpParameters,
                 },
                 callback
               );
@@ -64,18 +82,7 @@ export const useWebRTC = (roomId: string | null) => {
               track: audioTrack,
             });
 
-            socketRef.current?.emit(
-              "produce",
-              {
-                roomId,
-                transportId: sendTransportRef.current?.id,
-                kind: producer?.kind,
-                rtpParameters: producer?.rtpParameters,
-              },
-              (response: any) => {
-                console.log("Producer registered on server", response);
-              }
-            );
+            console.log("Producer created:", producer?.id);
           }
         }
       );
@@ -120,6 +127,12 @@ export const useWebRTC = (roomId: string | null) => {
         if (!recvTransportRef.current) {
           await createRecvTransport();
         }
+
+        console.group("Consumer");
+        console.log(producerId);
+        console.log(roomId);
+        console.log(deviceRef.current?.rtpCapabilities);
+        console.groupEnd();
 
         socketRef.current?.emit(
           "consume",

@@ -28,11 +28,11 @@ export const FriendChatAudioAndVideoBlock: FC<
   const { stream, remoteStreams } = useWebRTC(roomId);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-
   const audioRefs = useRef<(HTMLAudioElement | null)[]>([]);
 
   useEffect(() => {
     remoteStreams.forEach((remoteStream, idx) => {
+      console.log(remoteStream);
       if (audioRefs.current[idx]) {
         audioRefs.current[idx]!.srcObject = remoteStream;
       }

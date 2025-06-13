@@ -186,6 +186,6 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // Запуск сервера
-httpServer.listen(port, () => {
+httpServer.listen(3000, "26.137.183.16", () => {
   console.log(`Сервер запущен на порту ${port}`);
 });
