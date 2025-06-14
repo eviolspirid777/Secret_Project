@@ -9,15 +9,15 @@ import { Socket } from "socket.io";
 export interface Peer {
   id: string;
   socket: Socket;
-  transports: Map<string, Transport>;
-  producers: Map<string, Producer>;
-  consumers: Map<string, Consumer>;
+  transports: Transport[];
+  producers: Producer[];
+  consumers: Consumer[];
 }
 
 export interface Room {
   id: string;
   router: Router;
-  peers: Map<string, Peer>;
+  peers: Peer[];
 }
 
 export interface TransportOptions {

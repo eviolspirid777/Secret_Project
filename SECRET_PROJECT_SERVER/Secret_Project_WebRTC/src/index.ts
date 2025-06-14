@@ -7,7 +7,6 @@ import { v4 as uuidv4 } from "uuid";
 import { MediaServer } from "./services/MediaServer";
 import { Peer } from "./types";
 
-// Загрузка переменных окружения
 dotenv.config();
 
 const app = express();
@@ -19,10 +18,11 @@ const io = new Server(httpServer, {
   },
 });
 
+const producersIds: string[] = [];
+
 const port = process.env.PORT || 3000;
 const mediaServer = new MediaServer();
 
-// Middleware
 app.use(
   cors({
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -31,161 +31,133 @@ app.use(
 );
 app.use(express.json());
 
-// Инициализация медиа-сервера
 (async () => {
   await mediaServer.initialize();
 })();
 
-// Обработка WebSocket соединений
 io.on("connection", async (socket) => {
   console.log("Новое подключение:", socket.id);
 
-  // Создание или присоединение к комнате
-  socket.on("join-room", async ({ roomId }, callback) => {
+  socket.on("join-room", async ({ userId, roomId }, callback) => {
     try {
-      let room;
-      try {
-        room = await mediaServer.createRoom(roomId);
-      } catch (error) {
-        // Если комната уже существует, просто присоединяемся
-        room = mediaServer.getRoom(roomId);
-      }
-
-      const peer: Peer = {
-        //TODO: вместо socket.id можно использовать id пользователя с бд.
-        //  Так будет правильнее и проще регулировать текущие состояния
-        id: socket.id,
-        socket,
-        transports: new Map(),
-        producers: new Map(),
-        consumers: new Map(),
+      const user: Peer = {
+        id: userId,
+        socket: socket,
+        consumers: [],
+        producers: [],
+        transports: [],
       };
 
-      room.peers.set(socket.id, peer);
-      socket.join(roomId);
+      const room = await mediaServer.createRoom(roomId, user);
 
-      // Отправляем клиенту RTP возможности роутера
-      callback({
-        rtpCapabilities: mediaServer.getRouterRtpCapabilities(roomId),
-      });
+      await socket.join(roomId);
 
-      // Уведомляем других участников о новом пользователе
-      socket.to(roomId).emit("peer-joined", { peerId: socket.id });
-    } catch (error) {
-      console.error("Ошибка при присоединении к комнате:", error);
-      callback({ error: "Не удалось присоединиться к комнате" });
-    }
-  });
-
-  // Создание WebRTC транспорта
-  socket.on("create-transport", async ({ roomId }, callback) => {
-    try {
-      const transportOptions = await mediaServer.createWebRtcTransport(
-        roomId,
-        socket.id
+      callback(
+        room?.peers.map((p) => p.id),
+        room.router.rtpCapabilities
       );
-      callback({ transportOptions });
-    } catch (error) {
-      console.error("Ошибка при создании транспорта:", error);
-      callback({ error: "Не удалось создать транспорт" });
+    } catch (ex) {
+      const user: Peer = {
+        id: userId,
+        socket: socket,
+        consumers: [],
+        producers: [],
+        transports: [],
+      };
+
+      const room = await mediaServer.joinRoom(roomId, user);
+
+      socket.to(roomId).emit("user-joined", userId);
+      await socket.join(roomId);
+
+      callback(
+        room?.peers.map((p) => p.id),
+        room?.router.rtpCapabilities
+      );
     }
   });
 
-  // Подключение транспорта
-  socket.on(
-    "connect-transport",
-    async (
-      {
+  socket.on("create-send-transport", async (roomId, userId, callback) => {
+    const transportOptions = await mediaServer.createWebRtcTransport(
+      roomId,
+      userId
+    );
+    callback(transportOptions);
+  });
+
+  socket.on("produce", async (data, callback) => {
+    try {
+      const { roomId, userId, sendTransportId, kind, rtpParameters } = data;
+      const producer = await mediaServer.createProducer(
         roomId,
+        userId,
+        sendTransportId,
+        kind,
+        rtpParameters
+      );
+      //НЕ ОТПРАВЛЯЮТСЯ...
+      producersIds.push(producer.id);
+      socket.emit("new-producer", { id: producer.id });
+      callback(producer.id);
+    } catch (error) {
+      console.error(error), callback({ error: error });
+    }
+  });
+
+  socket.on("create-recieve-transport", async (roomId, userId, callback) => {
+    const transportOptions = await mediaServer.createWebRtcTransport(
+      roomId,
+      userId
+    );
+    //НЕ ОТПРАВЛЯЮТСЯ producerIds
+    callback(transportOptions, producersIds);
+  });
+
+  socket.on("consume", async (data, callback) => {
+    try {
+      const { roomId, userId, producerId, rtpCapabilities, transportId } = data;
+      const consumer = await mediaServer.createConsumer(
+        roomId,
+        userId,
+        producerId,
+        rtpCapabilities,
+        transportId
+      );
+      callback(consumer);
+    } catch (ex) {
+      console.error(ex);
+      callback({ error: ex });
+    }
+  });
+
+  socket.on("connect-transport", async (data, callback) => {
+    const { roomId, userId, transportId, dtlsParameters } = data;
+    try {
+      await mediaServer.connectTransport(
+        roomId,
+        userId,
         transportId,
-        dtlsParameters,
-      }: {
-        roomId: string;
-        transportId: string;
-        dtlsParameters: any;
-      },
-      callback
-    ) => {
-      try {
-        await mediaServer.connectTransport(
-          roomId,
-          socket.id,
-          transportId,
-          dtlsParameters
-        );
-        callback({ success: true });
-      } catch (error) {
-        console.error("Ошибка при подключении транспорта:", error);
-        callback({ error: "Не удалось подключить транспорт" });
-      }
+        dtlsParameters
+      );
+      callback && callback();
+    } catch (ex) {
+      console.error("Ошибка при соединении транспорта", ex);
+      callback && callback();
     }
-  );
+  });
 
-  // Создание продюсера
-  socket.on(
-    "produce",
-    async ({ roomId, transportId, kind, rtpParameters }, callback) => {
-      try {
-        const producer = await mediaServer.createProducer(
-          roomId,
-          socket.id,
-          transportId,
-          kind,
-          rtpParameters
-        );
-        callback({ id: producer.id });
+  socket.on("disconnect-from-room", async (roomId, userId) => {
+    const usersIds = mediaServer.removePeer(roomId, userId);
 
-        // Уведомляем других участников о новом продюсере
-        socket.to(roomId).emit("new-producer", {
-          producerId: producer.id,
-          kind: producer.kind,
-          peerId: socket.id,
-        });
-      } catch (error) {
-        console.error("Ошибка при создании продюсера:", error);
-        callback({ error: "Не удалось создать продюсера" });
-      }
-    }
-  );
-
-  // Создание консьюмера
-  socket.on(
-    "consume",
-    async ({ roomId, producerId, rtpCapabilities }, callback) => {
-      try {
-        const consumer = await mediaServer.createConsumer(
-          roomId,
-          socket.id,
-          producerId,
-          rtpCapabilities
-        );
-        callback({ consumer });
-      } catch (error) {
-        console.error("Ошибка при создании консьюмера:", error);
-        callback({ error: "Не удалось создать консьюмера" });
-      }
-    }
-  );
-
-  // Обработка отключения
-  socket.on("disconnect", () => {
-    console.log("Отключение:", socket.id);
-    // Находим все комнаты, в которых был пользователь
-    for (const [roomId, room] of mediaServer.getRooms()) {
-      if (room.peers.has(socket.id)) {
-        mediaServer.removePeer(roomId, socket.id);
-        socket.to(roomId).emit("peer-left", { peerId: socket.id });
-      }
-    }
+    socket.to(roomId).emit("user-disconnected", usersIds);
   });
 });
 
-// Базовый маршрут для проверки работоспособности
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "WebRTC сервер успешно запущен!" });
 });
 
 // Запуск сервера
-httpServer.listen(3000, "26.137.183.16", () => {
+httpServer.listen(port, () => {
   console.log(`Сервер запущен на порту ${port}`);
 });

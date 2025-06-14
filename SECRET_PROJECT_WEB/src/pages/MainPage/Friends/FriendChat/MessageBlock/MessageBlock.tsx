@@ -152,8 +152,9 @@ export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
       >
         {messages?.map((message, id, messages) => {
           if (
-            messages[id + 1] &&
-            isNextDay(message.sentAt, messages[id + 1]?.sentAt)
+            (messages[id - 1] &&
+              isNextDay(message.sentAt, messages[id - 1]?.sentAt)) ||
+            messages[id - 1] === undefined
           ) {
             return (
               <>

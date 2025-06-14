@@ -2,8 +2,7 @@ import { useParams } from "react-router";
 import styles from "./styles.module.scss";
 import { MessageBlock } from "../MessageBlock/MessageBlock";
 import { FriendChatHeader } from "../FriendChatHeader/FriendChatHeader";
-import { useCallback, useEffect, useState } from "react";
-import { FriendChatAudioAndVideoBlock } from "../FriendChatAudioAndVideoBlock/FriendChatAudioAndVideoBlock";
+import { memo, useCallback, useEffect, useState } from "react";
 import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
 import { useCreateUserRoom } from "@/shared/hooks/message/room/useCreateUserRoom";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
@@ -12,8 +11,9 @@ import { useJoinUserRoom } from "@/shared/hooks/message/room/useJoinUserRoom";
 import { useGetUserRoomInformation } from "@/shared/hooks/message/room/useGetUserRoomInformation";
 import { useConnectionAlert } from "@/shared/hooks/connectionAlert/useConnectionAlert";
 import { useDisconnectionAlert } from "@/shared/hooks/connectionAlert/useDisconnectionAlert";
+import { FriendChatAudioAndVideoBlock } from "../FriendChatAudioAndVideoBlock/FriendChatAudioAndVideoBlock";
 
-export const FriendChat = () => {
+export const FriendChat = memo(() => {
   const { friendId, acceptCall } = useParams();
 
   const [isAudioAndVideoBlockOpen, setIsAudioAndVideoBlockOpen] = useState<
@@ -97,13 +97,13 @@ export const FriendChat = () => {
     setIsAudioAndVideoBlockOpen(true);
   };
 
-  const handleDisconnectFromCall = async () => {
+  const handleDisconnectFromCall = useCallback(async () => {
     if (roomId) {
       await deleteUserRoomAsync({ roomId });
       setRoomId(null);
       setIsAudioAndVideoBlockOpen(false);
     }
-  };
+  }, [roomId]);
 
   return (
     <div className={styles["friend-chat"]}>
@@ -111,6 +111,7 @@ export const FriendChat = () => {
         <FriendChatAudioAndVideoBlock
           handleDisconnect={handleDisconnectFromCall}
           roomId={roomId}
+          isConnectedToCall={isAudioAndVideoBlockOpen}
         />
       ) : (
         <FriendChatHeader
@@ -123,4 +124,4 @@ export const FriendChat = () => {
       <MessageBlock friendId={friendId ?? ""} />
     </div>
   );
-};
+});
