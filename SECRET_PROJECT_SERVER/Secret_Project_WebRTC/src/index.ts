@@ -18,10 +18,10 @@ const io = new Server(httpServer, {
   },
 });
 
-const producersIds: string[] = [];
-
 const port = process.env.PORT || 3000;
 const mediaServer = new MediaServer();
+
+const producersMap = new Map<string, string>();
 
 app.use(
   cors({
@@ -65,9 +65,8 @@ io.on("connection", async (socket) => {
         transports: [],
       };
 
-      const room = await mediaServer.joinRoom(roomId, user);
+      const room = await mediaServer.joinRoom(user);
 
-      socket.to(roomId).emit("user-joined", userId);
       await socket.join(roomId);
 
       callback(
@@ -78,67 +77,24 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("create-send-transport", async (roomId, userId, callback) => {
-    const transportOptions = await mediaServer.createWebRtcTransport(
-      roomId,
-      userId
-    );
-    callback(transportOptions);
-  });
-
-  socket.on("produce", async (data, callback) => {
     try {
-      const { roomId, userId, sendTransportId, kind, rtpParameters } = data;
-      const producer = await mediaServer.createProducer(
-        roomId,
-        userId,
-        sendTransportId,
-        kind,
-        rtpParameters
-      );
-      //НЕ ОТПРАВЛЯЮТСЯ...
-      producersIds.push(producer.id);
-      socket.emit("new-producer", { id: producer.id });
-      callback(producer.id);
-    } catch (error) {
-      console.error(error), callback({ error: error });
-    }
-  });
-
-  socket.on("create-recieve-transport", async (roomId, userId, callback) => {
-    const transportOptions = await mediaServer.createWebRtcTransport(
-      roomId,
-      userId
-    );
-    //НЕ ОТПРАВЛЯЮТСЯ producerIds
-    callback(transportOptions, producersIds);
-  });
-
-  socket.on("consume", async (data, callback) => {
-    try {
-      const { roomId, userId, producerId, rtpCapabilities, transportId } = data;
-      const consumer = await mediaServer.createConsumer(
-        roomId,
-        userId,
-        producerId,
-        rtpCapabilities,
-        transportId
-      );
-      callback(consumer);
+      if (userId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
+        console.log("\n[create-send-transport]");
+        console.log("peerId", userId);
+        console.log("roomId", roomId);
+        console.log("[create-send-transport]\n");
+      }
+      const transportOptions = await mediaServer.createWebRtcTransport(userId);
+      callback(transportOptions);
     } catch (ex) {
       console.error(ex);
-      callback({ error: ex });
     }
   });
 
   socket.on("connect-transport", async (data, callback) => {
-    const { roomId, userId, transportId, dtlsParameters } = data;
+    const { userId, transportId, dtlsParameters } = data;
     try {
-      await mediaServer.connectTransport(
-        roomId,
-        userId,
-        transportId,
-        dtlsParameters
-      );
+      await mediaServer.connectTransport(userId, transportId, dtlsParameters);
       callback && callback();
     } catch (ex) {
       console.error("Ошибка при соединении транспорта", ex);
@@ -146,15 +102,100 @@ io.on("connection", async (socket) => {
     }
   });
 
+  socket.on("produce", async (data, callback) => {
+    try {
+      const { roomId, userId, sendTransportId, kind, rtpParameters } = data;
+      const producer = await mediaServer.createProducer(
+        userId,
+        sendTransportId,
+        kind,
+        rtpParameters
+      );
+      if (userId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
+        console.log("\n[PRODUCER_HAS_BEEN_CREATED]");
+        console.log("sendTransportId", sendTransportId);
+        console.log("producerId", producer.id);
+        console.log("userId", userId);
+        console.log("[PRDOCUER_HAS_BEEN_CREATED]\n");
+      }
+      if (!producersMap.has(userId)) {
+        producersMap.set(userId, producer.id);
+        socket.to(roomId).emit("new-producer", producer.id);
+      }
+      callback(producer.id);
+    } catch (error) {
+      console.error(error), callback({ error: error });
+    }
+  });
+
+  socket.on("create-recieve-transport", async (roomId, userId, callback) => {
+    try {
+      if (userId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
+        console.log("\n[create-recieve-transport]");
+        console.log("peerId", userId);
+        console.log("roomId", roomId);
+        console.log("[create-recieve-transport]\n");
+      }
+      const transportOptions = await mediaServer.createWebRtcTransport(userId);
+      callback(transportOptions);
+    } catch (ex) {
+      console.error(ex);
+    }
+  });
+
+  socket.on("consume", async (data, callback) => {
+    try {
+      const { roomId, userId, rtpCapabilities, transportId } = data;
+
+      const room = mediaServer.getRoom();
+      const peer = room.peers.find((peer) => peer.id !== userId);
+      if (userId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
+        console.log("[CONSUME_CREATION]");
+        console.log("userId", userId);
+        console.log("peerProducerUserId", peer?.id);
+        console.log("producerMapLength", producersMap.size);
+        console.log("peerProducersLength", peer?.producers.length);
+        console.log("[CONSUME_CREATION]");
+      }
+
+      if (peer?.producers.length === 0 || !peer?.producers.length)
+        throw new Error("No consumers available");
+
+      const consumerOptions = await mediaServer.createConsumer(
+        userId,
+        peer!.producers[0].id,
+        rtpCapabilities,
+        transportId
+      );
+      if (userId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
+        console.log("CONSUMER_OPTIONS");
+        console.log(consumerOptions);
+        console.log("CONSUMER_OPTIONS");
+      }
+      callback(consumerOptions);
+    } catch (ex) {
+      console.error(ex);
+      callback({ error: ex });
+    }
+  });
+
+  socket.on("new-producer-created", async (roomId, userId, producerId) => {
+    socket.to(roomId).emit("new-producer", roomId, userId, producerId);
+  });
+
   socket.on("disconnect-from-room", async (roomId, userId) => {
-    const usersIds = mediaServer.removePeer(roomId, userId);
+    const usersIds = mediaServer.removePeer(roomId);
+    mediaServer.closeRoom();
 
     socket.to(roomId).emit("user-disconnected", usersIds);
   });
 });
 
 app.get("/", (req: Request, res: Response) => {
-  res.json({ message: "WebRTC сервер успешно запущен!" });
+  const room = mediaServer.getRoom();
+  console.log(room);
+
+  res.json(room);
 });
 
 // Запуск сервера

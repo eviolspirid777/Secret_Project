@@ -1,8 +1,12 @@
 import * as mediasoupClient from "mediasoup-client";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import type { RtpCapabilities, TransportOptions } from "mediasoup-client/types";
+import type {
+  ConsumerOptions,
+  RtpCapabilities,
+  TransportOptions,
+} from "mediasoup-client/types";
 
 export const useWebRTC = (roomId: string | null, isConnectToCall: boolean) => {
   const userId = localStorageService.getUserId();
@@ -13,12 +17,17 @@ export const useWebRTC = (roomId: string | null, isConnectToCall: boolean) => {
   const socketRef = useRef<Socket>(null);
   const deviceRef = useRef<mediasoupClient.types.Device>(null);
 
-  const opponentProducerIdRef = useRef<string>(null);
-
   const producerRef =
     useRef<mediasoupClient.types.Transport<mediasoupClient.types.AppData>>(
       null
     );
+  const consumerRef =
+    useRef<mediasoupClient.types.Transport<mediasoupClient.types.AppData>>(
+      null
+    );
+
+  const remoteStreamRef = useRef<MediaStream>(null);
+  const [streamTrack, setStreamTrack] = useState<MediaStreamTrack>();
 
   useEffect(() => {
     socketRef.current = io(import.meta.env.VITE_WEBRTC_URL);
@@ -34,7 +43,9 @@ export const useWebRTC = (roomId: string | null, isConnectToCall: boolean) => {
     usersInSession.current = users;
     deviceRef.current?.load({ routerRtpCapabilities: rtpCapabilities });
     handleCreateRtcSendTransport(roomId!, userId!);
-    handleCreateRtcReceiveTransport(roomId!, userId!);
+    if (users.length > 1) {
+      handleCreateRtcReceiveTransport(roomId!, userId!);
+    }
   };
 
   const handleCreateRtcSendTransport = (roomId: string, userId: string) => {
@@ -88,8 +99,9 @@ export const useWebRTC = (roomId: string | null, isConnectToCall: boolean) => {
             userId,
             sendTransportId: sendTransport.id,
           },
-          (id: string) => {
-            callback({ id });
+          (producerId: string) => {
+            handleAlarmUserAboutNewProducer(roomId!, userId!);
+            callback({ id: producerId });
           }
         );
       }
@@ -101,7 +113,16 @@ export const useWebRTC = (roomId: string | null, isConnectToCall: boolean) => {
     }
   };
 
+  const handleAlarmUserAboutNewProducer = (roomId: string, userId: string) => {
+    socketRef.current?.emit("new-producer-created", roomId, userId);
+  };
+
   const handleCreateRtcReceiveTransport = (roomId: string, userId: string) => {
+    //TODO: ВЫБРАСЫВАЕТ ДРУГОГО ПОЛЬЗОВАТЕЛЯ КАКОГО-ТО ХРЕНА!! И ЕГО ПРОДЮС И КОСЬЮМ ПАДАЮТ...
+    console.group("create-recieve-transport");
+    console.log(roomId);
+    console.log(userId);
+    console.groupEnd();
     socketRef.current?.emit(
       "create-recieve-transport",
       roomId,
@@ -111,19 +132,17 @@ export const useWebRTC = (roomId: string | null, isConnectToCall: boolean) => {
   };
 
   const handleSetRecvTransportOptions = (
-    transportOptions: TransportOptions,
-    producersIds: string[]
+    transportOptions: TransportOptions
   ) => {
-    console.log("PRODUCER_IDS");
-    console.log(producersIds);
-    console.log("END_OF_IDS");
     const recieveTransport =
       deviceRef.current?.createRecvTransport(transportOptions);
+
+    consumerRef.current = recieveTransport!;
 
     recieveTransport?.on("connect", async ({ dtlsParameters }, callback) => {
       socketRef.current?.emit(
         "connect-transport",
-        { roomId, userId, transportId: recieveTransport.id, dtlsParameters },
+        { userId, transportId: recieveTransport.id, dtlsParameters },
         callback
       );
     });
@@ -137,35 +156,38 @@ export const useWebRTC = (roomId: string | null, isConnectToCall: boolean) => {
       {
         roomId,
         userId,
-        //TODO: ЗАГЛУШКА НИЖЕ
-        //TODO: producerIds не работают
-        producerId: opponentProducerIdRef.current,
         rtpCapabilities: deviceRef.current?.rtpCapabilities,
         transportId: recieveTransport?.id,
       },
-      async (consumerOptions) => {
-        const consumer = await recieveTransport?.consume({
-          id: consumerOptions.id,
-          producerId: consumerOptions.producerId,
-          rtpParameters: consumerOptions.rtp,
-          appData: consumerOptions.appData,
-        });
+      async (consumerOptions: ConsumerOptions) => {
+        try {
+          console.group("CONSUMER_OPTIONS");
+          console.log(consumerOptions);
+          console.groupEnd();
+          const consumer = await recieveTransport?.consume({
+            id: consumerOptions.id,
+            producerId: consumerOptions.producerId,
+            rtpParameters: consumerOptions.rtpParameters,
+            appData: consumerOptions.appData,
+            kind: consumerOptions.kind,
+          });
 
-        const remoteStream = new MediaStream();
-        remoteStream.addTrack(consumer?.track);
+          console.log("CONSUMER_TRACK");
+          console.log(consumer?.track);
+          console.log("CONSUMER_TRACK");
+          remoteStreamRef.current = new MediaStream();
+          remoteStreamRef.current.addTrack(consumer!.track);
+          setStreamTrack(consumer?.track);
+        } catch (ex) {
+          console.log(ex);
+        }
       }
     );
-  };
-
-  //on
-  const handleUserJoined = async (userId: string) => {
-    usersInSession.current.push(userId);
   };
 
   const handleUserDisconnected = async (users: string[]) => {
     usersInSession.current = users;
   };
-  //
 
   useEffect(() => {
     if (!roomId || !isConnectToCall) return;
@@ -177,25 +199,21 @@ export const useWebRTC = (roomId: string | null, isConnectToCall: boolean) => {
           audio: true,
         });
         streamRef.current = localStream;
+
+        socketRef.current?.emit(
+          "join-room",
+          { userId, roomId },
+          handleJoinRoomCallback
+        );
       } catch (err) {
         console.error(err);
       }
     })();
 
-    //НЕ ПРИХОДИТ ID ДЛЯ ПРОДЮСЕРА...
-    socketRef.current?.on("new-producer", async ({ id }: { id: string }) => {
-      console.log("id", id);
-
-      opponentProducerIdRef.current = id;
+    socketRef.current?.on("new-producer", async (producerId) => {
+      console.log("new-producer-id", producerId);
+      handleCreateRtcReceiveTransport(roomId, userId!);
     });
-
-    socketRef.current?.emit(
-      "join-room",
-      { userId, roomId },
-      handleJoinRoomCallback
-    );
-
-    socketRef.current?.on("user-joined", handleUserJoined);
 
     socketRef.current?.on("user-disconnected", handleUserDisconnected);
   }, [roomId, isConnectToCall]);
@@ -203,5 +221,7 @@ export const useWebRTC = (roomId: string | null, isConnectToCall: boolean) => {
   return {
     socketRef,
     streamRef,
+    remoteStreamRef,
+    streamTrack,
   };
 };

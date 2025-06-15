@@ -9,10 +9,10 @@ import {
 
 export class MediaServer {
   private worker!: mediasoup.types.Worker;
-  private rooms: Map<string, Room>;
+  private room: Room | null;
 
   constructor() {
-    this.rooms = new Map();
+    this.room = null;
   }
 
   async initialize() {
@@ -27,7 +27,7 @@ export class MediaServer {
   }
 
   async createRoom(roomId: string, user: Peer): Promise<Room> {
-    if (this.rooms.has(roomId)) {
+    if (this.room) {
       throw new Error("Комната уже существует");
     }
 
@@ -67,22 +67,25 @@ export class MediaServer {
       peers: [user],
     };
 
-    this.rooms.set(roomId, room);
+    this.room = room;
     return room;
   }
 
-  async joinRoom(roomId: string, user: Peer) {
-    const room = this.rooms.get(roomId);
+  async joinRoom(user: Peer) {
+    const room = this.room;
     room?.peers.push(user);
 
     return room;
   }
 
-  async createWebRtcTransport(
-    roomId: string,
-    peerId: string
-  ): Promise<TransportOptions> {
-    const room = this.rooms.get(roomId);
+  async createWebRtcTransport(peerId: string): Promise<TransportOptions> {
+    if (peerId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
+      console.log("\n[ROOM_ID]");
+      console.log("peerId", peerId);
+      console.log("[ROOM_ID]\n");
+    }
+
+    const room = this.room;
     if (!room) {
       throw new Error("Комната не найдена");
     }
@@ -116,12 +119,11 @@ export class MediaServer {
   }
 
   async connectTransport(
-    roomId: string,
     peerId: string,
     transportId: string,
     dtlsParameters: any
   ): Promise<void> {
-    const room = this.rooms.get(roomId);
+    const room = this.room;
     if (!room) {
       throw new Error("Комната не найдена");
     }
@@ -140,13 +142,12 @@ export class MediaServer {
   }
 
   async createProducer(
-    roomId: string,
     peerId: string,
     transportId: string,
     kind: "audio" | "video",
     rtpParameters: any
   ): Promise<ProducerOptions> {
-    const room = this.rooms.get(roomId);
+    const room = this.room;
     if (!room) {
       throw new Error("Комната не найдена");
     }
@@ -177,13 +178,12 @@ export class MediaServer {
   }
 
   async createConsumer(
-    roomId: string,
     peerId: string,
     producerId: string,
     rtpCapabilities: any,
     transportId: string
   ): Promise<ConsumerOptions> {
-    const room = this.rooms.get(roomId);
+    const room = this.room;
     if (!room) {
       throw new Error("Комната не найдена");
     }
@@ -193,10 +193,6 @@ export class MediaServer {
       throw new Error("Пир не найден");
     }
 
-    console.log("CANNOT_CREATE_CONSUMER");
-    console.log(producerId);
-    console.log(rtpCapabilities);
-    console.log("CANNOT_CREATE_CONSUMER");
     if (!room.router.canConsume({ producerId, rtpCapabilities })) {
       throw new Error("Невозможно создать консьюмер");
     }
@@ -225,7 +221,7 @@ export class MediaServer {
   }
 
   getRouterRtpCapabilities(roomId: string) {
-    const room = this.rooms.get(roomId);
+    const room = this.room;
     if (!room) {
       throw new Error("Комната не найдена");
     }
@@ -233,18 +229,20 @@ export class MediaServer {
     return room.router.rtpCapabilities;
   }
 
-  closeRoom(roomId: string) {
-    const room = this.rooms.get(roomId);
+  closeRoom() {
+    const room = this.room;
     if (!room) {
       return;
     }
 
     room.router.close();
-    this.rooms.delete(roomId);
+    this.room = null;
+
+    console.log(`Room is deleted!`);
   }
 
-  removePeer(roomId: string, peerId: string) {
-    const room = this.rooms.get(roomId);
+  removePeer(peerId: string) {
+    const room = this.room;
     if (!room) {
       return;
     }
@@ -273,28 +271,24 @@ export class MediaServer {
 
     // Если комната пуста, закрываем её
     if (room.peers.length === 0) {
-      this.closeRoom(roomId);
+      this.closeRoom();
     }
   }
 
-  getRoom(roomId: string): Room {
-    const room = this.rooms.get(roomId);
+  getRoom(): Room {
+    const room = this.room;
     if (!room) {
       throw new Error("Комната не найдена");
     }
     return room;
   }
 
-  setRoomPeer(roomId: string, user: Peer) {
-    const room = this.rooms.get(roomId);
+  setRoomPeer(user: Peer) {
+    const room = this.room;
     if (!room) {
       throw new Error("Комната не найдена");
     }
     room.peers.push(user);
     return;
-  }
-
-  getRooms(): Map<string, Room> {
-    return this.rooms;
   }
 }

@@ -10,7 +10,7 @@ import { getUserAudioStates } from "@/store/slices/User.slice";
 import { useSelector } from "react-redux";
 import { useAudioStates } from "@/shared/hooks/audioStates/useAudioStates";
 import type { FC } from "react";
-import { memo, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useWebRTC } from "@/shared/hooks/webRTC/useWebRTC";
 import { Participant } from "@/shared/components/Participant/Participant";
 
@@ -26,7 +26,22 @@ type FriendChatAudioAndVideoBlockProps = {
 
 export const FriendChatAudioAndVideoBlock: FC<FriendChatAudioAndVideoBlockProps> =
   memo(({ handleDisconnect, roomId, isConnectedToCall }) => {
-    const { socketRef } = useWebRTC(roomId, isConnectedToCall);
+    const { socketRef, streamTrack } = useWebRTC(roomId, isConnectedToCall);
+
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    useEffect(() => {
+      console.log("STREAM_TRACK_EFFECT");
+      if (streamTrack && audioRef.current) {
+        console.log("STREAM_TRACK_IS_CONNECTING");
+        console.log(streamTrack);
+        const stream = new MediaStream([streamTrack]);
+        audioRef.current.srcObject = stream;
+        audioRef.current.play();
+        console.log(audioRef.current.paused);
+        console.log("STREAM_TRACK_IS_CONNECTED");
+      }
+    }, [streamTrack]);
 
     const [isVideoEnabled, setIsVideoEnabled] = useState(false);
     const audioStates = useSelector(getUserAudioStates);
@@ -35,7 +50,7 @@ export const FriendChatAudioAndVideoBlock: FC<FriendChatAudioAndVideoBlockProps>
 
     const handleDropCall = async () => {
       if (roomId) {
-        socketRef.current.emit(
+        socketRef.current?.emit(
           "disconnect-from-room",
           roomId,
           localStorageService.getUserId()
@@ -53,6 +68,7 @@ export const FriendChatAudioAndVideoBlock: FC<FriendChatAudioAndVideoBlockProps>
             styles["friend-chat-audio-and-video-block__audio-or-video"]
           }
         >
+          <audio ref={audioRef} autoPlay controls />
           <div
             className={
               styles[
@@ -71,6 +87,7 @@ export const FriendChatAudioAndVideoBlock: FC<FriendChatAudioAndVideoBlockProps>
             className={
               styles["friend-chat-audio-and-video-block__actions-button"]
             }
+            onMouseEnter={() => audioRef.current?.play()}
             onClick={setIsVideoEnabled.bind(null, (prev) => !prev)}
           >
             {isVideoEnabled ? (
