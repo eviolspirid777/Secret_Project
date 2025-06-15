@@ -40,7 +40,6 @@ export const useWebRTC = (roomId: string | null, isConnectToCall: boolean) => {
     users: string[],
     rtpCapabilities: RtpCapabilities
   ) => {
-    usersInSession.current = users;
     deviceRef.current?.load({ routerRtpCapabilities: rtpCapabilities });
     handleCreateRtcSendTransport(roomId!, userId!);
     if (users.length > 1) {
