@@ -78,12 +78,10 @@ io.on("connection", async (socket) => {
 
   socket.on("create-send-transport", async (roomId, userId, callback) => {
     try {
-      if (userId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
-        console.log("\n[create-send-transport]");
-        console.log("peerId", userId);
-        console.log("roomId", roomId);
-        console.log("[create-send-transport]\n");
-      }
+      console.log("\n[create-send-transport]");
+      console.log("peerId", userId);
+      console.log("roomId", roomId);
+      console.log("[create-send-transport]\n");
       const transportOptions = await mediaServer.createWebRtcTransport(userId);
       callback(transportOptions);
     } catch (ex) {
@@ -111,13 +109,18 @@ io.on("connection", async (socket) => {
         kind,
         rtpParameters
       );
-      if (userId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
-        console.log("\n[PRODUCER_HAS_BEEN_CREATED]");
-        console.log("sendTransportId", sendTransportId);
-        console.log("producerId", producer.id);
-        console.log("userId", userId);
-        console.log("[PRDOCUER_HAS_BEEN_CREATED]\n");
+      console.log("\n[PRODUCER_HAS_BEEN_CREATED]");
+      console.log("sendTransportId", sendTransportId);
+      console.log("producerId", producer.id);
+      console.log("userId", userId);
+      console.log("[PRDOCUER_HAS_BEEN_CREATED]\n");
+
+      console.log("[PRDOCUER_HAS_BEEN_CREATED]\n");
+      console.log("producersMapLength", producersMap.size);
+      for (const val in producersMap.values()) {
+        console.log("producersMapValues", val);
       }
+      console.log("[PRDOCUER_HAS_BEEN_CREATED]\n");
       if (!producersMap.has(userId)) {
         producersMap.set(userId, producer.id);
         socket.to(roomId).emit("new-producer", producer.id);
@@ -130,12 +133,10 @@ io.on("connection", async (socket) => {
 
   socket.on("create-recieve-transport", async (roomId, userId, callback) => {
     try {
-      if (userId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
-        console.log("\n[create-recieve-transport]");
-        console.log("peerId", userId);
-        console.log("roomId", roomId);
-        console.log("[create-recieve-transport]\n");
-      }
+      console.log("\n[create-recieve-transport]");
+      console.log("peerId", userId);
+      console.log("roomId", roomId);
+      console.log("[create-recieve-transport]\n");
       const transportOptions = await mediaServer.createWebRtcTransport(userId);
       callback(transportOptions);
     } catch (ex) {
@@ -149,14 +150,12 @@ io.on("connection", async (socket) => {
 
       const room = mediaServer.getRoom();
       const peer = room.peers.find((peer) => peer.id !== userId);
-      if (userId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
-        console.log("[CONSUME_CREATION]");
-        console.log("userId", userId);
-        console.log("peerProducerUserId", peer?.id);
-        console.log("producerMapLength", producersMap.size);
-        console.log("peerProducersLength", peer?.producers.length);
-        console.log("[CONSUME_CREATION]");
-      }
+      console.log("[CONSUME_CREATION]");
+      console.log("userId", userId);
+      console.log("peerProducerUserId", peer?.id);
+      console.log("producerMapLength", producersMap.size);
+      console.log("peerProducersLength", peer?.producers.length);
+      console.log("[CONSUME_CREATION]");
 
       if (peer?.producers.length === 0 || !peer?.producers.length)
         throw new Error("No consumers available");
@@ -167,11 +166,9 @@ io.on("connection", async (socket) => {
         rtpCapabilities,
         transportId
       );
-      if (userId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
-        console.log("CONSUMER_OPTIONS");
-        console.log(consumerOptions);
-        console.log("CONSUMER_OPTIONS");
-      }
+      console.log("CONSUMER_OPTIONS");
+      console.log(consumerOptions);
+      console.log("CONSUMER_OPTIONS");
       callback(consumerOptions);
     } catch (ex) {
       console.error(ex);

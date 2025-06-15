@@ -18,11 +18,21 @@ export class MediaServer {
   async initialize() {
     // Создаем медиа-воркер
     this.worker = await mediasoup.createWorker({
-      logLevel: "warn",
+      logLevel: "debug",
+      logTags: ["info", "ice", "dtls", "rtcp", "rtp", "srtp"],
       rtcMinPort: 10000,
       rtcMaxPort: 10100,
     });
 
+    this.worker.on("died", () => {
+      console.error(
+        "mediasoup worker died, exiting in 2 seconds...",
+        this.worker.pid
+      );
+      setTimeout(() => {
+        process.exit(1);
+      }, 2000);
+    });
     console.log("mediasoup worker создан");
   }
 

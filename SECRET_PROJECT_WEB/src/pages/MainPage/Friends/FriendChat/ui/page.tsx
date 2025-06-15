@@ -89,7 +89,6 @@ export const FriendChat = memo(() => {
   ]);
 
   const handleCreateCall = async (type: "audio" | "video") => {
-    console.dir(type);
     await createUserRoomAsync({
       fromUserId: localStorageService.getUserId() ?? "",
       toUserId: friendId ?? "",
