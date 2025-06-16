@@ -196,6 +196,6 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // Запуск сервера
-httpServer.listen(port, () => {
+httpServer.listen(3000, process.env.MEDIASOUP_ANNOUNCED_IP_LOCAL, () => {
   console.log(`Сервер запущен на порту ${port}`);
 });
