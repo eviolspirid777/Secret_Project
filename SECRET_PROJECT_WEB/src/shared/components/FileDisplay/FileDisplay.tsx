@@ -10,6 +10,7 @@ import type { ChannelMessage } from "@/types/ChannelMessage/ChannelMessage";
 import { IoIosPause, IoIosPlay } from "react-icons/io";
 
 import styles from "./styles.module.scss";
+import { ImageFullscreen } from "./ImageFullscreen/ImageFullscreen";
 
 type FileDisplayProps = {
   message: Message | ChannelMessage;
@@ -27,20 +28,7 @@ export const FileDisplay: FC<FileDisplayProps> = ({ message }) => {
   const [bigPictureMode, setBigPictureMode] = useState(false);
 
   const handleBigPicture = () => {
-    if (bigPictureMode) {
-      setBigPictureMode(false);
-    } else {
-      if (message.file?.fileUrl) {
-        setBigPictureMode(true);
-        const imgElement = document.createElement("img");
-        imgElement.src = message.file.fileUrl;
-        imgElement.style.position = "absolute";
-        imgElement.style.inset = "1";
-        imgElement.style.width = "200px";
-        imgElement.style.height = "200px";
-        document.body.appendChild(imgElement);
-      }
-    }
+    setBigPictureMode(!bigPictureMode);
   };
 
   const fileDisply = () => {
@@ -121,12 +109,20 @@ export const FileDisplay: FC<FileDisplayProps> = ({ message }) => {
       case "image/tiff":
       case "image/bmp":
         return (
-          <img
-            src={message.file?.fileUrl}
-            alt="file"
-            className={styles["file-display"]}
-            onClick={handleBigPicture}
-          />
+          <>
+            <img
+              src={message.file?.fileUrl}
+              alt="file"
+              className={styles["file-display"]}
+              onClick={handleBigPicture}
+            />
+            {bigPictureMode && (
+              <ImageFullscreen
+                src={message.file.fileUrl}
+                onBackgroundClick={handleBigPicture}
+              />
+            )}
+          </>
         );
       default:
         return (
