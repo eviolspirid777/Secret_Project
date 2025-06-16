@@ -16,3 +16,28 @@
   display: flex;
   box-shadow: 0 0 10px 0 color.adjust($color-danger, $alpha: -0.5) !important;
 }
+
+::-webkit-scrollbar {
+  width: px; /* Ширина для вертикальной полосы прокрутки */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Цвет дорожки */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* Цвет ползунка */
+  border-radius: 10px; /* Закругление углов ползунка */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Цвет ползунка при наведении */
+}
+
+/* Для Firefox (современный подход) */
+* {
+  scrollbar-width: thin; /* "auto" или "none" */
+  scrollbar-color: color.adjust($background-color, $lightness: 40%)
+    color.adjust($background-color, $lightness: 15%); /* Цвет ползунка и дорожки */
+}
