@@ -167,7 +167,7 @@ export const FileDisplay: FC<FileDisplayProps> = ({ message }) => {
       className={styles["file-display-container"]}
     >
       {fileDisply()}
-      {isHovered && (
+      {isHovered && message.file?.fileType !== "audio/mp3" && (
         <Button
           variant="outline"
           size="icon"
