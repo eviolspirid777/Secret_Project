@@ -21,7 +21,8 @@ const io = new Server(httpServer, {
 const port = process.env.PORT || 3000;
 const mediaServer = new MediaServer();
 
-const producersMap = new Map<string, string>();
+const audioProducersMap = new Map<string, string>();
+const screenProducersMap = new Map<string, string>();
 
 app.use(
   cors({
@@ -100,7 +101,7 @@ io.on("connection", async (socket) => {
     }
   });
 
-  socket.on("produce", async (data, callback) => {
+  socket.on("produce-audio", async (data, callback) => {
     try {
       const { roomId, userId, sendTransportId, kind, rtpParameters } = data;
       const producer = await mediaServer.createProducer(
@@ -116,13 +117,44 @@ io.on("connection", async (socket) => {
       console.log("[PRDOCUER_HAS_BEEN_CREATED]\n");
 
       console.log("[PRDOCUER_HAS_BEEN_CREATED]\n");
-      console.log("producersMapLength", producersMap.size);
-      for (const val in producersMap.values()) {
+      console.log("producersMapLength", audioProducersMap.size);
+      for (const val in audioProducersMap.values()) {
         console.log("producersMapValues", val);
       }
       console.log("[PRDOCUER_HAS_BEEN_CREATED]\n");
-      if (!producersMap.has(userId)) {
-        producersMap.set(userId, producer.id);
+      if (!audioProducersMap.has(userId)) {
+        audioProducersMap.set(userId, producer.id);
+        socket.to(roomId).emit("new-producer", producer.id);
+      }
+      callback(producer.id);
+    } catch (error) {
+      console.error(error), callback({ error: error });
+    }
+  });
+
+  socket.on("produce-screen", async (data, callback) => {
+    try {
+      const { roomId, userId, sendTransportId, kind, rtpParameters } = data;
+      const producer = await mediaServer.createProducer(
+        userId,
+        sendTransportId,
+        kind,
+        rtpParameters
+      );
+      console.log("\n[SCREEN_PRODUCER_HAS_BEEN_CREATED]");
+      console.log("sendTransportId", sendTransportId);
+      console.log("producerId", producer.id);
+      console.log("userId", userId);
+      console.log("[SCREEN_PRODUCER_HAS_BEEN_CREATED]\n");
+
+      console.log("[SCREEN_PRODUCER_HAS_BEEN_CREATED]\n");
+      console.log("producersMapLength", screenProducersMap.size);
+      for (const val in screenProducersMap.values()) {
+        console.log("producersMapValues", val);
+      }
+      console.log("[SCREEN_PRODUCER_HAS_BEEN_CREATED]\n");
+      if (!screenProducersMap.has(userId)) {
+        screenProducersMap.set(userId, producer.id);
         socket.to(roomId).emit("new-producer", producer.id);
       }
       callback(producer.id);
@@ -144,18 +176,18 @@ io.on("connection", async (socket) => {
     }
   });
 
-  socket.on("consume", async (data, callback) => {
+  socket.on("consume-audio", async (data, callback) => {
     try {
       const { roomId, userId, rtpCapabilities, transportId } = data;
 
       const room = mediaServer.getRoom();
       const peer = room.peers.find((peer) => peer.id !== userId);
-      console.log("[CONSUME_CREATION]");
+      console.log("[AUDIO_CONSUME_CREATION]");
       console.log("userId", userId);
       console.log("peerProducerUserId", peer?.id);
-      console.log("producerMapLength", producersMap.size);
+      console.log("producerMapLength", audioProducersMap.size);
       console.log("peerProducersLength", peer?.producers.length);
-      console.log("[CONSUME_CREATION]");
+      console.log("[AUDIO_CONSUME_CREATION]");
 
       if (peer?.producers.length === 0 || !peer?.producers.length)
         throw new Error("No consumers available");
@@ -166,9 +198,9 @@ io.on("connection", async (socket) => {
         rtpCapabilities,
         transportId
       );
-      console.log("CONSUMER_OPTIONS");
+      console.log("AUDIO_CONSUMER_OPTIONS");
       console.log(consumerOptions);
-      console.log("CONSUMER_OPTIONS");
+      console.log("AUDIO_CONSUMER_OPTIONS");
       callback(consumerOptions);
     } catch (ex) {
       console.error(ex);
@@ -176,9 +208,51 @@ io.on("connection", async (socket) => {
     }
   });
 
-  socket.on("new-producer-created", async (roomId, userId, producerId) => {
-    socket.to(roomId).emit("new-producer", roomId, userId, producerId);
+  socket.on("consume-screen", async (data, callback) => {
+    try {
+      const { roomId, userId, rtpCapabilities, transportId } = data;
+
+      const room = mediaServer.getRoom();
+      const peer = room.peers.find((peer) => peer.id !== userId);
+      console.log("[SCREEN_CONSUME_CREATION]");
+      console.log("userId", userId);
+      console.log("peerProducerUserId", peer?.id);
+      console.log("producerMapLength", screenProducersMap.size);
+      console.log("peerProducersLength", peer?.producers.length);
+      console.log("[SCREEN_CONSUME_CREATION]");
+
+      if (peer?.producers.length === 0 || !peer?.producers.length)
+        throw new Error("No consumers available");
+
+      const consumerOptions = await mediaServer.createConsumer(
+        userId,
+        peer!.producers[0].id,
+        rtpCapabilities,
+        transportId
+      );
+      console.log("SCREEN_CONSUMER_OPTIONS");
+      console.log(consumerOptions);
+      console.log("SCREEN_CONSUMER_OPTIONS");
+      callback(consumerOptions);
+    } catch (ex) {
+      console.error(ex);
+      callback({ error: ex });
+    }
   });
+
+  socket.on(
+    "new-audio-producer-created",
+    async (roomId, userId, producerId) => {
+      socket.to(roomId).emit("new-audio-producer", roomId, userId, producerId);
+    }
+  );
+
+  socket.on(
+    "new-screen-producer-created",
+    async (roomId, userId, producerId) => {
+      socket.to(roomId).emit("new-screen-producer", roomId, userId, producerId);
+    }
+  );
 
   socket.on("disconnect-from-room", async (roomId, userId) => {
     const usersIds = mediaServer.removePeer(roomId);

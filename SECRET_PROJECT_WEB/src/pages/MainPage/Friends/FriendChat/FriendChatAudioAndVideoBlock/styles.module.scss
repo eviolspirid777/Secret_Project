@@ -23,6 +23,7 @@ $radius: 10px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       justify-items: center;
+      height: 100%;
     }
   }
 
@@ -41,6 +42,12 @@ $radius: 10px;
       &:has(> .friend-chat-audio-and-video-block__actions-icon__danger) {
         background-color: color.adjust($color-danger, $lightness: -40%);
       }
+
+      &:has(
+          > .friend-chat-audio-and-video-block__actions-icon__screen-share-off
+        ) {
+        background-color: color.adjust($color-danger, $lightness: -25%);
+      }
     }
 
     &-icon {
@@ -50,6 +57,20 @@ $radius: 10px;
         min-width: 25px;
         color: color.adjust($color-danger, $lightness: -20%);
       }
+
+      &__screen-share {
+        min-width: 25px;
+
+        &-off {
+          min-width: 25px;
+        }
+      }
     }
   }
+}
+
+.video-chat {
+  display: none;
+  max-width: 300px;
+  max-height: 300px;
 }
