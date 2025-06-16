@@ -226,7 +226,7 @@ io.on("connection", async (socket) => {
 
       const consumerOptions = await mediaServer.createConsumer(
         userId,
-        peer!.producers[0].id,
+        peer!.producers[1].id,
         rtpCapabilities,
         transportId
       );

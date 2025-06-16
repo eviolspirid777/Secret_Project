@@ -41,7 +41,7 @@ export const FriendChatAudioAndVideoBlock: FC<FriendChatAudioAndVideoBlockProps>
     const screenSharedStreamRef = useRef<HTMLVideoElement>(null);
     const displayStreamRef = useRef<MediaStream>(null);
 
-    const { socketRef, audioStreamTrack } = useWebRTC(
+    const { socketRef, audioStreamTrack, screenStreamTrack } = useWebRTC(
       roomId,
       isConnectedToCall,
       isScreenShared,
@@ -60,6 +60,20 @@ export const FriendChatAudioAndVideoBlock: FC<FriendChatAudioAndVideoBlockProps>
         console.log("STREAM_TRACK_IS_CONNECTED");
       }
     }, [audioStreamTrack]);
+
+    useEffect(() => {
+      console.log("STREAM_TRACK_EFFECT");
+      if (screenStreamTrack && screenSharedStreamRef.current) {
+        console.log("STREAM_VIDEO_TRACK_IS_CONNECTING");
+        console.log(screenStreamTrack);
+        const stream = new MediaStream([screenStreamTrack]);
+        screenSharedStreamRef.current.srcObject = stream;
+        screenSharedStreamRef.current.style.display = "block";
+        screenSharedStreamRef.current.play();
+        console.log(screenSharedStreamRef.current.paused);
+        console.log("STREAM__VIDEO_TRACK_IS_CONNECTED");
+      }
+    }, [screenStreamTrack]);
 
     const renderVideo = (user: User) => {
       if (user.userId === localStorageService.getUserId()) {

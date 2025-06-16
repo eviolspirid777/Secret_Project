@@ -175,12 +175,12 @@ export const useWebRTC = (
 
     sendScreenTransport?.on(
       "produce",
-      ({ appData, kind, rtpParameters }, callback) => {
+      ({ appData, rtpParameters }, callback) => {
         socketRef.current?.emit(
           "produce-screen",
           {
             appData,
-            kind,
+            kind: "video",
             rtpParameters,
             roomId,
             userId,
@@ -324,7 +324,7 @@ export const useWebRTC = (
     });
 
     socketRef.current?.emit(
-      "consume",
+      "consume-screen",
       {
         roomId,
         userId,
@@ -344,9 +344,9 @@ export const useWebRTC = (
             kind: consumerOptions.kind,
           });
 
-          console.log("CONSUMER_TRACK");
+          console.log("CONSUMER_SCREEN_TRACK");
           console.log(consumer?.track);
-          console.log("CONSUMER_TRACK");
+          console.log("CONSUMER_SCREEN_TRACK");
           remoteScreenStreamRef.current = new MediaStream();
           remoteScreenStreamRef.current.addTrack(consumer!.track);
           setScreenStreamTrack(consumer?.track);
