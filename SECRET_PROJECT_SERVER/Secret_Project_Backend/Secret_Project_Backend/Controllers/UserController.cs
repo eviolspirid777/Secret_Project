@@ -14,6 +14,7 @@ using Secret_Project_Backend.Services.S3;
 using Secret_Project_Backend.Services.Status;
 using Secret_Project_Backend.Services.User;
 using Secret_Project_Backend.SignalR;
+using System.Drawing.Imaging;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -51,17 +52,16 @@ namespace Secret_Project_Backend.Controllers
         [Authorize]
         [HttpPost("change-user-avatar")]
         public async Task<IActionResult> ChangeUserAvatar(
-            [FromForm] Guid userId,
-            [FromForm] IFormFile file
+            [FromForm] ChangeUserAvatarRequest data
         )
         {
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId.ToString());
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == data.UserId.ToString());
             if(user == null)
             {
                 return BadRequest("Invalid userId");
             }
 
-            using var stream = file.OpenReadStream();
+            using var stream = data.File.OpenReadStream();
 
             //TODO: могут заспамить аватарками новыми
             //var userAvatar = await _s3ServiceAvatars.GetFileAsync(userId.ToString());
@@ -69,7 +69,7 @@ namespace Secret_Project_Backend.Controllers
             //{
             //    await _s3ServiceAvatars.DeleteFileAsync(userId.ToString());
             //}
-            var userAvatarUrl = await _s3ServiceAvatars.UploadAvatarAsync(stream, userId.ToString());
+            var userAvatarUrl = await _s3ServiceAvatars.UploadAvatarAsync(stream, data.UserId.ToString());
 
             user.AvatarUrl = userAvatarUrl;
 

@@ -60,42 +60,37 @@ namespace Secret_Project_Backend.Controllers
 
         [HttpPost("add-message")]
         public async Task<IActionResult> AddMessage(
-            [FromForm] string SenderId,
-            [FromForm] string ReciverId,
-            [FromForm] string? Content,
-            [FromForm] IFormFile? File,
-            [FromForm] string? FileType,
-            [FromForm] string? FileName
+            [FromForm] AddMessageRequest data
         )
         {
-            if(SenderId == null || ReciverId == null)
+            if(data.SenderId == null || data.ReciverId == null)
             {
                 return BadRequest("Данные неправильные!");
             }
 
-            if(string.IsNullOrEmpty(Content) && File == null)
+            if(string.IsNullOrEmpty(data.Content) && data.File == null)
             {
                 return BadRequest("Пустые данные!");
             }
 
             var message = new Models.Message()
             {
-                ReciverId = ReciverId,
-                SenderId = SenderId,
-                Content = Content,
+                ReciverId = data.ReciverId,
+                SenderId = data.SenderId,
+                Content = data.Content,
                 SentAt = DateTime.UtcNow,
             };
 
-            if (File != null)
+            if (data.File != null)
             {
-                using var stream = File.OpenReadStream();
+                using var stream = data.File.OpenReadStream();
 
                 var fileString = await _s3Service.UploadFileAsync(stream, Guid.NewGuid().ToString());
 
                 message.File = new Models.File()
                 {
-                    FileName = FileName ?? "",
-                    FileType = FileType ?? "",
+                    FileName = data.FileName ?? "",
+                    FileType = data.FileType ?? "",
                     FileUrl = fileString,
                 };
             }
@@ -105,8 +100,8 @@ namespace Secret_Project_Backend.Controllers
 
             var messageDto = MessageMapper.MapMessageToMessageDto(message);
 
-            await _messageService.NotifyUserAsync(SenderId, messageDto);
-            await _messageService.NotifyUserAsync(ReciverId, messageDto);
+            await _messageService.NotifyUserAsync(data.SenderId, messageDto);
+            await _messageService.NotifyUserAsync(data.ReciverId, messageDto);
 
             return Ok(messageDto);
         }

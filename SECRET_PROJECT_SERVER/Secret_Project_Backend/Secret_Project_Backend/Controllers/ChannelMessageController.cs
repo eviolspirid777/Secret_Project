@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Secret_Project_Backend.Context;
+using Secret_Project_Backend.Controllers.Requests.ChannelMessages;
 using Secret_Project_Backend.Controllers.Requests.Messages;
 using Secret_Project_Backend.Mappers.Messages;
 using Secret_Project_Backend.Services.ChannelChat;
 using Secret_Project_Backend.Services.S3;
-using Secret_Project_Backend.SignalR;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -54,12 +54,7 @@ namespace Secret_Project_Backend.Controllers
 
         [HttpPost("add-channel-message")]
         public async Task<IActionResult> AddChannelMessage(
-            [FromForm] string? content,
-            [FromForm] string senderId,
-            [FromForm] Guid channelId,
-            [FromForm] IFormFile? file,
-            [FromForm] string? fileType,
-            [FromForm] string? fileName
+            [FromForm] AddChannelMessageRequest data
         )
         {
             var fileUrl = "";
@@ -68,7 +63,7 @@ namespace Secret_Project_Backend.Controllers
                 .Channels
                 .Include(c => c.ChannelMessages)
                 .Include(c => c.ChannelUsers)
-                .FirstOrDefaultAsync(c => c.Id == channelId);
+                .FirstOrDefaultAsync(c => c.Id == data.ChannelId);
 
             if(channel == null)
             {
@@ -77,27 +72,27 @@ namespace Secret_Project_Backend.Controllers
 
             var newMessage = new Models.ChannelMessage
             {
-                SenderId = senderId,
-                ChannelId = channelId,
+                SenderId = data.SenderId,
+                ChannelId = data.ChannelId,
                 SentAt = DateTime.UtcNow,
             };
 
-            if (content != null)
+            if (data.Content != null)
             {
-                newMessage.Content = content;
+                newMessage.Content = data.Content;
             }
 
-            if(file != null)
+            if(data.File != null)
             {
-                var fileStream = file.OpenReadStream();
+                var fileStream = data.File.OpenReadStream();
 
-                fileUrl =  await _s3MessagesService.UploadFileAsync(fileStream, $"{channelId}-{senderId}-{DateTime.UtcNow}");
+                fileUrl =  await _s3MessagesService.UploadFileAsync(fileStream, $"{data.ChannelId}-{data.SenderId}-{DateTime.UtcNow}");
 
                 newMessage.ChannelFile = new Models.ChannelFile
                 {
                     FileUrl = fileUrl,
-                    FileName = fileName ?? "",
-                    FileType = fileType ?? "",
+                    FileName = data.FileName ?? "",
+                    FileType = data.FileType ?? "",
                 };
             }
 
@@ -115,7 +110,7 @@ namespace Secret_Project_Backend.Controllers
                     SentAt = newMessage.SentAt
                 };
 
-                if (file != null && newMessage.ChannelFile != null)
+                if (data.File != null && newMessage.ChannelFile != null)
                 {
                     message.File = new DTOs.Channel.ChannelFileDto
                     {
@@ -125,7 +120,7 @@ namespace Secret_Project_Backend.Controllers
                     };
                 }
 
-                if(content != null)
+                if(data.Content != null)
                 {
                     message.Content = newMessage.Content;
                 }
