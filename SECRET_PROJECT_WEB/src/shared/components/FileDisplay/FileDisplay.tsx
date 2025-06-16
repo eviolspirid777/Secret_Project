@@ -18,27 +18,50 @@ type FileDisplayProps = {
 export const FileDisplay: FC<FileDisplayProps> = ({ message }) => {
   const [isHovered, setIsHovered] = useState(false);
   const fileDisplayRef = useRef<HTMLDivElement>(null);
+
+  //Audio
   const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  //Image
+  const [bigPictureMode, setBigPictureMode] = useState(false);
+
+  const handleBigPicture = () => {
+    if (bigPictureMode) {
+      setBigPictureMode(false);
+    } else {
+      if (message.file?.fileUrl) {
+        setBigPictureMode(true);
+        const imgElement = document.createElement("img");
+        imgElement.src = message.file.fileUrl;
+        imgElement.style.position = "absolute";
+        imgElement.style.inset = "1";
+        imgElement.style.width = "200px";
+        imgElement.style.height = "200px";
+        document.body.appendChild(imgElement);
+      }
+    }
+  };
 
   const fileDisply = () => {
     switch (message.file?.fileType) {
       case "audio/mp3": {
-        const audio = document.createElement("audio");
-        audio.src = message.file?.fileUrl || "";
-        audio.controls = true;
-        audio.style.display = "none";
-        audio.onended = () => {
-          setIsPlaying(false);
-        };
-        fileDisplayRef.current?.appendChild(audio);
-
         return (
           <div className={styles["file-display__audio-container"]}>
+            <audio
+              ref={audioRef}
+              src={message.file?.fileUrl || ""}
+              onEnded={setIsPlaying.bind(null, false)}
+              onPlay={setIsPlaying.bind(null, true)}
+              onPause={setIsPlaying.bind(null, false)}
+              style={{ display: "none" }}
+              controls
+            />
             {!isPlaying ? (
               <Button
                 className={styles["file-display__audio-container__play-button"]}
                 onClick={() => {
-                  audio.play();
+                  audioRef.current?.play();
                   setIsPlaying(true);
                 }}
               >
@@ -50,7 +73,7 @@ export const FileDisplay: FC<FileDisplayProps> = ({ message }) => {
                   styles["file-display__audio-container__pause-button"]
                 }
                 onClick={() => {
-                  audio.pause();
+                  audioRef.current?.pause();
                   setIsPlaying(false);
                 }}
               >
@@ -102,6 +125,7 @@ export const FileDisplay: FC<FileDisplayProps> = ({ message }) => {
             src={message.file?.fileUrl}
             alt="file"
             className={styles["file-display"]}
+            onClick={handleBigPicture}
           />
         );
       default:

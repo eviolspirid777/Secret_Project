@@ -86,7 +86,7 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
   );
 
   const sendMessage = async (message: string | null, fileLocal?: File) => {
-    if (channelId && (message || file)) {
+    if (channelId && (message || fileLocal)) {
       const formData = new FormData();
       formData.append("senderId", localStorageService.getUserId() ?? "");
       formData.append("channelId", channelId);

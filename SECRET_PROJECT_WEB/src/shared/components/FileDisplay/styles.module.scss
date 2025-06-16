@@ -12,6 +12,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-left: 50px;
 
     & span {
       color: color.adjust($font-color, $lightness: -30%);
