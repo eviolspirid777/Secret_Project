@@ -16,7 +16,7 @@ $radius: 10px;
     &__date {
       text-align: center;
       font-size: 0.8rem;
-      color: $font-color;
+      color: color.scale($font-color, $lightness: -25%);
       margin-bottom: 10px;
     }
   }

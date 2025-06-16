@@ -12,6 +12,8 @@ import { useAddChannelMessage } from "@/shared/hooks/channelMessage/useAddChanne
 import { ChannelMessagesSignalRServiceInstance } from "@/shared/services/SignalR/ChannelMessages/ChannelMessagesSignalRService";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader } from "@/shared/components/Loader/loader";
+import { isNextDay } from "@/shared/helpers/timeFormater/isNextDay";
+import dayjs from "dayjs";
 
 type ChannelMessageBlockProps = {
   channelId: string;
@@ -126,16 +128,43 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
         ref={messagesContainerRef}
         className={styles["channel-chat__messages"]}
       >
-        {channelMessages?.map((message, id) => (
-          <ChannelMessage
-            key={id}
-            message={message}
-            avatar={proceedAvatar(message.senderId)}
-            senderName={proceedSenderName(message.senderId)}
-            deleteMessage={deleteMessage}
-            isCurrentUser={message.senderId === localStorageService.getUserId()}
-          />
-        ))}
+        {channelMessages?.map((message, id, messages) => {
+          if (
+            (messages[id - 1] &&
+              isNextDay(message.sentAt, messages[id - 1]?.sentAt)) ||
+            messages[id - 1] === undefined
+          ) {
+            return (
+              <>
+                <div className={styles["channel-chat__messages__date"]}>
+                  {dayjs(message.sentAt).format("DD.MM")}
+                </div>
+                <ChannelMessage
+                  key={id}
+                  message={message}
+                  avatar={proceedAvatar(message.senderId)}
+                  senderName={proceedSenderName(message.senderId)}
+                  deleteMessage={deleteMessage}
+                  isCurrentUser={
+                    message.senderId === localStorageService.getUserId()
+                  }
+                />
+              </>
+            );
+          }
+          return (
+            <ChannelMessage
+              key={id}
+              message={message}
+              avatar={proceedAvatar(message.senderId)}
+              senderName={proceedSenderName(message.senderId)}
+              deleteMessage={deleteMessage}
+              isCurrentUser={
+                message.senderId === localStorageService.getUserId()
+              }
+            />
+          );
+        })}
       </div>
       <InputChannelMessageBlock
         message={message}

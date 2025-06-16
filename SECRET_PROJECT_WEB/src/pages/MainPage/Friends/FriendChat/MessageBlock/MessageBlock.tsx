@@ -18,13 +18,10 @@ import { setSelectedChatId } from "@/store/slices/SelectedChatId.slice";
 import styles from "./styles.module.scss";
 import { removeUnreadedMessagesUserId } from "@/store/slices/UnreadedMessagesUsersId.slice";
 import dayjs from "dayjs";
+import { isNextDay } from "@/shared/helpers/timeFormater/isNextDay";
 
 type MessageBlockProps = {
   friendId: string;
-};
-
-const isNextDay = (date1: string, date2: string) => {
-  return !dayjs(date1).isSame(dayjs(date2), "day");
 };
 
 export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
