@@ -167,16 +167,17 @@ export const FileDisplay: FC<FileDisplayProps> = ({ message }) => {
       className={styles["file-display-container"]}
     >
       {fileDisply()}
-      {isHovered && message.file?.fileType !== "audio/mp3" && (
-        <Button
-          variant="outline"
-          size="icon"
-          className={styles["file-display__download-button"]}
-          onClick={handleDownload}
-        >
-          <DownloadIcon />
-        </Button>
-      )}
+      {isHovered &&
+        ![undefined, "audio/mp3"].includes(message.file?.fileType) && (
+          <Button
+            variant="outline"
+            size="icon"
+            className={styles["file-display__download-button"]}
+            onClick={handleDownload}
+          >
+            <DownloadIcon />
+          </Button>
+        )}
     </div>
   );
 };
