@@ -52,15 +52,25 @@ export const useWebRTC = (
     };
   }, []);
 
-  const handleJoinRoomCallback = (
+  const handleJoinRoomCallback = async (
     users: string[],
     rtpCapabilities: RtpCapabilities
   ) => {
-    usersInSession.current = users;
-    deviceRef.current?.load({ routerRtpCapabilities: rtpCapabilities });
-    handleCreateRtcSendAudioTransport(roomId!, userId!);
-    if (users.length > 1) {
-      handleCreateRtcReceiveAudioTransport(roomId!, userId!);
+    try {
+      usersInSession.current = users;
+      deviceRef.current?.load({ routerRtpCapabilities: rtpCapabilities });
+      const localStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+      streamRef.current = localStream;
+      handleCreateRtcSendAudioTransport(roomId!, userId!);
+    } catch (ex) {
+      console.log(ex);
+      console.error(ex);
+    } finally {
+      if (users.length > 1) {
+        handleCreateRtcReceiveAudioTransport(roomId!, userId!);
+      }
     }
   };
 
@@ -367,11 +377,6 @@ export const useWebRTC = (
     (async () => {
       try {
         deviceRef.current = await mediasoupClient.Device.factory();
-        //TODO: Если не подключен микрофон то он не даст присоединиться в комнату? 0.о
-        const localStream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        streamRef.current = localStream;
 
         socketRef.current?.emit(
           "join-room",

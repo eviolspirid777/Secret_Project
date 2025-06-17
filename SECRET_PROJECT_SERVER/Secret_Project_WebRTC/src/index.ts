@@ -226,6 +226,7 @@ io.on("connection", async (socket) => {
 
       const consumerOptions = await mediaServer.createConsumer(
         userId,
+        //TODO: тут должно быть получение не просто по индексу, а какая-то логика
         peer!.producers[1].id,
         rtpCapabilities,
         transportId

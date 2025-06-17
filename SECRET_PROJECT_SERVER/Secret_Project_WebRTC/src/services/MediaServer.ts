@@ -177,6 +177,7 @@ export class MediaServer {
       rtpParameters,
     });
 
+    //TODO: вот тут можно добавить ранжирование по id, что будет в разы лучше. Типа id 1 отвчает за screenShare и.т.д
     peer.producers.push(producer);
 
     return {
