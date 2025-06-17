@@ -367,6 +367,7 @@ export const useWebRTC = (
     (async () => {
       try {
         deviceRef.current = await mediasoupClient.Device.factory();
+        //TODO: Если не подключен микрофон то он не даст присоединиться в комнату? 0.о
         const localStream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
