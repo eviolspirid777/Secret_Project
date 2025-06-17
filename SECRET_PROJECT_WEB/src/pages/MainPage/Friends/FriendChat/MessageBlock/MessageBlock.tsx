@@ -24,6 +24,8 @@ type MessageBlockProps = {
   friendId: string;
 };
 
+//TODO: https://www.youtube.com/watch?v=DOKp4KiVIb4&ab_channel=CandDev React Infinite Scrolling
+
 export const MessageBlock: FC<MessageBlockProps> = ({ friendId }) => {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
