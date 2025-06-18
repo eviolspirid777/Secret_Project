@@ -14,9 +14,9 @@ import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
 import { memo, useEffect, type FC, type Ref } from "react";
 import { Loader } from "@/shared/components/Loader/loader";
 import { useInView } from "react-intersection-observer";
-import { MessageSendTime } from "./MessageSendTime/MessageSendTime";
 
 import styles from "./styles.module.scss";
+import { MessageSendTime } from "@/shared/components/MessageSendTime/MessageSendTime";
 
 type MessageProps = {
   ref?: (node?: Element | null) => void;
