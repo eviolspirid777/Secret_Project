@@ -12,6 +12,11 @@ import { useInView } from "react-intersection-observer";
 import { setSelectedChatId } from "@/store/slices/SelectedChatId.slice";
 import { removeUnreadedMessagesUserId } from "@/store/slices/UnreadedMessagesUsersId.slice";
 import { getMessages, setMessages } from "@/store/slices/Message.slice";
+import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
+import { Button } from "@/shadcn/ui/button";
+import { FaArrowTurnDown } from "react-icons/fa6";
+import type { Message as MessageType } from "@/types/Message/Message";
+import { Badge } from "@/shadcn/ui/badge";
 
 import styles from "./styles.module.scss";
 
@@ -35,6 +40,8 @@ export const Messages: FC<MessagesProps> = memo(({ friendId }) => {
   const hasAutoScrolledRef = useRef(false);
 
   const [isReadyToLoadMore, setIsReadyToLoadMore] = useState(false);
+  const [newMessages, setNewMessages] = useState<MessageType[]>([]);
+  const firstLastMessageRef = useRef<HTMLDivElement>(null);
 
   const { ref, inView } = useInView();
   const { deleteMessageAsync } = useDeleteMessage();
@@ -85,7 +92,6 @@ export const Messages: FC<MessagesProps> = memo(({ friendId }) => {
     if (!isInitialScrollDone.current && messages.length > 0) {
       const container = messagesContainerRef.current;
       if (container) {
-        // Обязательно даём время DOM отрисовать сообщения
         setTimeout(() => {
           container.scrollTop = container.scrollHeight;
           isInitialScrollDone.current = true;
@@ -129,6 +135,35 @@ export const Messages: FC<MessagesProps> = memo(({ friendId }) => {
     [friend, user]
   );
 
+  useEffect(() => {
+    messageSignalRServiceInstance.onReceiveMessage((message) => {
+      setNewMessages((prev) => [...prev, message]);
+    });
+
+    if (messagesContainerRef.current) {
+      const removeNewMessages = () => {
+        setNewMessages([]);
+      };
+
+      messagesContainerRef.current.addEventListener(
+        "scrollend",
+        removeNewMessages
+      );
+
+      return () => {
+        messagesContainerRef.current?.removeEventListener(
+          "scrollend",
+          removeNewMessages
+        );
+      };
+    }
+  }, []);
+
+  const handleScrollToNewMessages = () => {
+    firstLastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+    setNewMessages([]);
+  };
+
   return (
     <div ref={messagesContainerRef} className={styles["friend-chat__messages"]}>
       {messages?.map((message, index, messages) => {
@@ -146,6 +181,11 @@ export const Messages: FC<MessagesProps> = memo(({ friendId }) => {
                 key={message.id}
                 message={message}
                 ref={index === 0 ? ref : undefined}
+                firstLastMessageRef={
+                  newMessages[0]?.id === message.id
+                    ? firstLastMessageRef
+                    : undefined
+                }
                 avatar={proceedAvatar(message.senderId)}
                 senderName={proceedSenderName(message.senderId)}
                 deleteMessage={deleteMessage}
@@ -160,6 +200,11 @@ export const Messages: FC<MessagesProps> = memo(({ friendId }) => {
             key={message.id}
             message={message}
             ref={index === 0 ? ref : undefined}
+            firstLastMessageRef={
+              newMessages[0]?.id === message.id
+                ? firstLastMessageRef
+                : undefined
+            }
             avatar={proceedAvatar(message.senderId)}
             senderName={proceedSenderName(message.senderId)}
             deleteMessage={deleteMessage}
@@ -168,6 +213,26 @@ export const Messages: FC<MessagesProps> = memo(({ friendId }) => {
           />
         );
       })}
+      {newMessages.length > 0 && (
+        <div className={styles["friend-chat__messages__flow-button-block"]}>
+          <Button
+            variant="secondary"
+            size="icon"
+            className={
+              styles["friend-chat__messages__flow-button-block__button"]
+            }
+            onClick={handleScrollToNewMessages}
+          >
+            <FaArrowTurnDown />
+          </Button>
+          <Badge
+            className={`h-5 min-w-5 rounded-full px-1 font-mono tabular-nums ${styles["friend-chat__messages__flow-button-block__badge"]}`}
+            variant="destructive"
+          >
+            {newMessages.length > 9 ? ".." : newMessages.length}
+          </Badge>
+        </div>
+      )}
     </div>
   );
 });

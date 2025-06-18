@@ -5,8 +5,11 @@ $radius: 10px;
 
 .friend-chat {
   &__messages {
+    position: relative;
+    width: 100%;
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     max-height: 100vh;
     padding: 10px;
     background-color: $background-color;
@@ -18,6 +21,24 @@ $radius: 10px;
       font-size: 0.8rem;
       color: color.scale($font-color, $lightness: -25%);
       margin-bottom: 10px;
+    }
+
+    &__flow-button-block {
+      position: sticky;
+      left: 97%; // отступ справа
+      bottom: 10px; // отступ снизу
+      width: 40px;
+
+      &__flow-button {
+        background-color: color.scale($background-color, $lightness: 65%);
+        padding: 1%;
+      }
+
+      &__badge {
+        position: absolute;
+        top: -6px;
+        right: -13px;
+      }
     }
   }
 }

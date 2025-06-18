@@ -14,11 +14,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
 import { formatTime } from "@/shared/helpers/timeFormater/timeFormater";
-import { memo, type FC } from "react";
+import { memo, type FC, type Ref } from "react";
 import { Loader } from "@/shared/components/Loader/loader";
 
 type MessageProps = {
   ref?: (node?: Element | null) => void;
+  firstLastMessageRef?: Ref<HTMLDivElement> | undefined;
   message: MessageType;
   avatar?: string;
   senderName?: string;
@@ -35,6 +36,7 @@ export const Message: FC<MessageProps> = memo(
     deleteMessage,
     isCurrentUser,
     ref,
+    firstLastMessageRef,
     isLoadingNextMessages,
   }) => {
     return (
@@ -49,7 +51,10 @@ export const Message: FC<MessageProps> = memo(
                 />
               </div>
             )}
-            <div className={styles["message-container"]} ref={ref}>
+            <div
+              className={styles["message-container"]}
+              ref={ref ?? firstLastMessageRef}
+            >
               <div className={styles["message"]}>
                 <Avatar className={styles["message__avatar"]}>
                   <AvatarImage src={avatar} />

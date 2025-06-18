@@ -1,11 +1,11 @@
 import { Badge as BadgeComponent } from "@/shadcn/ui/badge";
-import type { FriendStatus } from "@/types/Friend/Friend";
 import type { CSSProperties } from "react";
 
 import styles from "./styles.module.scss";
+import type { Status } from "@/types/Status/Status";
 
 type BadgeProps = {
-  variant: FriendStatus;
+  variant: Status;
   className?: string;
 };
 
