@@ -166,7 +166,6 @@ export const Messages: FC<MessagesProps> = memo(({ friendId }) => {
 
   const handleScrollToNewMessages = () => {
     firstLastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
-    setNewMessages([]);
   };
 
   const handleDeleteFromNewMessages = (messageId: string) => {

@@ -73,7 +73,7 @@ export const Message: FC<MessageProps> = memo(
               </div>
             )}
             <div className={styles["message-container"]}>
-              <div className={styles["message"]} ref={messageInViewRef}>
+              <div className={styles["message"]} ref={ref ?? messageInViewRef}>
                 <Avatar className={styles["message__avatar"]}>
                   <AvatarImage src={avatar} />
                   <AvatarFallback>
