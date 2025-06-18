@@ -142,7 +142,12 @@ export const Messages: FC<MessagesProps> = memo(({ friendId }) => {
 
     if (messagesContainerRef.current) {
       const removeNewMessages = () => {
-        setNewMessages([]);
+        if (
+          messagesContainerRef.current?.scrollHeight ===
+          messagesContainerRef.current?.scrollTop
+        ) {
+          setNewMessages([]);
+        }
       };
 
       messagesContainerRef.current.addEventListener(
@@ -162,6 +167,13 @@ export const Messages: FC<MessagesProps> = memo(({ friendId }) => {
   const handleScrollToNewMessages = () => {
     firstLastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
     setNewMessages([]);
+  };
+
+  const handleDeleteFromNewMessages = (messageId: string) => {
+    console.log(messageId);
+    setNewMessages((prev) =>
+      prev.filter((message) => message.id !== messageId)
+    );
   };
 
   return (
@@ -186,6 +198,7 @@ export const Messages: FC<MessagesProps> = memo(({ friendId }) => {
                     ? firstLastMessageRef
                     : undefined
                 }
+                deleteFromNewMessages={handleDeleteFromNewMessages}
                 avatar={proceedAvatar(message.senderId)}
                 senderName={proceedSenderName(message.senderId)}
                 deleteMessage={deleteMessage}
@@ -205,6 +218,7 @@ export const Messages: FC<MessagesProps> = memo(({ friendId }) => {
                 ? firstLastMessageRef
                 : undefined
             }
+            deleteFromNewMessages={handleDeleteFromNewMessages}
             avatar={proceedAvatar(message.senderId)}
             senderName={proceedSenderName(message.senderId)}
             deleteMessage={deleteMessage}

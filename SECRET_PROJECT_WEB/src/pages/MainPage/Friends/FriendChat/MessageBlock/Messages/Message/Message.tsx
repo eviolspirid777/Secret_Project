@@ -14,8 +14,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
 import { formatTime } from "@/shared/helpers/timeFormater/timeFormater";
-import { memo, type FC, type Ref } from "react";
+import { memo, useEffect, type FC, type Ref } from "react";
 import { Loader } from "@/shared/components/Loader/loader";
+import { useInView } from "react-intersection-observer";
 
 type MessageProps = {
   ref?: (node?: Element | null) => void;
@@ -24,6 +25,7 @@ type MessageProps = {
   avatar?: string;
   senderName?: string;
   deleteMessage: (messageId: string, forAllUsers: boolean) => Promise<void>;
+  deleteFromNewMessages?: (messageId: string) => void;
   isCurrentUser: boolean;
   isLoadingNextMessages: boolean;
 };
@@ -37,8 +39,19 @@ export const Message: FC<MessageProps> = memo(
     isCurrentUser,
     ref,
     firstLastMessageRef,
+    deleteFromNewMessages,
     isLoadingNextMessages,
   }) => {
+    const { ref: messageInViewRef, inView: messageInView } = useInView({
+      delay: 1000,
+    });
+
+    useEffect(() => {
+      if (messageInView) {
+        deleteFromNewMessages?.(message.id);
+      }
+    }, [messageInView]);
+
     return (
       <ContextMenu>
         <ContextMenuTrigger>
@@ -51,11 +64,16 @@ export const Message: FC<MessageProps> = memo(
                 />
               </div>
             )}
-            <div
-              className={styles["message-container"]}
-              ref={ref ?? firstLastMessageRef}
-            >
-              <div className={styles["message"]}>
+            {firstLastMessageRef && (
+              <div
+                ref={ref ?? firstLastMessageRef}
+                className={styles["message-container__new-messages"]}
+              >
+                Новые сообщения
+              </div>
+            )}
+            <div className={styles["message-container"]}>
+              <div className={styles["message"]} ref={messageInViewRef}>
                 <Avatar className={styles["message__avatar"]}>
                   <AvatarImage src={avatar} />
                   <AvatarFallback>

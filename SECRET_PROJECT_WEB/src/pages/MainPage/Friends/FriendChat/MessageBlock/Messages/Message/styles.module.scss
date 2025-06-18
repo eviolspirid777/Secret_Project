@@ -18,6 +18,24 @@
     &:hover {
       background-color: color.scale($color-hovered, $lightness: -80%);
     }
+
+    &__new-messages {
+      position: relative;
+      display: flex;
+      width: 100%;
+      text-align: center;
+      color: $font-color;
+
+      &::after,
+      &::before {
+        content: "";
+        align-self: center;
+        flex: 1;
+        border-top: 1px solid color.scale($color-hovered, $lightness: -40%);
+        height: 1px;
+        margin: 0 8px;
+      }
+    }
   }
 
   &__avatar {
