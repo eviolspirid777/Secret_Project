@@ -21,4 +21,5 @@ export type MessageDeleteRequest = {
 export type GetMessagesRequest = {
   firstUserId: string;
   secondUserId: string;
+  page?: number;
 };

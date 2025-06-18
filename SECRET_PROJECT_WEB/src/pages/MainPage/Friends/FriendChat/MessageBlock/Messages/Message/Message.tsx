@@ -14,53 +14,68 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
 import { formatTime } from "@/shared/helpers/timeFormater/timeFormater";
-import { memo } from "react";
+import { memo, type FC } from "react";
+import { Loader } from "@/shared/components/Loader/loader";
 
 type MessageProps = {
+  ref?: (node?: Element | null) => void;
   message: MessageType;
   avatar?: string;
   senderName?: string;
   deleteMessage: (messageId: string, forAllUsers: boolean) => Promise<void>;
   isCurrentUser: boolean;
+  isLoadingNextMessages: boolean;
 };
 
-export const Message = memo(
+export const Message: FC<MessageProps> = memo(
   ({
     message,
     avatar,
     senderName,
     deleteMessage,
     isCurrentUser,
-  }: MessageProps) => {
+    ref,
+    isLoadingNextMessages,
+  }) => {
     return (
       <ContextMenu>
         <ContextMenuTrigger>
-          <div className={styles["message-container"]}>
-            <div className={styles["message"]}>
-              <Avatar className={styles["message__avatar"]}>
-                <AvatarImage src={avatar} />
-                <AvatarFallback>
-                  {senderName
-                    ?.split(" ")
-                    .map((name, index) => {
-                      if ([0, 1].includes(index)) return name[0];
-                    })
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
-              {message.content ? (
-                <div className={styles["message__content"]}>
-                  {message.content}
-                </div>
-              ) : (
-                <div />
-              )}
-              <span className={styles["message__time"]}>
-                {formatTime(message.sentAt)}
-              </span>
+          <>
+            <div className={styles["message-container"]} ref={ref}>
+              <div className={styles["message"]}>
+                <Avatar className={styles["message__avatar"]}>
+                  <AvatarImage src={avatar} />
+                  <AvatarFallback>
+                    {senderName
+                      ?.split(" ")
+                      .map((name, index) => {
+                        if ([0, 1].includes(index)) return name[0];
+                      })
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+                {message.content ? (
+                  <div className={styles["message__content"]}>
+                    {message.content}
+                  </div>
+                ) : (
+                  <div />
+                )}
+                <span className={styles["message__time"]}>
+                  {formatTime(message.sentAt)}
+                </span>
+              </div>
+              {message.file && <FileDisplay message={message} />}
             </div>
-            {message.file && <FileDisplay message={message} />}
-          </div>
+            {ref !== undefined && isLoadingNextMessages && (
+              <div className={styles["next-message-loader-block"]}>
+                <Loader
+                  height="screen"
+                  className={styles["next-message-loader-block__loader"]}
+                />
+              </div>
+            )}
+          </>
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem>Ответить</ContextMenuItem>

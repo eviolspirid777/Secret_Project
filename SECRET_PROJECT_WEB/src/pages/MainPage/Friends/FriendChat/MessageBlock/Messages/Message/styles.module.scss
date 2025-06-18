@@ -40,3 +40,15 @@
     align-self: flex-start;
   }
 }
+
+.next-message-loader-block {
+  width: 100%;
+  text-align: center;
+  color: color.scale($font-color, $lightness: -40%);
+
+  &__loader {
+    & span {
+      border-bottom-color: $font-color;
+    }
+  }
+}

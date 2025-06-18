@@ -35,6 +35,16 @@ namespace Secret_Project_Backend.Controllers
         [HttpPost("get-messages")]
         public async Task<IActionResult> GetMessages([FromBody] GetMessagesRequest data)
         {
+            int skip;
+            if(data.Page == 0)
+            {
+                skip = 0;
+            }
+            else
+            {
+                skip = data.Page * 20;
+            }
+
             var messagesQuerable = _dbContext
                 .Messages
                 .Include(m => m.File)
@@ -51,6 +61,9 @@ namespace Secret_Project_Backend.Controllers
 
             var messages = await messagesQuerable
                     .Where(FriendsParserFunc.FriendsFunc(data))
+                    .OrderBy(m => m.SentAt)
+                    .Skip(skip)
+                    .Take(20)
                     .ToListAsync();
 
             var mappedMessages = messages.Select(MessageMapper.MapMessageToMessageDto);
