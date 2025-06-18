@@ -1,0 +1,20 @@
+@use "@/shared/styles/colors" as *;
+@use "sass:color";
+
+$background-tooltip-color: color.scale($font-color, $lightness: -60%);
+
+.message__time {
+  font-size: 12px;
+  color: color.scale($font-color, $lightness: -40%);
+  align-self: flex-start;
+  cursor: pointer;
+
+  &__tooltip-content {
+    background-color: $background-tooltip-color;
+
+    & span svg {
+      fill: $background-tooltip-color;
+      background-color: $background-tooltip-color !important;
+    }
+  }
+}

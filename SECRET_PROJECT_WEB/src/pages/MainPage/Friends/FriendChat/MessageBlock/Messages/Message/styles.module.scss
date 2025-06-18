@@ -51,12 +51,6 @@
     background-color: color.scale($background-color, $lightness: 70%);
     width: fit-content;
   }
-
-  &__time {
-    font-size: 12px;
-    color: color.scale($font-color, $lightness: -40%);
-    align-self: flex-start;
-  }
 }
 
 .next-message-loader-block {

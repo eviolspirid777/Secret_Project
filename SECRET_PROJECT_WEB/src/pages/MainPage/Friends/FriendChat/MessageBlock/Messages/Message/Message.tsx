@@ -1,6 +1,4 @@
 import type { Message as MessageType } from "@/types/Message/Message";
-
-import styles from "./styles.module.scss";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -13,10 +11,12 @@ import {
 } from "@/shadcn/ui/context-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
-import { formatTime } from "@/shared/helpers/timeFormater/timeFormater";
 import { memo, useEffect, type FC, type Ref } from "react";
 import { Loader } from "@/shared/components/Loader/loader";
 import { useInView } from "react-intersection-observer";
+import { MessageSendTime } from "./MessageSendTime/MessageSendTime";
+
+import styles from "./styles.module.scss";
 
 type MessageProps = {
   ref?: (node?: Element | null) => void;
@@ -92,9 +92,7 @@ export const Message: FC<MessageProps> = memo(
                 ) : (
                   <div />
                 )}
-                <span className={styles["message__time"]}>
-                  {formatTime(message.sentAt)}
-                </span>
+                <MessageSendTime sentAt={message.sentAt} />
               </div>
               {message.file && <FileDisplay message={message} />}
             </div>
