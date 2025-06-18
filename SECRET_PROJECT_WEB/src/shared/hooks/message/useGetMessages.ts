@@ -1,14 +1,9 @@
 import { apiClient } from "@/api/apiClient";
-import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
-import type { GetMessagesRequest, Message } from "@/types/Message/Message";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import type { GetMessagesRequest } from "@/types/Message/Message";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export const useGetMessages = (data: GetMessagesRequest) => {
-  const messageSignalRService = useRef(messageSignalRServiceInstance);
-
-  const queryClient = useQueryClient();
-
   const {
     data: messages,
     isLoading: isLoadingMessages,
@@ -18,6 +13,8 @@ export const useGetMessages = (data: GetMessagesRequest) => {
     isSuccess: isSuccessMessages,
     fetchNextPage: fetchNextMessages,
     refetch: refetchMessages,
+    isFetched: isMessagesFetched,
+    isFetchedAfterMount,
   } = useInfiniteQuery({
     queryKey: ["messages"],
     queryFn: async ({ pageParam }) =>
@@ -33,21 +30,18 @@ export const useGetMessages = (data: GetMessagesRequest) => {
       }
       return allPages.length;
     },
-  });
-
-  messageSignalRService.current.onReceiveMessage((message) => {
-    const previousMessages = queryClient.getQueryData([
-      "messages",
-    ]) as Message[];
-    queryClient.setQueryData(["messages"], [...previousMessages, message]);
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
-    console.log(messages);
-  }, [messages]);
+    if (isFetchedAfterMount) {
+      console.log("Fetched");
+    }
+  }, [isFetchedAfterMount]);
 
   return {
     messages,
+    isMessagesFetched,
     isLoadingMessages,
     isLoadingNextMessages,
     errorMessages,

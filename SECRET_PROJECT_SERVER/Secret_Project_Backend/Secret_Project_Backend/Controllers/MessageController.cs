@@ -61,7 +61,7 @@ namespace Secret_Project_Backend.Controllers
 
             var messages = await messagesQuerable
                     .Where(FriendsParserFunc.FriendsFunc(data))
-                    .OrderBy(m => m.SentAt)
+                    .OrderByDescending(m => m.SentAt)
                     .Skip(skip)
                     .Take(20)
                     .ToListAsync();

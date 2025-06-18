@@ -12,12 +12,12 @@ $radius: 10px;
     background-color: $background-color;
     border-top-left-radius: $radius;
     border-top-right-radius: $radius;
-  }
 
-  &__date {
-    text-align: center;
-    font-size: 0.8rem;
-    color: color.scale($font-color, $lightness: -25%);
-    margin-bottom: 10px;
+    &__date {
+      text-align: center;
+      font-size: 0.8rem;
+      color: color.scale($font-color, $lightness: -25%);
+      margin-bottom: 10px;
+    }
   }
 }

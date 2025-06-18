@@ -41,6 +41,14 @@ export const Message: FC<MessageProps> = memo(
       <ContextMenu>
         <ContextMenuTrigger>
           <>
+            {ref !== undefined && isLoadingNextMessages && (
+              <div className={styles["next-message-loader-block"]}>
+                <Loader
+                  height="screen"
+                  className={styles["next-message-loader-block__loader"]}
+                />
+              </div>
+            )}
             <div className={styles["message-container"]} ref={ref}>
               <div className={styles["message"]}>
                 <Avatar className={styles["message__avatar"]}>
@@ -67,14 +75,6 @@ export const Message: FC<MessageProps> = memo(
               </div>
               {message.file && <FileDisplay message={message} />}
             </div>
-            {ref !== undefined && isLoadingNextMessages && (
-              <div className={styles["next-message-loader-block"]}>
-                <Loader
-                  height="screen"
-                  className={styles["next-message-loader-block__loader"]}
-                />
-              </div>
-            )}
           </>
         </ContextMenuTrigger>
         <ContextMenuContent>
