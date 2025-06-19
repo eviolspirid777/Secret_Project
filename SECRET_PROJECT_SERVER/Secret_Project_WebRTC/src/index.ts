@@ -3,7 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { v4 as uuidv4 } from "uuid";
 import { MediaServer } from "./services/MediaServer";
 import { Peer } from "./types";
 
@@ -40,17 +39,16 @@ io.on("connection", async (socket) => {
   console.log("Новое подключение:", socket.id);
 
   socket.on("join-room", async ({ userId, roomId }, callback) => {
+    const user: Peer = {
+      id: userId,
+      socket: socket,
+      consumers: new Map(),
+      producers: {},
+      transports: [],
+    };
+
     try {
-      const user: Peer = {
-        id: userId,
-        socket: socket,
-        consumers: [],
-        producers: [],
-        transports: [],
-      };
-
       const room = await mediaServer.createRoom(roomId, user);
-
       await socket.join(roomId);
 
       callback(
@@ -58,16 +56,7 @@ io.on("connection", async (socket) => {
         room.router.rtpCapabilities
       );
     } catch (ex) {
-      const user: Peer = {
-        id: userId,
-        socket: socket,
-        consumers: [],
-        producers: [],
-        transports: [],
-      };
-
-      const room = await mediaServer.joinRoom(user);
-
+      const room = await mediaServer.joinRoom(roomId, user);
       await socket.join(roomId);
 
       callback(
@@ -83,7 +72,10 @@ io.on("connection", async (socket) => {
       console.log("peerId", userId);
       console.log("roomId", roomId);
       console.log("[create-send-transport]\n");
-      const transportOptions = await mediaServer.createWebRtcTransport(userId);
+      const transportOptions = await mediaServer.createWebRtcTransport(
+        roomId,
+        userId
+      );
       callback(transportOptions);
     } catch (ex) {
       console.error(ex);
@@ -91,9 +83,14 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("connect-transport", async (data, callback) => {
-    const { userId, transportId, dtlsParameters } = data;
+    const { roomId, userId, transportId, dtlsParameters } = data;
     try {
-      await mediaServer.connectTransport(userId, transportId, dtlsParameters);
+      await mediaServer.connectTransport(
+        roomId,
+        userId,
+        transportId,
+        dtlsParameters
+      );
       callback && callback();
     } catch (ex) {
       console.error("Ошибка при соединении транспорта", ex);
@@ -105,9 +102,11 @@ io.on("connection", async (socket) => {
     try {
       const { roomId, userId, sendTransportId, kind, rtpParameters } = data;
       const producer = await mediaServer.createProducer(
+        roomId,
         userId,
         sendTransportId,
         kind,
+        "microphone",
         rtpParameters
       );
       console.log("\n[PRODUCER_HAS_BEEN_CREATED]");
@@ -136,9 +135,11 @@ io.on("connection", async (socket) => {
     try {
       const { roomId, userId, sendTransportId, kind, rtpParameters } = data;
       const producer = await mediaServer.createProducer(
+        roomId,
         userId,
         sendTransportId,
         kind,
+        "screen",
         rtpParameters
       );
       console.log("\n[SCREEN_PRODUCER_HAS_BEEN_CREATED]");
@@ -169,7 +170,10 @@ io.on("connection", async (socket) => {
       console.log("peerId", userId);
       console.log("roomId", roomId);
       console.log("[create-recieve-transport]\n");
-      const transportOptions = await mediaServer.createWebRtcTransport(userId);
+      const transportOptions = await mediaServer.createWebRtcTransport(
+        roomId,
+        userId
+      );
       callback(transportOptions);
     } catch (ex) {
       console.error(ex);
@@ -180,21 +184,21 @@ io.on("connection", async (socket) => {
     try {
       const { roomId, userId, rtpCapabilities, transportId } = data;
 
-      const room = mediaServer.getRoom();
+      const room = mediaServer.getRoom(roomId);
       const peer = room.peers.find((peer) => peer.id !== userId);
       console.log("[AUDIO_CONSUME_CREATION]");
       console.log("userId", userId);
       console.log("peerProducerUserId", peer?.id);
       console.log("producerMapLength", audioProducersMap.size);
-      console.log("peerProducersLength", peer?.producers.length);
+      console.log("peerProducersLength", peer?.producers);
       console.log("[AUDIO_CONSUME_CREATION]");
 
-      if (peer?.producers.length === 0 || !peer?.producers.length)
-        throw new Error("No consumers available");
+      if (!peer?.producers) throw new Error("No consumers available");
 
       const consumerOptions = await mediaServer.createConsumer(
+        roomId,
         userId,
-        peer!.producers[0].id,
+        peer!.producers!.microphone![0].id,
         rtpCapabilities,
         transportId
       );
@@ -212,22 +216,21 @@ io.on("connection", async (socket) => {
     try {
       const { roomId, userId, rtpCapabilities, transportId } = data;
 
-      const room = mediaServer.getRoom();
+      const room = mediaServer.getRoom(roomId);
       const peer = room.peers.find((peer) => peer.id !== userId);
       console.log("[SCREEN_CONSUME_CREATION]");
       console.log("userId", userId);
       console.log("peerProducerUserId", peer?.id);
       console.log("producerMapLength", screenProducersMap.size);
-      console.log("peerProducersLength", peer?.producers.length);
+      console.log("peerProducersLength", peer?.producers);
       console.log("[SCREEN_CONSUME_CREATION]");
 
-      if (peer?.producers.length === 0 || !peer?.producers.length)
-        throw new Error("No consumers available");
+      if (!peer?.producers) throw new Error("No consumers available");
 
       const consumerOptions = await mediaServer.createConsumer(
+        roomId,
         userId,
-        //TODO: тут должно быть получение не просто по индексу, а какая-то логика
-        peer!.producers[1].id,
+        peer!.producers!.screen![0].id,
         rtpCapabilities,
         transportId
       );
@@ -256,18 +259,20 @@ io.on("connection", async (socket) => {
   );
 
   socket.on("disconnect-from-room", async (roomId, userId) => {
-    const usersIds = mediaServer.removePeer(roomId);
-    mediaServer.closeRoom();
+    const usersIds = mediaServer.removePeer(roomId, userId);
+    mediaServer.closeRoom(roomId);
 
     socket.to(roomId).emit("user-disconnected", usersIds);
   });
 });
 
 app.get("/", (req: Request, res: Response) => {
-  const room = mediaServer.getRoom();
-  console.log(room);
-
-  res.json(room);
+  console.log(
+    `Server has been started at ${
+      process.env.MEDIASOUP_ANNOUNCED_IP_LOCAL ??
+      process.env.MEDIASOUP_ANNOUNCED_IP
+    }:${port}`
+  );
 });
 
 // Запуск сервера

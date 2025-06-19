@@ -7,6 +7,7 @@ using Secret_Project_Backend.DTOs.User;
 using Secret_Project_Backend.Mappers.Messages;
 using Secret_Project_Backend.Mappers.User;
 using Secret_Project_Backend.Mappers.UserRoom;
+using Secret_Project_Backend.Models;
 using Secret_Project_Backend.Services.Chat;
 using Secret_Project_Backend.Services.S3;
 using Secret_Project_Backend.Utils.FriendsParserFunc;
@@ -149,6 +150,41 @@ namespace Secret_Project_Backend.Controllers
 
             return Ok();
         }
+
+        #region Reaction
+        [HttpPost("add-message-reaction")]
+        public async Task<IActionResult> AddMessageReaction([FromBody] AddMessageReactionRequest data)
+        {
+            var reaction = new Reaction
+            {
+                Emotion = data.Emotion,
+                MessageId = data.MessageId,
+                UserId = data.UserId
+            };
+
+            await _dbContext.Reactions.AddAsync(reaction);
+
+            await _dbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpDelete("remove-message-reaction/{ReactionId}")]
+        public async Task<IActionResult> RemoveMessageReaction([FromRoute] string ReactionId)
+        {
+
+            var reaction = await _dbContext.Reactions.FirstOrDefaultAsync(r => r.Id == ReactionId);
+
+            if(reaction == null)
+            {
+                return BadRequest();
+            }
+
+            _dbContext.Remove(reaction);
+
+            await _dbContext.SaveChangesAsync();
+            return Ok();
+        }
+        #endregion Reaction
 
         #region Room
         [HttpGet("user/room")] 

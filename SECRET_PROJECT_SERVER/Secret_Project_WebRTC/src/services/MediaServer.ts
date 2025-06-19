@@ -5,14 +5,15 @@ import {
   ProducerOptions,
   ConsumerOptions,
   Peer,
+  ProducerPeer,
 } from "../types";
 
 export class MediaServer {
   private worker!: mediasoup.types.Worker;
-  private room: Room | null;
+  private rooms: Map<string, Room>;
 
   constructor() {
-    this.room = null;
+    this.rooms = new Map();
   }
 
   async initialize() {
@@ -37,7 +38,7 @@ export class MediaServer {
   }
 
   async createRoom(roomId: string, user: Peer): Promise<Room> {
-    if (this.room) {
+    if (this.rooms.has(roomId)) {
       throw new Error("Комната уже существует");
     }
 
@@ -77,25 +78,28 @@ export class MediaServer {
       peers: [user],
     };
 
-    this.room = room;
+    this.rooms.set(roomId, room);
     return room;
   }
 
-  async joinRoom(user: Peer) {
-    const room = this.room;
+  async joinRoom(roomId: string, user: Peer) {
+    const room = this.rooms.get(roomId);
     room?.peers.push(user);
 
     return room;
   }
 
-  async createWebRtcTransport(peerId: string): Promise<TransportOptions> {
+  async createWebRtcTransport(
+    roomId: string,
+    peerId: string
+  ): Promise<TransportOptions> {
     if (peerId === "d1986907-4a7d-4ac1-90a5-74ee48d8ca84") {
       console.log("\n[ROOM_ID]");
       console.log("peerId", peerId);
       console.log("[ROOM_ID]\n");
     }
 
-    const room = this.room;
+    const room = this.rooms.get(roomId);
     if (!room) {
       throw new Error("Комната не найдена");
     }
@@ -129,11 +133,12 @@ export class MediaServer {
   }
 
   async connectTransport(
+    roomId: string,
     peerId: string,
     transportId: string,
     dtlsParameters: any
   ): Promise<void> {
-    const room = this.room;
+    const room = this.rooms.get(roomId);
     if (!room) {
       throw new Error("Комната не найдена");
     }
@@ -152,12 +157,14 @@ export class MediaServer {
   }
 
   async createProducer(
+    roomId: string,
     peerId: string,
     transportId: string,
     kind: "audio" | "video",
+    type: keyof ProducerPeer,
     rtpParameters: any
   ): Promise<ProducerOptions> {
-    const room = this.room;
+    const room = this.rooms.get(roomId);
     if (!room) {
       throw new Error("Комната не найдена");
     }
@@ -178,7 +185,11 @@ export class MediaServer {
     });
 
     //TODO: вот тут можно добавить ранжирование по id, что будет в разы лучше. Типа id 1 отвчает за screenShare и.т.д
-    peer.producers.push(producer);
+    if (!peer.producers[type]) {
+      peer.producers[type] = [producer];
+    } else {
+      peer.producers[type].push(producer);
+    }
 
     return {
       id: producer.id,
@@ -189,12 +200,13 @@ export class MediaServer {
   }
 
   async createConsumer(
+    roomId: string,
     peerId: string,
     producerId: string,
     rtpCapabilities: any,
     transportId: string
   ): Promise<ConsumerOptions> {
-    const room = this.room;
+    const room = this.rooms.get(roomId);
     if (!room) {
       throw new Error("Комната не найдена");
     }
@@ -220,7 +232,26 @@ export class MediaServer {
     });
 
     await consumer.resume();
-    peer.consumers.push(consumer);
+
+    if (peer.consumers.has(producerId)) {
+      //TODO: тут надо подумать над тем, чтобы получать на то ЧТО именно ты думаешь получать
+      const consumerFromMap = peer.consumers.get(producerId)!;
+      if (consumer.kind === "audio") {
+        consumerFromMap.microphone = consumer;
+      } else {
+        consumerFromMap.screen = consumer;
+      }
+    } else {
+      if (consumer.kind === "audio") {
+        peer.consumers.set(producerId, {
+          microphone: consumer,
+        });
+      } else {
+        peer.consumers.set(producerId, {
+          screen: consumer,
+        });
+      }
+    }
 
     return {
       id: consumer.id,
@@ -232,7 +263,7 @@ export class MediaServer {
   }
 
   getRouterRtpCapabilities(roomId: string) {
-    const room = this.room;
+    const room = this.rooms.get(roomId);
     if (!room) {
       throw new Error("Комната не найдена");
     }
@@ -240,20 +271,20 @@ export class MediaServer {
     return room.router.rtpCapabilities;
   }
 
-  closeRoom() {
-    const room = this.room;
+  closeRoom(roomId: string) {
+    const room = this.rooms.get(roomId);
     if (!room) {
       return;
     }
 
     room.router.close();
-    this.room = null;
+    this.rooms.delete(roomId);
 
     console.log(`Room is deleted!`);
   }
 
-  removePeer(peerId: string) {
-    const room = this.room;
+  removePeer(roomId: string, peerId: string) {
+    const room = this.rooms.get(roomId);
     if (!room) {
       return;
     }
@@ -269,33 +300,43 @@ export class MediaServer {
     }
 
     // Закрываем все продюсеры
-    for (const producer of peer.producers.values()) {
-      producer.close();
+    if (peer.producers.microphone) {
+      peer.producers.microphone.forEach((producer) => producer.close());
+    }
+
+    if (peer.producers.screen) {
+      peer.producers.screen.forEach((producer) => producer.close());
+    }
+
+    if (peer.producers.video) {
+      peer.producers.video.forEach((producer) => producer.close());
     }
 
     // Закрываем все консьюмеры
     for (const consumer of peer.consumers.values()) {
-      consumer.close();
+      consumer.microphone?.close();
+      consumer.screen?.close();
+      consumer.video?.close();
     }
 
     room.peers = room.peers.filter((p) => p.id !== peerId);
 
     // Если комната пуста, закрываем её
     if (room.peers.length === 0) {
-      this.closeRoom();
+      this.closeRoom(roomId);
     }
   }
 
-  getRoom(): Room {
-    const room = this.room;
+  getRoom(roomId: string): Room {
+    const room = this.rooms.get(roomId);
     if (!room) {
       throw new Error("Комната не найдена");
     }
     return room;
   }
 
-  setRoomPeer(user: Peer) {
-    const room = this.room;
+  setRoomPeer(user: Peer, roomId: string) {
+    const room = this.rooms.get(roomId);
     if (!room) {
       throw new Error("Комната не найдена");
     }

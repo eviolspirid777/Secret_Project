@@ -47,6 +47,24 @@ namespace Secret_Project_Backend.Context
                 .HasForeignKey(m => m.ReciverId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.RepliedMessage)
+                .WithMany()
+                .HasForeignKey(m => m.RepliedId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Reaction>()
+                .HasOne(r => r.Message)
+                .WithMany(m => m.Reactions)
+                .HasForeignKey(r => r.MessageId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Reaction>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Reactions)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<Models.File>()
                 .HasOne(f => f.Message)
                 .WithOne(m => m.File)
@@ -124,5 +142,6 @@ namespace Secret_Project_Backend.Context
         public DbSet<Friendship> Friendships { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<UserRoom> UserRooms { get; set; }
+        public DbSet<Reaction> Reactions { get; set; }
     }
 }

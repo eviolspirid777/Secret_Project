@@ -85,13 +85,24 @@ export const Message: FC<MessageProps> = memo(
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
-                {message.content ? (
-                  <div className={styles["message__content"]}>
-                    {message.content}
-                  </div>
-                ) : (
-                  <div />
-                )}
+                <div className={styles["message__sender-content-block"]}>
+                  <strong
+                    className={styles["message__sender-content-block__sender"]}
+                  >
+                    {senderName}
+                  </strong>
+                  {message.content ? (
+                    <div
+                      className={
+                        styles["message__sender-content-block__content"]
+                      }
+                    >
+                      {message.content}
+                    </div>
+                  ) : (
+                    <div />
+                  )}
+                </div>
                 <MessageSendTime sentAt={message.sentAt} />
               </div>
               {message.file && <FileDisplay message={message} />}
@@ -99,10 +110,10 @@ export const Message: FC<MessageProps> = memo(
           </>
         </ContextMenuTrigger>
         <ContextMenuContent>
-          <ContextMenuItem>Ответить</ContextMenuItem>
-          <ContextMenuItem>Переслать</ContextMenuItem>
-          <ContextMenuSeparator />
           <ContextMenuItem>Редактировать</ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem>Ответить</ContextMenuItem>
+          <ContextMenuItem>Отреагировать</ContextMenuItem>
           {isCurrentUser ? (
             <ContextMenuSub>
               <ContextMenuSubTrigger className="context-menu-item__delete">

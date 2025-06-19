@@ -12,7 +12,7 @@ type MessageSendTimeProps = {
 export const MessageSendTime: FC<MessageSendTimeProps> = ({ sentAt }) => {
   return (
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger className={styles["message__time__tooltip-trigger"]}>
         <span className={styles["message__time"]}>{formatTime(sentAt)}</span>;
       </TooltipTrigger>
       <TooltipContent className={styles["message__time__tooltip-content"]}>

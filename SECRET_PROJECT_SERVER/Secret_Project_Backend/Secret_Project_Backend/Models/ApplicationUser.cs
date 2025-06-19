@@ -25,5 +25,6 @@ namespace Secret_Project_Backend.Models
         public virtual ICollection<ChannelUser> ChannelUsers { get; set; } = new List<ChannelUser>();
         public virtual ICollection<Friendship> Friends { get; set; } = new List<Friendship>();
         public virtual ICollection<Friendship> FriendOf { get; set; } = new List<Friendship>();
+        public virtual ICollection<Reaction> Reactions { get; set; } = new List<Reaction>();
     }
 }

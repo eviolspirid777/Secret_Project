@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Secret_Project_Backend.Models
 {
@@ -14,5 +15,8 @@ namespace Secret_Project_Backend.Models
         public string? Content { get; set; }
         public Guid? FileId { get; set; }
         public virtual File File { get; set; }
+        public Guid? RepliedId { get; set; }
+        public Message? RepliedMessage { get; set; }
+        public virtual ICollection<Reaction>? Reactions { get; set; }
     }
 }

@@ -1,6 +1,16 @@
+@use "@/shared/styles/colors.scss" as *;
+@use "sass:color";
+
 .file-input-container {
   position: relative;
   display: inline-block;
+
+  & button {
+    color: color.adjust($font-color, $lightness: -20%);
+    &:hover {
+      color: color.adjust($font-color, $lightness: -100%);
+    }
+  }
 
   .file-input {
     display: none;

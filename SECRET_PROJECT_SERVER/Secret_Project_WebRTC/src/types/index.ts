@@ -6,12 +6,25 @@ import {
 } from "mediasoup/node/lib/types";
 import { Socket } from "socket.io";
 
+type producerId = string;
+interface ConsumerPeer {
+  microphone?: Consumer;
+  video?: Consumer;
+  screen?: Consumer;
+}
+
+export interface ProducerPeer {
+  microphone?: Producer[];
+  video?: Producer[];
+  screen?: Producer[];
+}
+
 export interface Peer {
   id: string;
   socket: Socket;
   transports: Transport[];
-  producers: Producer[];
-  consumers: Consumer[];
+  producers: ProducerPeer;
+  consumers: Map<producerId, ConsumerPeer>;
 }
 
 export interface Room {

@@ -20,6 +20,7 @@ import type {
   Message,
   MessageDeleteRequest,
 } from "@/types/Message/Message";
+import type { AddMessageReactionRequest } from "@/types/Reaction/Request";
 import type { Room } from "@/types/Room/Room";
 import type { ChangeUserInformationRequest } from "@/types/User/ChangeUserInformationRequest";
 import type { ChangeUserStatusRequest } from "@/types/User/ChangeUserStatusRequest";
@@ -476,6 +477,22 @@ class ApiClient {
       data
     );
 
+    return response.data;
+  }
+
+  async AddMessageReaction(data: AddMessageReactionRequest) {
+    const response = await this.client.post<never>(
+      `${BASE_MESSAGE_URL}/add-message-reaction`,
+      data
+    );
+
+    return response.data;
+  }
+
+  async RemoveMessageReaction(reactionId: string) {
+    const response = await this.client.delete(
+      `${BASE_MESSAGE_URL}/remove-message-reaction/${reactionId}`
+    );
     return response.data;
   }
 

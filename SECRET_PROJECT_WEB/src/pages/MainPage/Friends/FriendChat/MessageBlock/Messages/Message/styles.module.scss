@@ -8,6 +8,24 @@
   justify-content: flex-start;
   gap: 10px;
 
+  &__sender-content-block {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 10px;
+    &__sender {
+      color: color.scale($font-color, $lightness: -20%);
+      font-weight: 600;
+      cursor: default;
+    }
+
+    &__content {
+      padding: 10px;
+      border-radius: 10px;
+      background-color: color.scale($background-color, $lightness: 70%);
+      width: fit-content;
+    }
+  }
+
   &-container {
     display: flex;
     flex-direction: column;
@@ -43,13 +61,6 @@
     height: 41px;
     border-radius: 50%;
     user-select: none;
-  }
-
-  &__content {
-    padding: 10px;
-    border-radius: 10px;
-    background-color: color.scale($background-color, $lightness: 70%);
-    width: fit-content;
   }
 }
 
