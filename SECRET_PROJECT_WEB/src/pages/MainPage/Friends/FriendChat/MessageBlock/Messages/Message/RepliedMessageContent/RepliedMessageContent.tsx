@@ -31,7 +31,9 @@ export const RepliedMessageContent: FC<RepliedMessageContentType> = ({
           {repliedMessage.senderName}
         </strong>
         <span className={styles["replied-block-content__message"]}>
-          {repliedMessage.content}
+          {repliedMessage.file
+            ? repliedMessage.file.fileName
+            : repliedMessage.content}
         </span>
       </div>
     </div>
