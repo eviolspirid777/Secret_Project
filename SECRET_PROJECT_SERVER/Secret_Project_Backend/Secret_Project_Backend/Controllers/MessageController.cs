@@ -36,6 +36,7 @@ namespace Secret_Project_Backend.Controllers
         [HttpPost("get-messages")]
         public async Task<IActionResult> GetMessages([FromBody] GetMessagesRequest data)
         {
+            //TODO: сделать включение реакций в сообщения
             int skip;
             if(data.Page == 0)
             {
@@ -49,6 +50,10 @@ namespace Secret_Project_Backend.Controllers
             var messagesQuerable = _dbContext
                 .Messages
                 .Include(m => m.File)
+                .Include(m => m.RepliedMessage)
+                .ThenInclude(rm => rm.File)
+                .Include(m => m.RepliedMessage)
+                .ThenInclude(rm => rm.Sender)
                 .AsNoTracking()
                 .AsQueryable();
 
@@ -87,12 +92,13 @@ namespace Secret_Project_Backend.Controllers
                 return BadRequest("Пустые данные!");
             }
 
-            var message = new Models.Message()
+            var message = new Message()
             {
                 ReciverId = data.ReciverId,
                 SenderId = data.SenderId,
                 Content = data.Content,
                 SentAt = DateTime.UtcNow,
+                RepliedId = data.RepliedMessageId
             };
 
             if (data.File != null)
@@ -112,7 +118,16 @@ namespace Secret_Project_Backend.Controllers
             await _dbContext.Messages.AddAsync(message);
             await _dbContext.SaveChangesAsync();
 
-            var messageDto = MessageMapper.MapMessageToMessageDto(message);
+            var messageDb = await _dbContext.Messages
+                                    .Include(m => m.File)
+                                    .Include(m => m.RepliedMessage)
+                                    .ThenInclude(rm => rm.File)
+                                    .Include(m => m.RepliedMessage)
+                                    .ThenInclude(rm => rm.Sender)
+                                    .AsNoTracking()
+                                    .FirstOrDefaultAsync(m => m.Id == message.Id);
+
+            var messageDto = MessageMapper.MapMessageToMessageDto(messageDb ?? message);
 
             await _messageService.NotifyUserAsync(data.SenderId, messageDto);
             await _messageService.NotifyUserAsync(data.ReciverId, messageDto);

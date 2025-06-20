@@ -1,0 +1,40 @@
+@use "@/shared/styles/colors.scss" as *;
+@use "sass:color";
+
+.replied-block {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 7px;
+  background-color: color.adjust(
+    $background-color,
+    $lightness: 15%,
+    $alpha: -0.5
+  );
+  padding: 1% 1% 1%;
+  border: 1px solid
+    color.adjust($background-color, $lightness: 35%, $alpha: -0.5);
+  border-radius: 10px;
+
+  &-content {
+    display: flex;
+    flex-flow: column nowrap;
+
+    &__sender {
+      color: $font-color;
+      font-weight: 600;
+    }
+
+    &__message {
+      color: $font-color;
+      &::selection {
+        color: $font-color;
+        background-color: color.adjust($background-color, $lightness: 55%);
+      }
+    }
+  }
+
+  &::before {
+    content: "";
+    border-left: 1px solid color.adjust($background-color, $lightness: 55%);
+  }
+}

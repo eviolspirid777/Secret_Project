@@ -17,6 +17,7 @@ import { useInView } from "react-intersection-observer";
 
 import styles from "./styles.module.scss";
 import { MessageSendTime } from "@/shared/components/MessageSendTime/MessageSendTime";
+import { RepliedMessageContent } from "./RepliedMessageContent/RepliedMessageContent";
 
 type MessageProps = {
   ref?: (node?: Element | null) => void;
@@ -26,6 +27,7 @@ type MessageProps = {
   senderName?: string;
   deleteMessage: (messageId: string, forAllUsers: boolean) => Promise<void>;
   deleteFromNewMessages?: (messageId: string) => void;
+  setRepliedMessage?: (repliedMessage: MessageType) => void;
   isCurrentUser: boolean;
   isLoadingNextMessages: boolean;
 };
@@ -40,6 +42,7 @@ export const Message: FC<MessageProps> = memo(
     ref,
     firstLastMessageRef,
     deleteFromNewMessages,
+    setRepliedMessage,
     isLoadingNextMessages,
   }) => {
     const { ref: messageInViewRef, inView: messageInView } = useInView({
@@ -72,7 +75,7 @@ export const Message: FC<MessageProps> = memo(
                 Новые сообщения
               </div>
             )}
-            <div className={styles["message-container"]}>
+            <div id={message.id} className={styles["message-container"]}>
               <div className={styles["message"]} ref={ref ?? messageInViewRef}>
                 <Avatar className={styles["message__avatar"]}>
                   <AvatarImage src={avatar} />
@@ -97,7 +100,12 @@ export const Message: FC<MessageProps> = memo(
                         styles["message__sender-content-block__content"]
                       }
                     >
-                      {message.content}
+                      <text>{message.content}</text>
+                      {message.repliedMessage && (
+                        <RepliedMessageContent
+                          repliedMessage={message.repliedMessage}
+                        />
+                      )}
                     </div>
                   ) : (
                     <div />
@@ -112,7 +120,9 @@ export const Message: FC<MessageProps> = memo(
         <ContextMenuContent>
           <ContextMenuItem>Редактировать</ContextMenuItem>
           <ContextMenuSeparator />
-          <ContextMenuItem>Ответить</ContextMenuItem>
+          <ContextMenuItem onClick={setRepliedMessage?.bind(null, message)}>
+            Ответить
+          </ContextMenuItem>
           <ContextMenuItem>Отреагировать</ContextMenuItem>
           {isCurrentUser ? (
             <ContextMenuSub>

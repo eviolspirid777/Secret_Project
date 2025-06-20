@@ -1,4 +1,5 @@
 ﻿using Secret_Project_Backend.DTOs.File;
+using Secret_Project_Backend.DTOs.RepliedMessage;
 
 namespace Secret_Project_Backend.DTOs.Messages
 {
@@ -10,5 +11,6 @@ namespace Secret_Project_Backend.DTOs.Messages
         public string ReciverId { get; set; }
         public DateTime SentAt { get; set; }
         public FileDto File { get; set; }
+        public RepliedMessageDTO? RepliedMessage { get; set; }
     }
 }

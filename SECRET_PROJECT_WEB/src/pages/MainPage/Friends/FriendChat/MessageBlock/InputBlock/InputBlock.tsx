@@ -7,16 +7,18 @@ import { FileInput } from "./FileInput/FileInput";
 import styles from "./styles.module.scss";
 import { memo, useState } from "react";
 import { VoiceMessage } from "./VoiceMessage/VoiceMessage";
+import type { Message } from "@/types/Message/Message";
 
 type InputBlockProps = {
   message: string;
+  repliedMessage?: Message;
   setMessage: Dispatch<React.SetStateAction<string>>;
   sendMessage: (message: string | null, fileLocal?: File) => void;
   sendFile: (file: File | null) => void;
 };
 
 export const InputBlock: FC<InputBlockProps> = memo(
-  ({ message, setMessage, sendMessage, sendFile }) => {
+  ({ message, repliedMessage, setMessage, sendMessage, sendFile }) => {
     const [fileCount, setFileCount] = useState(0);
 
     const handleSendMessage = () => {
@@ -33,6 +35,9 @@ export const InputBlock: FC<InputBlockProps> = memo(
 
     return (
       <div className={styles["friend-chat__input-container"]}>
+        <span className="text-red-300 absolute t-0 l-0">
+          {repliedMessage?.content}
+        </span>
         <FileInput
           sendFile={sendFile}
           fileCount={fileCount}

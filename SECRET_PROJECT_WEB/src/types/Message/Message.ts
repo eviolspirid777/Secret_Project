@@ -5,6 +5,14 @@ export type Message = {
   reciverId: string;
   sentAt: string;
   file?: File;
+  repliedMessage?: RepliedMessage;
+};
+
+export type RepliedMessage = {
+  repliedMessageId: string;
+  senderName: string;
+  content: string;
+  file?: File;
 };
 
 export type File = {

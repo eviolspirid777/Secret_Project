@@ -1,6 +1,10 @@
 @use "@/shared/styles/_colors.scss" as *;
 @use "sass:color";
 
+:root {
+  --selection-color: rgba(255, 255, 255, 0.288);
+}
+
 .context-menu-item__delete {
   color: $color-danger;
 }

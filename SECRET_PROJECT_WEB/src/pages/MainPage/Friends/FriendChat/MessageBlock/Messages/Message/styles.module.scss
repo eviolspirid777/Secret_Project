@@ -19,10 +19,15 @@
     }
 
     &__content {
-      padding: 10px;
-      border-radius: 10px;
-      background-color: color.scale($background-color, $lightness: 70%);
-      width: fit-content;
+      display: flex;
+      flex-flow: column nowrap;
+      gap: 20px;
+      & text {
+        padding: 10px;
+        border-radius: 10px;
+        background-color: color.scale($background-color, $lightness: 70%);
+        width: fit-content;
+      }
     }
   }
 
