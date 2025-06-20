@@ -67,6 +67,19 @@
     border-radius: 50%;
     user-select: none;
   }
+
+  &__context-menu-container {
+    &__reactions-block {
+      display: flex;
+      flex-flow: row nowrap;
+      max-width: 270px;
+      overflow-x: auto;
+
+      &__reaction {
+        font-size: 20px;
+      }
+    }
+  }
 }
 
 .next-message-loader-block {

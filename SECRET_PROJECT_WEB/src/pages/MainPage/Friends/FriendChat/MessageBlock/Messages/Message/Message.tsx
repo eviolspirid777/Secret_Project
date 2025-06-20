@@ -8,6 +8,7 @@ import {
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
+  ContextMenuPortal,
 } from "@/shadcn/ui/context-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
@@ -31,6 +32,22 @@ type MessageProps = {
   isCurrentUser: boolean;
   isLoadingNextMessages: boolean;
 };
+
+const smiles = [
+  "❤️",
+  "👍",
+  "👎",
+  "😄",
+  "😂",
+  "☺️",
+  "🙏",
+  "😢",
+  "😡",
+  "🤡",
+  "💩",
+  "🥶",
+  "🔥",
+];
 
 export const Message: FC<MessageProps> = memo(
   ({
@@ -123,7 +140,28 @@ export const Message: FC<MessageProps> = memo(
           <ContextMenuItem onClick={setRepliedMessage?.bind(null, message)}>
             Ответить
           </ContextMenuItem>
-          <ContextMenuItem>Отреагировать</ContextMenuItem>
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>Отреагировать</ContextMenuSubTrigger>
+            <ContextMenuPortal>
+              <ContextMenuSubContent
+                className={
+                  styles["message__context-menu-container__reactions-block"]
+                }
+              >
+                {smiles.map((smile) => (
+                  <ContextMenuItem
+                    className={
+                      styles[
+                        "message__context-menu-container__reactions-block__reaction"
+                      ]
+                    }
+                  >
+                    {smile}
+                  </ContextMenuItem>
+                ))}
+              </ContextMenuSubContent>
+            </ContextMenuPortal>
+          </ContextMenuSub>
           {isCurrentUser ? (
             <ContextMenuSub>
               <ContextMenuSubTrigger className="context-menu-item__delete">
