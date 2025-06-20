@@ -1,4 +1,5 @@
 import { apiClient } from "@/api/apiClient";
+import type { AddMessageReactionRequest } from "@/types/Reaction/Request";
 import { useMutation } from "@tanstack/react-query";
 
 export const useAddMessageReaction = () => {
@@ -9,7 +10,8 @@ export const useAddMessageReaction = () => {
     isError: isMessageReactionError,
   } = useMutation({
     mutationKey: ["add-message-reaction"],
-    mutationFn: apiClient.AddMessageReaction,
+    mutationFn: (data: AddMessageReactionRequest) =>
+      apiClient.AddMessageReaction(data),
   });
 
   return {

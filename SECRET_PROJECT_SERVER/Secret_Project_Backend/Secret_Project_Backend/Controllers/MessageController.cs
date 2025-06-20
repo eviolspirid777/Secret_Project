@@ -50,6 +50,7 @@ namespace Secret_Project_Backend.Controllers
             var messagesQuerable = _dbContext
                 .Messages
                 .Include(m => m.File)
+                .Include(m => m.Reactions)
                 .Include(m => m.RepliedMessage)
                 .ThenInclude(rm => rm.File)
                 .Include(m => m.RepliedMessage)
@@ -184,7 +185,7 @@ namespace Secret_Project_Backend.Controllers
         }
 
         [HttpDelete("remove-message-reaction/{ReactionId}")]
-        public async Task<IActionResult> RemoveMessageReaction([FromRoute] string ReactionId)
+        public async Task<IActionResult> RemoveMessageReaction([FromRoute] Guid ReactionId)
         {
 
             var reaction = await _dbContext.Reactions.FirstOrDefaultAsync(r => r.Id == ReactionId);

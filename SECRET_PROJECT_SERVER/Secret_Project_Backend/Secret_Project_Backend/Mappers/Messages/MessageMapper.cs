@@ -8,13 +8,15 @@ namespace Secret_Project_Backend.Mappers.Messages
     public static partial class MessageMapper
     {
         [MapperIgnoreSource(nameof(Message.File))]
-        [MapperIgnoreSource(nameof(MessageDto.RepliedMessage))]
+        [MapperIgnoreSource(nameof(Message.RepliedMessage))]
+        [MapperIgnoreSource(nameof(Message.Reactions))]
 
         private static partial MessageDto Map(Message source);
 
         public static MessageDto MapMessageToMessageDto(Message source)
         {
             var target = Map(source);
+
             if(source.File != null)
             {
                 target.File = new DTOs.File.FileDto()
@@ -25,6 +27,7 @@ namespace Secret_Project_Backend.Mappers.Messages
                     FileUrl = source.File.FileUrl,
                 };
             }
+
             if(source.RepliedMessage != null)
             {
                 target.RepliedMessage = new DTOs.RepliedMessage.RepliedMessageDTO();
@@ -40,6 +43,21 @@ namespace Secret_Project_Backend.Mappers.Messages
                         FileType = source.RepliedMessage.File.FileType,
                         FileUrl = source.RepliedMessage.File.FileUrl,
                     };
+                }
+            }
+
+            if(source.Reactions != null)
+            {
+                target.Reactions = new List<DTOs.Reactions.ReactionDto>();
+                foreach(var reaction in source.Reactions)
+                {
+                    target.Reactions.Add(new DTOs.Reactions.ReactionDto
+                    {
+                        Id = reaction.Id.ToString(),
+                        Emotion = reaction.Emotion,
+                        MessageId = reaction.MessageId,
+                        UserId = reaction.UserId,
+                    });
                 }
             }
             return target;

@@ -19,6 +19,8 @@ import { useInView } from "react-intersection-observer";
 import styles from "./styles.module.scss";
 import { MessageSendTime } from "@/shared/components/MessageSendTime/MessageSendTime";
 import { RepliedMessageContent } from "./RepliedMessageContent/RepliedMessageContent";
+import { useAddMessageReaction } from "@/shared/hooks/reactions/useAddMessageReaction";
+import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 
 type MessageProps = {
   ref?: (node?: Element | null) => void;
@@ -65,6 +67,16 @@ export const Message: FC<MessageProps> = memo(
     const { ref: messageInViewRef, inView: messageInView } = useInView({
       delay: 1000,
     });
+
+    const { addMessageReactionAsync } = useAddMessageReaction();
+
+    const handleAddReaction = async (smile: string) => {
+      await addMessageReactionAsync({
+        emotion: smile,
+        messageId: message.id,
+        userId: localStorageService.getUserId() ?? "",
+      });
+    };
 
     useEffect(() => {
       if (messageInView) {
@@ -123,6 +135,29 @@ export const Message: FC<MessageProps> = memo(
                           repliedMessage={message.repliedMessage}
                         />
                       )}
+                      {message.reactions && (
+                        <div
+                          className={
+                            styles[
+                              "message__sender-content-block__reactions-block"
+                            ]
+                          }
+                        >
+                          {message.reactions.map((el) => (
+                            <div
+                              key={el.id}
+                              className={
+                                styles[
+                                  "message__sender-content-block__reactions-block__reaction"
+                                ]
+                              }
+                            >
+                              {/*TODO: Вот тут вместо тройки добавь счетчик */}
+                              {el.emotion} 3
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div />
@@ -155,6 +190,7 @@ export const Message: FC<MessageProps> = memo(
                         "message__context-menu-container__reactions-block__reaction"
                       ]
                     }
+                    onClick={handleAddReaction.bind(null, smile)}
                   >
                     {smile}
                   </ContextMenuItem>

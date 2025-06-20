@@ -6,6 +6,14 @@ export type Message = {
   sentAt: string;
   file?: File;
   repliedMessage?: RepliedMessage;
+  reactions?: MessageReaction[];
+};
+
+type MessageReaction = {
+  id: string;
+  messageId: string;
+  userId: string;
+  emotion: string;
 };
 
 export type RepliedMessage = {
