@@ -78,6 +78,17 @@ export const Message: FC<MessageProps> = memo(
       });
     };
 
+    //TODO: В отдельную компоненту вынеси Реакции, чтобы не срабатывал метод группировки ко всем сообщениям,
+    // на беке добавь синки для того, чтобы отправлять реакции к сообщениям другим пользователям
+
+    const groupedReactions = Object.groupBy(
+      message.reactions ?? [],
+      ({ emotion }) => emotion
+    );
+    if (groupedReactions) {
+      console.log(groupedReactions);
+    }
+
     useEffect(() => {
       if (messageInView) {
         deleteFromNewMessages?.(message.id);
@@ -143,17 +154,16 @@ export const Message: FC<MessageProps> = memo(
                             ]
                           }
                         >
-                          {message.reactions.map((el) => (
+                          {Object.keys(groupedReactions).map((el) => (
                             <div
-                              key={el.id}
+                              key={el}
                               className={
                                 styles[
                                   "message__sender-content-block__reactions-block__reaction"
                                 ]
                               }
                             >
-                              {/*TODO: Вот тут вместо тройки добавь счетчик */}
-                              {el.emotion} 3
+                              {el} {groupedReactions[el]?.length}
                             </div>
                           ))}
                         </div>
