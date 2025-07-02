@@ -11,7 +11,7 @@ import { useGetMessages } from "@/shared/hooks/message/useGetMessages";
 import { useInView } from "react-intersection-observer";
 import { setSelectedChatId } from "@/store/slices/SelectedChatId.slice";
 import { removeUnreadedMessagesUserId } from "@/store/slices/UnreadedMessagesUsersId.slice";
-import { getMessages, setMessages } from "@/store/slices/Message.slice";
+import { addReaction, getMessages, setMessages } from "@/store/slices/Message.slice";
 import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
 import { Button } from "@/shadcn/ui/button";
 import { FaArrowTurnDown } from "react-icons/fa6";
@@ -138,6 +138,11 @@ export const Messages: FC<MessagesProps> = memo(
     );
 
     useEffect(() => {
+      messageSignalRServiceInstance.onRecieveReaction((reaction) => {
+        //TODO: Не добавляет реакции на только что добавленные сообщения, только на старые после перезагрузки
+        dispatch(addReaction({reaction: reaction, chatId: friendId}));
+      })
+
       messageSignalRServiceInstance.onReceiveMessage((message) => {
         setNewMessages((prev) => [...prev, message]);
       });

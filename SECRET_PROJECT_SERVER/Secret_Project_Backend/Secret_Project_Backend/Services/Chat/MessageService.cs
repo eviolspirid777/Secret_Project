@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Secret_Project_Backend.DTOs.Messages;
+using Secret_Project_Backend.DTOs.Reactions;
 using Secret_Project_Backend.DTOs.Room;
 using Secret_Project_Backend.DTOs.User;
 using Secret_Project_Backend.DTOs.UserRoom;
@@ -18,6 +19,10 @@ namespace Secret_Project_Backend.Services.Chat
             _userHub = userHub;
         }
 
+        public async Task NotifyUserAboutReactionAsync(string userId, ReactionDto reaction)
+        {
+            await _userHub.Clients.User(userId).SendAsync("RecieveReaction", reaction);
+        }
         public async Task<bool> NotifyUserAsync(string userId, MessageDto message)
         {
             try

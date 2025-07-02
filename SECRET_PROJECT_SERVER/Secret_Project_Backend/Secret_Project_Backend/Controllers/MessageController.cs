@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Controllers.Requests.Messages;
 using Secret_Project_Backend.Controllers.Requests.User.Room;
+using Secret_Project_Backend.DTOs.Reactions;
 using Secret_Project_Backend.DTOs.User;
 using Secret_Project_Backend.Mappers.Messages;
 using Secret_Project_Backend.Mappers.User;
@@ -36,7 +37,6 @@ namespace Secret_Project_Backend.Controllers
         [HttpPost("get-messages")]
         public async Task<IActionResult> GetMessages([FromBody] GetMessagesRequest data)
         {
-            //TODO: сделать включение реакций в сообщения
             int skip;
             if(data.Page == 0)
             {
@@ -181,6 +181,21 @@ namespace Secret_Project_Backend.Controllers
             await _dbContext.Reactions.AddAsync(reaction);
 
             await _dbContext.SaveChangesAsync();
+
+            var message = await _dbContext.Messages.FirstOrDefaultAsync(message => message.Id == data.MessageId);
+            if (message != null)
+            {
+                ReactionDto reactionDto = new()
+                {
+                    Emotion = data.Emotion,
+                    MessageId = data.MessageId,
+                    UserId = data.UserId
+                };
+
+                await _messageService.NotifyUserAboutReactionAsync(message.ReciverId, reactionDto);
+                await _messageService.NotifyUserAboutReactionAsync(message.SenderId, reactionDto);
+            }
+
             return Ok();
         }
 

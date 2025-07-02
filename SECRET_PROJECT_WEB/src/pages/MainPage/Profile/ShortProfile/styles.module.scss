@@ -5,8 +5,8 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  min-width: 290px;
-  max-width: 290px;
+  width: clamp(200px, 290px, 290px);
+  -ms-grid-row-span: 2fr;
   height: 90px;
   padding: 0% 1%;
   border-radius: 10px;

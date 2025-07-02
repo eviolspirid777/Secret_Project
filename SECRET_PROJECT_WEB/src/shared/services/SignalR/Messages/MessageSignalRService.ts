@@ -3,6 +3,7 @@ import { localStorageService } from "@/shared/services/localStorageService/local
 import type { Message } from "@/types/Message/Message";
 import type { Room } from "@/types/Room/Room";
 import type { UserShortDto } from "@/types/User/User";
+import type { ReactionDto } from "@/types/Reaction/Reaction";
 
 export default class MessageSignalRService {
   private connection: signalR.HubConnection;
@@ -24,6 +25,10 @@ export default class MessageSignalRService {
         console.log("SignalR подключён");
       })
       .catch((err) => console.error("Ошибка подключения SignalR:", err));
+  }
+
+  public async onRecieveReaction(callback: (reaction: ReactionDto) => void) {
+    this.connection.on("RecieveReaction", callback);
   }
 
   public async sendMessageToUser(userId: string, message: string) {

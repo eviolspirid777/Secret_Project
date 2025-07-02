@@ -85,9 +85,6 @@ export const Message: FC<MessageProps> = memo(
       message.reactions ?? [],
       ({ emotion }) => emotion
     );
-    if (groupedReactions) {
-      console.log(groupedReactions);
-    }
 
     useEffect(() => {
       if (messageInView) {

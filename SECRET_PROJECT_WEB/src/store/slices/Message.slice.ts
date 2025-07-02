@@ -1,5 +1,6 @@
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import type { Message } from "@/types/Message/Message";
+import type { ReactionDto } from "@/types/Reaction/Reaction";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: Record<string, Message[]> = {};
@@ -34,6 +35,13 @@ const messageSlice = createSlice({
         (message) => message.id !== action.payload.id
       );
     },
+    addReaction: (
+      state,
+      action: PayloadAction<{chatId: string; reaction: ReactionDto}>
+    ) => {
+      const message = state[action.payload.chatId].find(message => message.id === action.payload.reaction.messageId);
+      message?.reactions?.push({...action.payload.reaction, id: "000-000-000-000"});
+    }
   },
   selectors: {
     getMessages: (state, senderId: string) =>
@@ -46,7 +54,7 @@ const messageSlice = createSlice({
   },
 });
 
-export const { addMessage, deleteMessage, setMessages } = messageSlice.actions;
+export const { addMessage, deleteMessage, setMessages, addReaction } = messageSlice.actions;
 export const { getMessages } = messageSlice.selectors;
 
 export default messageSlice.reducer;
