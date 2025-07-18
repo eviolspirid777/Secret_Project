@@ -12,6 +12,8 @@ using Secret_Project_Backend.Models;
 using Secret_Project_Backend.Services.Chat;
 using Secret_Project_Backend.Services.S3;
 using Secret_Project_Backend.Utils.FriendsParserFunc;
+using System.IO.Compression;
+using System.Text.Json;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -75,6 +77,18 @@ namespace Secret_Project_Backend.Controllers
 
             var mappedMessages = messages.Select(MessageMapper.MapMessageToMessageDto);
 
+            //var serialized = JsonSerializer.Serialize(mappedMessages);
+            //var bytes = System.Text.Encoding.UTF8.GetBytes(serialized);
+
+            //using var ms = new MemoryStream();
+            //using (var brotli = new BrotliStream(ms, CompressionLevel.Fastest, true))
+            //{
+            //    brotli.Write(bytes, 0, bytes.Length);
+            //}
+            //var compressed = ms.ToArray();
+
+            //Response.Headers.Add("Content-Encoding", "br");
+            //return File(compressed, "application/json");
             return Ok(mappedMessages);
         }
 

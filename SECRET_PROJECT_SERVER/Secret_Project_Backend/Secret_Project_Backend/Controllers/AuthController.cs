@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Secret_Project_Backend.Controllers.Requests.Auth;
 using Secret_Project_Backend.DTOs;
 using Secret_Project_Backend.Models;
@@ -51,6 +52,7 @@ namespace Secret_Project_Backend.Controllers
         //}
 
         [HttpPost("register")]
+        [EnableRateLimiting("Autorize")]
         public async Task<ActionResult> Register([FromBody] RegisterDto model)
         {
             if(!ModelState.IsValid)
@@ -118,6 +120,7 @@ namespace Secret_Project_Backend.Controllers
             }
         }
 
+        [EnableRateLimiting("Autorize")]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {

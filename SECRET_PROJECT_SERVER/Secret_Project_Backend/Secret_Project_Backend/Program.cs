@@ -16,11 +16,12 @@ using Secret_Project_Backend.Services.Status;
 using Secret_Project_Backend.Services.User;
 using Secret_Project_Backend.Services.S3;
 using Secret_Project_Backend.Services.ChannelChat;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -108,6 +109,26 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddResponseCompression(options =>
+{
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.EnableForHttps = true;
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddConcurrencyLimiter("Autorize", options =>
+    {
+        options.PermitLimit = 10;
+        options.QueueLimit = 0;
+        options.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+    });
+});
+
 builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
 builder.Services.AddScoped<IEmailService, MailKitEmailService>();
 builder.Services.AddScoped<UserService>();
@@ -130,6 +151,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseResponseCompression();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
