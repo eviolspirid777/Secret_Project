@@ -1,0 +1,7 @@
+@use "@/shared/styles/colors.scss" as *;
+@use "sass:color";
+
+.play-button {
+  background-color: color.adjust($font-color, $lightness: -20%);
+  color: $background-color;
+}

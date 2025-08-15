@@ -11,7 +11,7 @@ import {
   ContextMenuPortal,
 } from "@/shadcn/ui/context-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
-import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
+import { FileDisplay } from "@/shared/components/FileDisplay/ui/FileDisplay";
 import { memo, useEffect, type FC, type Ref } from "react";
 import { Loader } from "@/shared/components/Loader/loader";
 import { useInView } from "react-intersection-observer";

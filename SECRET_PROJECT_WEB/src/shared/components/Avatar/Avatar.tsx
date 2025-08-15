@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import styles from "./styles.module.scss";
-import avatarPlaceholder from "@/shared/icons/AvatarMockup/anonym_icon.webp";
+import avatarPlaceholder from "/icons/AvatarMockup/anonym_icon.webp";
 
 type AvatarProps = {
   src?: string;

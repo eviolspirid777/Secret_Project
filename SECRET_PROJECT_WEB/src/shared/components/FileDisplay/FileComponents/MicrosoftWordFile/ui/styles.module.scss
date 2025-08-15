@@ -1,0 +1,19 @@
+.ms-word-container {
+  display: flex;
+
+  &__icon {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-left: 50px;
+  }
+
+  &__file-name {
+    font-size: 0.7rem;
+    font-weight: 300;
+    color: $font-color;
+    margin-left: 10px;
+    align-self: center;
+  }
+}

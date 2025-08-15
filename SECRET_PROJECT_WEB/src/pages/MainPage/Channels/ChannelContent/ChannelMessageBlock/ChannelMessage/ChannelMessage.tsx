@@ -11,7 +11,7 @@ import {
   ContextMenuTrigger,
 } from "@/shadcn/ui/context-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
-import { FileDisplay } from "@/shared/components/FileDisplay/FileDisplay";
+import { FileDisplay } from "@/shared/components/FileDisplay/ui/FileDisplay";
 import { formatTime } from "@/shared/helpers/timeFormater/timeFormater";
 
 import styles from "./styles.module.scss";
