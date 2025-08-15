@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 export const Page = () => {
   const dispatch = useDispatch();
 
+  //TODO: Зачем запрашивается еще раз???
   const { userInformation, isSuccessUserInformation } = useUserInformation(
     localStorageService.getUserId() ?? ""
   );

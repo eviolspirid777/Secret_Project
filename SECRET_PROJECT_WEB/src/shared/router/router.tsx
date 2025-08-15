@@ -6,12 +6,14 @@ import { MainPage } from "@/pages/MainPage/ui";
 import { lazy } from "react";
 
 const ChannelContent = lazy(() =>
-  import("@/pages/MainPage/Channels/ChannelContent/ChannelContent").then(
-    (module) => ({ default: module.ChannelContent })
-  )
+  import(
+    "@/pages/MainPage/MainInformation/Sidebar/Channels/ChannelContent/ui/ChannelContent"
+  ).then((module) => ({ default: module.ChannelContent }))
 );
 const MyProfile = lazy(() =>
-  import("@/pages/MainPage/Profile/MyProfile/MyProfile").then((module) => ({
+  import(
+    "@/pages/MainPage/MainInformation/Sidebar/Profile/MyProfile/MyProfile"
+  ).then((module) => ({
     default: module.MyProfile,
   }))
 );
@@ -21,9 +23,11 @@ const MyProfileSettings = lazy(() =>
   }))
 );
 const FriendChat = lazy(() =>
-  import("@/pages/MainPage/Friends/FriendChat/ui/page").then((module) => ({
-    default: module.FriendChat,
-  }))
+  import("@/pages/MainPage/MainInformation/Friends/FriendChat/ui/page").then(
+    (module) => ({
+      default: module.FriendChat,
+    })
+  )
 );
 const Settings = lazy(() =>
   import("@/pages/Settings/ui").then((module) => ({ default: module.Settings }))

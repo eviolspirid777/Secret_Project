@@ -1,4 +1,4 @@
-import { ChannelList } from "../Channels/ChannelList/ChannelList";
+import { ChannelList } from "../Channels/ChannelList/ui/ChannelList";
 import { ShortProfile } from "../Profile/ShortProfile/ShortProfile";
 import styles from "./styles.module.scss";
 

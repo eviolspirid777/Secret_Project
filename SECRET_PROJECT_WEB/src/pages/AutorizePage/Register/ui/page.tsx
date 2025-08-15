@@ -13,8 +13,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRegister } from "@/shared/hooks/autorization/useRegister";
 import { Loader } from "@/shared/components/Loader/loader";
-import { Error } from "./Error/error";
-import { EmailConfirmation } from "./EmailConfirmation/EmailConfirmation.";
+import { Error } from "../Error/error";
+import { EmailConfirmation } from "../EmailConfirmation/EmailConfirmation.";
 
 import styles from "./style.module.scss";
 import type { AxiosError } from "axios";
@@ -73,7 +73,6 @@ export const Page: FC<PageProps> = ({ onAutorize }) => {
   };
 
   const handleBack = () => {
-    console.log("HELLO");
     handleResetRegister();
     onAutorize();
   };

@@ -1,6 +1,4 @@
 import { useNavigate } from "react-router";
-
-import styles from "./styles.module.scss";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -12,6 +10,8 @@ import { Avatar } from "@/shared/components/Avatar/Avatar";
 import { useSelector } from "react-redux";
 import { getUserAvatar } from "@/store/slices/User.slice";
 import { memo } from "react";
+
+import styles from "./styles.module.scss";
 
 export const Profile = memo(() => {
   const navigate = useNavigate();

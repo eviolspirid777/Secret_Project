@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Login } from "../Login";
-import { Register } from "../Register";
+import { Login } from "../Login/ui";
+import { Register } from "../Register/ui";
 
 export const Page = () => {
   const [isAutorize, setIsAutorize] = useState(true);

@@ -5,13 +5,13 @@ import { getUser } from "@/store/slices/User.slice";
 import { Badge } from "@/shared/components/Badge/Badge";
 import { IoSettingsSharp } from "react-icons/io5";
 import { useNavigate } from "react-router";
-
-import styles from "./styles.module.scss";
 import { Avatar } from "@/shared/components/Avatar/Avatar";
 import { toast } from "sonner";
 import { TooltipContent, TooltipTrigger } from "@/shadcn/ui/tooltip";
 import { Tooltip } from "@/shadcn/ui/tooltip";
 import { useAudioStates } from "@/shared/hooks/audioStates/useAudioStates";
+
+import styles from "./styles.module.scss";
 
 export const ShortProfile = () => {
   const user = useSelector(getUser);

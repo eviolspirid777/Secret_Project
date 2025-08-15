@@ -2,7 +2,7 @@ import { useParams } from "react-router";
 import { useEffect, useState, type FC } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
-import { ChannelMessageBlock } from "./ChannelMessageBlock/ChannelMessageBlock";
+import { ChannelMessageBlock } from "../ChannelMessageBlock/ChannelMessageBlock";
 
 import styles from "./styles.module.scss";
 import { useGetChannelUsers } from "@/shared/hooks/channel/user/useGetChannelUsers";
