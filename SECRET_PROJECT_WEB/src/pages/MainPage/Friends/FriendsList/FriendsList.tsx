@@ -2,12 +2,12 @@ import { FriendCard } from "./FriendCard/FriendCard";
 
 import styles from "./styles.module.scss";
 import { Badge } from "@/shadcn/ui/badge";
-import FriendshipSignalRService from "@/shared/services/SignalR/Friendships/FriendshipSignalRService";
-import { useEffect } from "react";
+import { friendshipSignalRServiceInstance } from "@/shared/services/SignalR/Friendships/FriendshipSignalRService";
+import { useEffect, useRef } from "react";
 import { useFriendRequests } from "@/shared/hooks/user/friendship/useFriendRequests";
 import { useNavigate } from "react-router";
 import type { User } from "@/types/User/User";
-import { UserStatusesSignalRService } from "@/shared/services/SignalR/UserStatuses/UserStatusesSignalRService";
+import { userStatusesSignalRServiceInstance } from "@/shared/services/SignalR/UserStatuses/UserStatusesSignalRService";
 import { useDispatch, useSelector } from "react-redux";
 import { setFriendStatus } from "@/store/slices/Friends.slice";
 import {
@@ -26,26 +26,31 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
 
   const dispatch = useDispatch();
 
+  const userStatusesSignalRService = useRef(userStatusesSignalRServiceInstance);
+  const friendshipSignalRService = useRef(friendshipSignalRServiceInstance);
+
   useEffect(() => {
     if (friendRequests) {
       friendRequests.forEach((request) => {
         dispatch(addFriendRequest(request.userId));
       });
     }
-  }, [friendRequests]);
+  }, [friendRequests, dispatch]);
 
   useEffect(() => {
-    const service = new FriendshipSignalRService();
-    const userStatusesService = new UserStatusesSignalRService();
-
-    userStatusesService.onUserStatusChange((userId, status) => {
+    userStatusesSignalRService.current.onUserStatusChange((userId, status) => {
       dispatch(setFriendStatus({ userId, status }));
     });
 
-    service.onReceiveFriendshipRequest((friendId) => {
+    friendshipSignalRService.current.onReceiveFriendshipRequest((friendId) => {
       dispatch(addFriendRequest(friendId));
     });
-  }, []);
+
+    return () => {
+      userStatusesSignalRService.current.stopOnUserStatusChange();
+      friendshipSignalRService.current.stopOnReceiveFriendshipRequest();
+    };
+  }, [dispatch]);
 
   const navigate = useNavigate();
 

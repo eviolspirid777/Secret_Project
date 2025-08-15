@@ -35,7 +35,7 @@ export const Avatar: FC<AvatarProps> = ({
       }}
       onClick={onClick}
     >
-      {src ? <img src={src} alt="" /> : <img src={avatarPlaceholder} alt="" />}
+      <img src={src ? src : avatarPlaceholder} alt="" />
     </div>
   );
 };

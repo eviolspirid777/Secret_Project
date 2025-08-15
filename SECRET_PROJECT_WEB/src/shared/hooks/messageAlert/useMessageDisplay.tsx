@@ -84,6 +84,8 @@ export const useMessageDisplay = () => {
     return () => {
       clearInterval(interval);
       clearInterval(interval2);
+      messageSignalRService.current.stopOnReceiveMessage();
+      messageSignalRService.current.stopOnDeleteMessage();
     };
-  }, []);
+  }, [dispatch, playNotificationSound, selectedChatId]);
 };

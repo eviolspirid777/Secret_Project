@@ -60,7 +60,7 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
       ChannelMessagesSignalRServiceInstance.StopReciveAudioRoomCreated();
       ChannelMessagesSignalRServiceInstance.StopReciveAudioRoomDeleted();
     };
-  }, []);
+  }, [queryClient, channelId]);
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 

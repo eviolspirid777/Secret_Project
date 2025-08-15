@@ -77,6 +77,14 @@ export default class MessageSignalRService {
     this.connection.off("abortIncommingCall");
   }
 
+  public async stopOnDeleteMessage() {
+    this.connection.off("DeleteMessage");
+  }
+
+  public async stopOnReceiveMessage() {
+    this.connection.off("ReceiveMessage");
+  }
+
   public async stopConnection() {
     await this.connection.stop();
   }

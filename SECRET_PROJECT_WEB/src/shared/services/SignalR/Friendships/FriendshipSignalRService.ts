@@ -29,6 +29,10 @@ export default class FriendshipSignalRService {
     this.connection.on("ReceiveFriendRequest", callback);
   }
 
+  public async stopOnReceiveFriendshipRequest() {
+    this.connection.off("ReceiveFriendRequest");
+  }
+
   public async sendFriendshipRequest(friendId: string) {
     await this.connection
       .invoke(

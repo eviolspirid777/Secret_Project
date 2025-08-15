@@ -1,8 +1,7 @@
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import { localStorageService } from "../../localStorageService/localStorageService";
 import type { Status } from "@/types/Status/Status";
-
-export class UserStatusesSignalRService {
+class UserStatusesSignalRService {
   private hubConnection: HubConnection;
 
   constructor() {
@@ -27,7 +26,14 @@ export class UserStatusesSignalRService {
     this.hubConnection.on("friendStatusChange", callback);
   }
 
+  public async stopOnUserStatusChange() {
+    this.hubConnection.off("friendStatusChange");
+  }
+
   public async stopConnection() {
     await this.hubConnection.stop();
   }
 }
+
+export const userStatusesSignalRServiceInstance =
+  new UserStatusesSignalRService();
