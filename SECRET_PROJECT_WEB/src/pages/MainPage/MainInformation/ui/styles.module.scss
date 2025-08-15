@@ -19,16 +19,5 @@
     display: grid;
     grid-template-columns: 1fr 3fr 19fr;
     position: relative;
-
-    &__side-bar {
-      display: grid;
-      grid-template-rows: 9fr 1fr;
-      gap: 10px;
-    }
-
-    &__main {
-      height: 100%;
-      overflow: hidden;
-    }
   }
 }

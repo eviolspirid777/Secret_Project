@@ -9,24 +9,38 @@ import {
   DrawerTitle,
 } from "@/shadcn/ui/drawer";
 import { Avatar } from "@/shared/components/Avatar/Avatar";
-import type { UserShortDto } from "@/types/User/User";
-import type { FC } from "react";
+import { useIncommingCallResearch } from "@/shared/hooks/incommingCallResearch/useIncommingCallResearch";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 
 import styles from "./styles.module.scss";
 
-type CallDrawerProps = {
-  isOpen: boolean;
-  onOpenChange: (status: "accepted" | "rejected") => void;
-  caller: UserShortDto | null;
-};
+export const CallDrawer = () => {
+  const navigate = useNavigate();
 
-export const CallDrawer: FC<CallDrawerProps> = ({
-  isOpen,
-  onOpenChange,
-  caller,
-}) => {
+  const [isCallDrawerOpen, setIsCallDrawerOpen] = useState(false);
+
+  const { caller, stopIncommingCallSound } =
+    useIncommingCallResearch(setIsCallDrawerOpen);
+
+  const handleCloseCallDrawer = (status: "accepted" | "rejected") => {
+    stopIncommingCallSound();
+    switch (status) {
+      case "accepted":
+        navigate(`/friend-chat/${caller?.id}/acceptCall`);
+        break;
+      case "rejected":
+        console.log("REJECTED");
+        break;
+    }
+    setIsCallDrawerOpen(false);
+  };
+
   return (
-    <Drawer open={isOpen} onOpenChange={() => onOpenChange("rejected")}>
+    <Drawer
+      open={isCallDrawerOpen}
+      onOpenChange={() => handleCloseCallDrawer("rejected")}
+    >
       <DrawerContent className={styles["call-drawer"]}>
         <div className={styles["call-drawer-container"]}>
           <DrawerHeader>
@@ -49,7 +63,7 @@ export const CallDrawer: FC<CallDrawerProps> = ({
           <DrawerFooter className={styles["call-drawer-footer"]}>
             <Button
               className={styles["call-drawer-footer-button"]}
-              onClick={() => onOpenChange("accepted")}
+              onClick={() => handleCloseCallDrawer("accepted")}
             >
               Принять
             </Button>
@@ -57,7 +71,7 @@ export const CallDrawer: FC<CallDrawerProps> = ({
               <Button
                 variant="outline"
                 className={styles["call-drawer-footer-button-reject"]}
-                onClick={() => onOpenChange("rejected")}
+                onClick={() => handleCloseCallDrawer("rejected")}
               >
                 Отклонить
               </Button>
