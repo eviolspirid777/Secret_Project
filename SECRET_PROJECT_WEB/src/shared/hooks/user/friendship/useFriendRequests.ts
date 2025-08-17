@@ -1,22 +1,22 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { apiClient } from "@/api/apiClient";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 
 export const useFriendRequests = () => {
   const {
     data: friendRequests,
-    isLoading: isLoadingFriendRequests,
+    mutate: fetchFriendsRequests,
     isSuccess: isSuccessFriendRequests,
     isError: isErrorFriendRequests,
-  } = useQuery({
-    queryKey: ["friends-requests"],
-    queryFn: async () =>
+  } = useMutation({
+    mutationKey: ["friends-requests"],
+    mutationFn: async () =>
       await apiClient.GetFriendRequests(localStorageService.getUserId() ?? ""),
   });
 
   return {
     friendRequests,
-    isLoadingFriendRequests,
+    fetchFriendsRequests,
     isSuccessFriendRequests,
     isErrorFriendRequests,
   };

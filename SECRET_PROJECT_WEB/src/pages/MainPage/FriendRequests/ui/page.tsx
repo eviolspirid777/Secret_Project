@@ -7,12 +7,22 @@ import { useFriendRequests } from "@/shared/hooks/user/friendship/useFriendReque
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { useEffect, useState } from "react";
 import type { User } from "@/types/User/User";
-import { removeFriendRequest } from "@/store/slices/FriendsRequests.slice";
-import { useDispatch } from "react-redux";
+import {
+  getFriendsRequests,
+  removeFriendRequest,
+} from "@/store/slices/FriendsRequests.slice";
+import { useDispatch, useSelector } from "react-redux";
 
 export const Page = () => {
+  const { friendRequests, fetchFriendsRequests } = useFriendRequests();
+
   const dispatch = useDispatch();
-  const { friendRequests } = useFriendRequests();
+  const friendsRequests = useSelector(getFriendsRequests);
+
+  useEffect(() => {
+    fetchFriendsRequests();
+  }, [friendsRequests]);
+
   const [friends, setFriends] = useState<User[]>();
 
   useEffect(() => {

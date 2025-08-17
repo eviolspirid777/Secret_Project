@@ -251,15 +251,13 @@ namespace Secret_Project_Backend.Controllers
         [HttpPost("friend/decline-request")]
         public async Task<IActionResult> DeclineRequest([FromBody] FriendRequest data)
         {
-            var result = await _dbContext.Friendships.FirstOrDefaultAsync(fs => (fs.FriendId == data.FromUserId && fs.UserId == data.ToUserId) || (fs.FriendId == data.ToUserId && fs.UserId == data.FromUserId));
-            if (result == null)
+            var friendshipInstance = await _dbContext.Friendships.FirstOrDefaultAsync(fs => fs.FriendId == data.FromUserId);
+            if(friendshipInstance == null)
             {
-                return BadRequest();
+                return NotFound();
             }
-
-            result.Status = FriendshipStatus.Blocked;
+            _dbContext.Friendships.Remove(friendshipInstance);
             await _dbContext.SaveChangesAsync();
-
             return Ok();
         }
 

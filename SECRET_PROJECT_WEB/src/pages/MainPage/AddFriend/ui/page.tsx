@@ -1,12 +1,12 @@
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
-
-import styles from "./styles.module.scss";
 import { useState } from "react";
 import { useSendFriendRequest } from "@/shared/hooks/user/friendship/useSendFriendRequest";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
+
+import styles from "./styles.module.scss";
 
 export const Page = () => {
   const [friendId, setFriendId] = useState("");

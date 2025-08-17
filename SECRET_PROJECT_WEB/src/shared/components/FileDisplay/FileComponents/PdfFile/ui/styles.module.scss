@@ -1,3 +1,6 @@
+@use "@/shared/styles/colors.scss" as *;
+@use "sass:color";
+
 .pdf-container {
   display: flex;
 

@@ -20,9 +20,12 @@ type FriendsListProps = {
 };
 
 export const FriendsList = ({ friends }: FriendsListProps) => {
-  const { friendRequests } = useFriendRequests();
+  const { friendRequests, fetchFriendsRequests } = useFriendRequests();
+  useEffect(() => {
+    fetchFriendsRequests();
+  }, []);
 
-  const friendsRequests = useSelector(getFriendsRequests);
+  const friendRequestsFromStore = useSelector(getFriendsRequests);
 
   const dispatch = useDispatch();
 
@@ -30,9 +33,15 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
   const friendshipSignalRService = useRef(friendshipSignalRServiceInstance);
 
   useEffect(() => {
+    console.log(friendRequests);
     if (friendRequests) {
       friendRequests.forEach((request) => {
-        dispatch(addFriendRequest(request.userId));
+        const noMatching = !friendRequestsFromStore.some(
+          (fr) => request.userId === fr
+        );
+        if (noMatching) {
+          dispatch(addFriendRequest(request.userId));
+        }
       });
     }
   }, [friendRequests, dispatch]);
@@ -43,7 +52,10 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
     });
 
     friendshipSignalRService.current.onReceiveFriendshipRequest((friendId) => {
-      dispatch(addFriendRequest(friendId));
+      const noMatches = !friendRequests?.some((fr) => fr.userId === friendId);
+      if (noMatches) {
+        dispatch(addFriendRequest(friendId));
+      }
     });
 
     return () => {
@@ -63,13 +75,13 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
       <div className={styles["friends-list__header"]}>
         <h4 className={styles["friends-list__header-title"]}>Друзья</h4>
         {/*TODO: Не приходит почему-то sync */}
-        {friendsRequests.length > 0 && (
+        {friendRequestsFromStore.length > 0 && (
           <Badge
             variant="destructive"
             className={styles["friends-list__header-badge"]}
             onClick={handleNavigateToFriendRequests}
           >
-            {friendsRequests.length}
+            {friendRequestsFromStore.length}
           </Badge>
         )}
       </div>
