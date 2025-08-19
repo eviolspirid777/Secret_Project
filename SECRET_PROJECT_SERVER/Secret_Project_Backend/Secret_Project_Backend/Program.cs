@@ -18,6 +18,7 @@ using Secret_Project_Backend.Services.S3;
 using Secret_Project_Backend.Services.ChannelChat;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.RateLimiting;
+using Secret_Project_Backend.Services.FriendshipSignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -136,6 +137,7 @@ builder.Services.AddScoped<ChangeUserStatusService>();
 builder.Services.AddScoped<MessageService>();
 
 builder.Services.AddScoped<ChannelChatSignlaRService>();
+builder.Services.AddScoped<FriendshipSignalRService>();
 
 builder.Services.AddScoped<S3ServiceMessages>();
 builder.Services.AddScoped<S3ServiceAvatars>();

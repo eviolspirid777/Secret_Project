@@ -1,20 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Controllers.Requests.User;
-using Secret_Project_Backend.DTOs;
 using Secret_Project_Backend.Mappers.FriendShip;
 using Secret_Project_Backend.Mappers.User;
 using Secret_Project_Backend.Models;
+using Secret_Project_Backend.Services.FriendshipSignalR;
 using Secret_Project_Backend.Services.S3;
 using Secret_Project_Backend.Services.Status;
 using Secret_Project_Backend.Services.User;
 using Secret_Project_Backend.SignalR;
-using System.Drawing.Imaging;
 
 namespace Secret_Project_Backend.Controllers
 {
@@ -29,6 +27,8 @@ namespace Secret_Project_Backend.Controllers
         private readonly IHubContext<StatusHub> _hubUserStatusContext;
         private readonly UserService _userService;
         private readonly S3ServiceAvatars _s3ServiceAvatars;
+        private readonly FriendshipSignalRService _friendshipSignalRService;
+
         public UserController(
             PostgreSQLDbContext dbContext,
             UserManager<ApplicationUser> userManager,
@@ -36,7 +36,8 @@ namespace Secret_Project_Backend.Controllers
             IHubContext<FriendRequestHub> hubFriendContext,
             IHubContext<StatusHub> hubUserStatusContext,
             UserService userService,
-            S3ServiceAvatars s3ServiceAvatars
+            S3ServiceAvatars s3ServiceAvatars,
+            FriendshipSignalRService friendshipSignalRService
         )
         {
             _dbContext = dbContext;
@@ -46,6 +47,7 @@ namespace Secret_Project_Backend.Controllers
             _hubUserStatusContext = hubUserStatusContext;
             _userService = userService;
             _s3ServiceAvatars = s3ServiceAvatars;
+            _friendshipSignalRService = friendshipSignalRService;
         }
 
         #region User
@@ -235,14 +237,25 @@ namespace Secret_Project_Backend.Controllers
         [HttpPost("friend/accept-request")]
         public async Task<IActionResult> AcceptRequest([FromBody] FriendRequest data)
         {
-            var result = await _dbContext.Friendships.FirstOrDefaultAsync(fs => (fs.FriendId == data.FromUserId && fs.UserId == data.ToUserId) || (fs.FriendId == data.ToUserId && fs.UserId == data.FromUserId));
-            if(result == null)
+            var friendship = await _dbContext
+                .Friendships
+                .FirstOrDefaultAsync(fs => (
+                        fs.FriendId == data.FromUserId &&
+                        fs.UserId == data.ToUserId
+                    ) ||
+                    (
+                        fs.FriendId == data.ToUserId &&
+                        fs.UserId == data.FromUserId
+                    ));
+            if(friendship == null)
             {
                 return BadRequest();
             }
 
-            result.Status = FriendshipStatus.Accepted;
+            friendship.Status = FriendshipStatus.Accepted;
+
             await _dbContext.SaveChangesAsync();
+            await _friendshipSignalRService.SendFriendShipStatusChange(friendship.FriendId, friendship.UserId);
 
             return Ok();
         }
