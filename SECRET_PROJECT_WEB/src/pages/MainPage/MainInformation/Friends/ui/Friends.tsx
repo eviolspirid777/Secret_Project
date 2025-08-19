@@ -12,15 +12,18 @@ import { setFriends } from "@/store/slices/Friends.slice";
 
 export const Friends = () => {
   const dispatch = useDispatch();
-  const { userFriends, userFriendsSuccess } = useGetUserFriends(
-    localStorageService.getUserId() ?? ""
-  );
+  const {
+    userFriends,
+    userFriendsSuccess,
+    isUserFriendsFetched,
+    isUserFriendsRefetching,
+  } = useGetUserFriends(localStorageService.getUserId() ?? "");
 
   useEffect(() => {
     if (userFriendsSuccess && userFriends) {
       dispatch(setFriends(userFriends));
     }
-  }, [userFriendsSuccess]);
+  }, [userFriendsSuccess, isUserFriendsFetched, isUserFriendsRefetching]);
 
   const friends = useSelector((state: RootState) => state.friends);
   const [filteredFriends, setFilteredFriends] = useState(friends);

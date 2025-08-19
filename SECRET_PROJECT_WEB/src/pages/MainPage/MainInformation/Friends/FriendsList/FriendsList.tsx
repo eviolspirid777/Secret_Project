@@ -13,7 +13,10 @@ import { setFriendStatus } from "@/store/slices/Friends.slice";
 import {
   addFriendRequest,
   getFriendsRequests,
+  removeFriendRequest,
 } from "@/store/slices/FriendsRequests.slice";
+import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
+import { useQueryClient } from "@tanstack/react-query";
 
 type FriendsListProps = {
   friends: User[];
@@ -25,6 +28,8 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
     fetchFriendsRequests();
   }, []);
 
+  const queryClient = useQueryClient();
+
   const friendRequestsFromStore = useSelector(getFriendsRequests);
 
   const dispatch = useDispatch();
@@ -33,7 +38,6 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
   const friendshipSignalRService = useRef(friendshipSignalRServiceInstance);
 
   useEffect(() => {
-    console.log(friendRequests);
     if (friendRequests) {
       friendRequests.forEach((request) => {
         const noMatching = !friendRequestsFromStore.some(
@@ -58,9 +62,24 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
       }
     });
 
+    friendshipSignalRService.current.onReceiveFriendStatusChange(
+      async (data) => {
+        const currentUserId = localStorageService.getUserId();
+        dispatch(
+          removeFriendRequest(
+            currentUserId === data.userId ? data.friendId : data.userId
+          )
+        );
+        await queryClient.invalidateQueries({
+          queryKey: ["user-friends", currentUserId ?? ""],
+        });
+      }
+    );
+
     return () => {
       userStatusesSignalRService.current.stopOnUserStatusChange();
       friendshipSignalRService.current.stopOnReceiveFriendshipRequest();
+      friendshipSignalRService.current.stopReceiveFriendStatusChange();
     };
   }, [dispatch]);
 

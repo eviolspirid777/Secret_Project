@@ -6,6 +6,8 @@ export const useGetUserFriends = (id: string) => {
     data: userFriends,
     refetch: refetchUserFriends,
     isSuccess: userFriendsSuccess,
+    isFetched: isUserFriendsFetched,
+    isRefetching: isUserFriendsRefetching,
     isError: userFriendsError,
     isLoading: userFriendsLoading,
   } = useQuery({
@@ -13,24 +15,10 @@ export const useGetUserFriends = (id: string) => {
     queryFn: async () => apiClient.GetUserFriends(id),
   });
 
-  // useEffect(() => {
-  //   const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
-  //     if (event?.query.queryKey[0] === "user-friends" && userFriends) {
-  //       dispatch(setFriends(userFriends));
-  //     }
-  //   });
-
-  //   if (userFriendsSuccess) {
-  //     dispatch(setFriends(userFriends));
-  //   }
-
-  //   return () => {
-  //     unsubscribe();
-  //   };
-  // }, [userFriendsSuccess, userFriends, queryClient, dispatch]);
-
   return {
     userFriends,
+    isUserFriendsFetched,
+    isUserFriendsRefetching,
     refetchUserFriends,
     userFriendsSuccess,
     userFriendsError,

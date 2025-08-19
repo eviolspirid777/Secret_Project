@@ -1,5 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { localStorageService } from "../../localStorageService/localStorageService";
+import type { FriendshipStatusChangeType } from "@/types/Friend/Friend";
 
 export default class FriendshipSignalRService {
   private connection: signalR.HubConnection;
@@ -27,6 +28,16 @@ export default class FriendshipSignalRService {
     callback: (friendId: string) => void
   ) {
     this.connection.on("ReceiveFriendRequest", callback);
+  }
+
+  public async onReceiveFriendStatusChange(
+    callback: (data: FriendshipStatusChangeType) => void
+  ) {
+    this.connection.on("ReceiveFriendStatusChange", callback);
+  }
+
+  public async stopReceiveFriendStatusChange() {
+    this.connection.off("ReceiveFriendStatusChange");
   }
 
   public async stopOnReceiveFriendshipRequest() {

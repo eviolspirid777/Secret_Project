@@ -11,3 +11,8 @@ export type FriendRequest = {
   fromUserId: string;
   toUserId: string;
 };
+
+export type FriendshipStatusChangeType = {
+  userId: string;
+  friendId: string;
+};
