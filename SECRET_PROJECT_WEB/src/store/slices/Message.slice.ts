@@ -37,11 +37,26 @@ const messageSlice = createSlice({
     },
     addReaction: (
       state,
-      action: PayloadAction<{chatId: string; reaction: ReactionDto}>
+      action: PayloadAction<{ chatId: string; reaction: ReactionDto }>
     ) => {
-      const message = state[action.payload.chatId].find(message => message.id === action.payload.reaction.messageId);
-      message?.reactions?.push({...action.payload.reaction, id: "000-000-000-000"});
-    }
+      console.log("TRIGGERED");
+      const message = state[action.payload.chatId].find(
+        (message) => message.id === action.payload.reaction.messageId
+      );
+      if (
+        message?.reactions?.some(
+          (reaction) => reaction.userId === action.payload.reaction.userId
+        )
+      ) {
+        message.reactions = message.reactions.filter(
+          (el) => el.userId !== action.payload.reaction.userId
+        );
+      }
+      message?.reactions?.push({
+        ...action.payload.reaction,
+        id: "000-000-000-000",
+      });
+    },
   },
   selectors: {
     getMessages: (state, senderId: string) =>
@@ -51,10 +66,15 @@ const messageSlice = createSlice({
               new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
           )
         : [],
+    getMessageReactions: (
+      state,
+      { messageId, senderId }: { messageId: string; senderId: string }
+    ) => state[senderId]?.find((el) => el.id === messageId)?.reactions,
   },
 });
 
-export const { addMessage, deleteMessage, setMessages, addReaction } = messageSlice.actions;
-export const { getMessages } = messageSlice.selectors;
+export const { addMessage, deleteMessage, setMessages, addReaction } =
+  messageSlice.actions;
+export const { getMessages, getMessageReactions } = messageSlice.selectors;
 
 export default messageSlice.reducer;

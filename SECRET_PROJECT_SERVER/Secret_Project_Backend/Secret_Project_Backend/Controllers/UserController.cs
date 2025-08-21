@@ -170,7 +170,6 @@ namespace Secret_Project_Backend.Controllers
             {
                 return BadRequest();
             }
-
             var _friendships = await _dbContext
                             .Friendships
                             .AsNoTracking()

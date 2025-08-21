@@ -1,7 +1,7 @@
 import { isNextDay } from "@/shared/helpers/timeFormater/isNextDay";
 import dayjs from "dayjs";
 import { memo, useCallback, useEffect, useRef, useState, type FC } from "react";
-import { Message } from "./Message/Message";
+import { Message } from "../Message/ui/Message";
 import { useDeleteMessage } from "@/shared/hooks/message/useDeleteMessage";
 import { getFriendById } from "@/store/slices/Friends.slice";
 import { getUser } from "@/store/slices/User.slice";
@@ -11,7 +11,11 @@ import { useGetMessages } from "@/shared/hooks/message/useGetMessages";
 import { useInView } from "react-intersection-observer";
 import { setSelectedChatId } from "@/store/slices/SelectedChatId.slice";
 import { removeUnreadedMessagesUserId } from "@/store/slices/UnreadedMessagesUsersId.slice";
-import { addReaction, getMessages, setMessages } from "@/store/slices/Message.slice";
+import {
+  addReaction,
+  getMessages,
+  setMessages,
+} from "@/store/slices/Message.slice";
 import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
 import { Button } from "@/shadcn/ui/button";
 import { FaArrowTurnDown } from "react-icons/fa6";
@@ -140,8 +144,8 @@ export const Messages: FC<MessagesProps> = memo(
     useEffect(() => {
       messageSignalRServiceInstance.onRecieveReaction((reaction) => {
         //TODO: Не добавляет реакции на только что добавленные сообщения, только на старые после перезагрузки
-        dispatch(addReaction({reaction: reaction, chatId: friendId}));
-      })
+        dispatch(addReaction({ reaction: reaction, chatId: friendId }));
+      });
 
       messageSignalRServiceInstance.onReceiveMessage((message) => {
         setNewMessages((prev) => [...prev, message]);
@@ -169,6 +173,11 @@ export const Messages: FC<MessagesProps> = memo(
           );
         };
       }
+
+      return () => {
+        messageSignalRServiceInstance.stopOnReceiveMessage();
+        messageSignalRServiceInstance.stopOnRecieveReaction();
+      };
     }, []);
 
     const handleScrollToNewMessages = () => {
@@ -176,7 +185,6 @@ export const Messages: FC<MessagesProps> = memo(
     };
 
     const handleDeleteFromNewMessages = (messageId: string) => {
-      console.log(messageId);
       setNewMessages((prev) =>
         prev.filter((message) => message.id !== messageId)
       );
@@ -199,6 +207,7 @@ export const Messages: FC<MessagesProps> = memo(
             <Message
               key={message.id}
               message={message}
+              friendId={friendId}
               ref={index === 0 ? ref : undefined}
               firstLastMessageRef={
                 newMessages[0]?.id === message.id

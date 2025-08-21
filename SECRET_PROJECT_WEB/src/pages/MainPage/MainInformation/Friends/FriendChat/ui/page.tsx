@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import styles from "./styles.module.scss";
-import { MessageBlock } from "../MessageBlock/MessageBlock";
+import { MessageBlock } from "../MessageBlock/ui/MessageBlock";
 import { FriendChatHeader } from "../FriendChatHeader/FriendChatHeader";
 import { memo, useCallback, useEffect, useState } from "react";
 import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";

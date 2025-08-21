@@ -192,7 +192,16 @@ namespace Secret_Project_Backend.Controllers
                 UserId = data.UserId
             };
 
-            await _dbContext.Reactions.AddAsync(reaction);
+            var reactionFromStore = await _dbContext
+                    .Reactions
+                    .FirstOrDefaultAsync(r => r.MessageId == data.MessageId && r.UserId == data.UserId);
+
+            if(reactionFromStore != null)
+            {
+                _dbContext.Reactions.Remove(reactionFromStore);
+            }
+
+            var reactionEntity = await _dbContext.Reactions.AddAsync(reaction);
 
             await _dbContext.SaveChangesAsync();
 
@@ -201,6 +210,7 @@ namespace Secret_Project_Backend.Controllers
             {
                 ReactionDto reactionDto = new()
                 {
+                    Id = reactionEntity.Entity.Id.ToString(),
                     Emotion = data.Emotion,
                     MessageId = data.MessageId,
                     UserId = data.UserId

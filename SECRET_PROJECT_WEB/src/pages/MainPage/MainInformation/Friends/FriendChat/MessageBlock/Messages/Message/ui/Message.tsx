@@ -18,13 +18,17 @@ import { useInView } from "react-intersection-observer";
 
 import styles from "./styles.module.scss";
 import { MessageSendTime } from "@/shared/components/MessageSendTime/MessageSendTime";
-import { RepliedMessageContent } from "./RepliedMessageContent/RepliedMessageContent";
+import { RepliedMessageContent } from "../RepliedMessageContent/RepliedMessageContent";
 import { useAddMessageReaction } from "@/shared/hooks/reactions/useAddMessageReaction";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
+import { useSelector } from "react-redux";
+import { getMessageReactions } from "@/store/slices/Message.slice";
+import type { RootState } from "@/store/store";
 
 type MessageProps = {
   ref?: (node?: Element | null) => void;
   firstLastMessageRef?: Ref<HTMLDivElement> | undefined;
+  friendId: string;
   message: MessageType;
   avatar?: string;
   senderName?: string;
@@ -59,6 +63,7 @@ export const Message: FC<MessageProps> = memo(
     deleteMessage,
     isCurrentUser,
     ref,
+    friendId,
     firstLastMessageRef,
     deleteFromNewMessages,
     setRepliedMessage,
@@ -68,9 +73,23 @@ export const Message: FC<MessageProps> = memo(
       delay: 1000,
     });
 
+    const reactionsAttachedToMessage = useSelector((state: RootState) =>
+      getMessageReactions(state, {
+        messageId: message.id,
+        senderId: friendId,
+      })
+    );
+
     const { addMessageReactionAsync } = useAddMessageReaction();
 
     const handleAddReaction = async (smile: string) => {
+      const isReactionAlreadySumbitted = reactionsAttachedToMessage?.some(
+        (el) =>
+          el.userId === localStorageService.getUserId() && el.emotion === smile
+      );
+      if (isReactionAlreadySumbitted) {
+        return;
+      }
       await addMessageReactionAsync({
         emotion: smile,
         messageId: message.id,
@@ -159,6 +178,7 @@ export const Message: FC<MessageProps> = memo(
                                   "message__sender-content-block__reactions-block__reaction"
                                 ]
                               }
+                              onClick={handleAddReaction.bind(null, el)}
                             >
                               {el} {groupedReactions[el]?.length}
                             </div>

@@ -1,12 +1,12 @@
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
 import type { Dispatch, FC } from "react";
-import { SmileBlock } from "./SmileBlock/SmileBlock";
-import { FileInput } from "./FileInput/FileInput";
+import { SmileBlock } from "../SmileBlock/SmileBlock";
+import { FileInput } from "../FileInput/FileInput";
 
 import styles from "./styles.module.scss";
 import { memo, useState } from "react";
-import { VoiceMessage } from "./VoiceMessage/VoiceMessage";
+import { VoiceMessage } from "../VoiceMessage/VoiceMessage";
 import type { Message } from "@/types/Message/Message";
 
 type InputBlockProps = {

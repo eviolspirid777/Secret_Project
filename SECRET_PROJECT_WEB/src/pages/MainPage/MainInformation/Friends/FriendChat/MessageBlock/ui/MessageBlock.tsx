@@ -1,8 +1,8 @@
 import type { FC } from "react";
 import { useCallback, useState } from "react";
 import { useAddMessage } from "@/shared/hooks/message/useAddMessage";
-import { InputBlock } from "./InputBlock/InputBlock";
-import { Messages } from "./Messages/Messages";
+import { InputBlock } from "../InputBlock/ui/InputBlock";
+import { Messages } from "../Messages/ui/Messages";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import type { Message } from "@/types/Message/Message";
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.SignalR;
 using Secret_Project_Backend.SignalR;
 using static Secret_Project_Backend.Services.FriendshipSignalR.FriendshipSignalRServiceTypes;
 

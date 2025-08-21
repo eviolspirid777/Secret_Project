@@ -31,6 +31,10 @@ export default class MessageSignalRService {
     this.connection.on("RecieveReaction", callback);
   }
 
+  public async stopOnRecieveReaction() {
+    this.connection.off("RecieveReaction");
+  }
+
   public async sendMessageToUser(userId: string, message: string) {
     this.connection
       .invoke("SendMessageToUser", userId, message)

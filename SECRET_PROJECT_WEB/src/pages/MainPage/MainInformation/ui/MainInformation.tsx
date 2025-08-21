@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { Sidebar } from "../Sidebar/ui/Sidebar";
 
 import styles from "./styles.module.scss";
-import { Display } from "../Display/Display";
+import { Display } from "../Display/ui/Display";
 
 type MainInformationProps = {
   userInformation?: User;
