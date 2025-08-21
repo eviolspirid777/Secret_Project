@@ -4,7 +4,7 @@ import styles from "./styles.module.scss";
 import { Button } from "@/shadcn/ui/button";
 import { useEffect, useRef, useState, type FC } from "react";
 import { toast } from "sonner";
-import { VoiceToasterChannel } from "./VoiceToasterChannel/VoiceToasterChannel";
+import { VoiceToasterChannel } from "../VoiceToasterChannel/ui/VoiceToasterChannel";
 
 type VoiceMessageProps = {
   sendAudioMessage: (audio: File) => void;

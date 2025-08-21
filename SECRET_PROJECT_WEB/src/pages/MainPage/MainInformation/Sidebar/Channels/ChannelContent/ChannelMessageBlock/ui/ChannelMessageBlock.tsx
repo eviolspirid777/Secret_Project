@@ -4,16 +4,20 @@ import { useGetChannelMessages } from "@/shared/hooks/channelMessage/useGetChann
 import styles from "./styles.module.scss";
 import type { User } from "@/types/User/User";
 import type { ChannelMessage as ChannelMessageType } from "@/types/ChannelMessage/ChannelMessage";
-import { ChannelMessage } from "./ChannelMessage/ChannelMessage";
+import { ChannelMessage } from "../ChannelMessage/ui/ChannelMessage";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { useDeleteChannelMessage } from "@/shared/hooks/channelMessage/useDeleteChannelMessage";
-import { InputChannelMessageBlock } from "./InputChannelMessageBlock/InputChannelMessageBlock";
 import { useAddChannelMessage } from "@/shared/hooks/channelMessage/useAddChannelMessage";
 import { ChannelMessagesSignalRServiceInstance } from "@/shared/services/SignalR/ChannelMessages/ChannelMessagesSignalRService";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader } from "@/shared/components/Loader/loader";
 import { isNextDay } from "@/shared/helpers/timeFormater/isNextDay";
 import dayjs from "dayjs";
+import { InputChannelMessageBlock } from "../InputChannelMessageBlock/ui/InputChannelMessageBlock";
+import { useMessageAlert } from "@/shared/hooks/messageAlert/useMessageAlert";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
+import { getChannelById } from "@/store/slices/Channels.slice";
 
 type ChannelMessageBlockProps = {
   channelId: string;
@@ -26,16 +30,42 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
 }) => {
   const queryClient = useQueryClient();
 
+  const channel = useSelector((state: RootState) =>
+    getChannelById(state, { payload: channelId ?? "", type: "" })
+  );
+
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
   const { channelMessages, isChannelMessagesLoading } =
     useGetChannelMessages(channelId);
 
+  const { playNotificationSound } = useMessageAlert();
+
   const { deleteChannelMessageAsync } = useDeleteChannelMessage();
   const { addChannelMessageAsync } = useAddChannelMessage();
 
   useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    let interval2: ReturnType<typeof setInterval>;
+    let provideAlerting = false;
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        provideAlerting = true;
+      }
+      if (document.visibilityState === "visible") {
+        if (interval) clearInterval(interval);
+        if (interval2) clearInterval(interval2);
+        document.title = "Chat";
+        provideAlerting = false;
+      }
+    });
+
+    Notification.requestPermission().then((permission) => {
+      console.log("Permission status:", permission);
+    });
+
     ChannelMessagesSignalRServiceInstance.onReciveChannelMessage(
       (channelMessage) => {
         queryClient.setQueryData(
@@ -44,6 +74,29 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
             return [...oldData, channelMessage];
           }
         );
+
+        if (Notification.permission === "granted" && provideAlerting) {
+          new Notification(`Сообщение из "${channel.name}"`, {
+            body: channelMessage.content
+              ? `${channelMessage.senderId}: ${channelMessage.content}`
+              : `Файл: ${channelMessage.file?.fileName}`,
+            silent: true,
+            lang: "ru",
+            icon: "/vite.svg",
+          });
+        }
+
+        playNotificationSound();
+
+        if (document.visibilityState === "hidden") {
+          document.title = "Пришло новое сообщение";
+          interval = setInterval(() => {
+            document.title = "Пришло новое сообщение";
+          }, 2500);
+          interval2 = setInterval(() => {
+            document.title = "Chat";
+          }, 4000);
+        }
       }
     );
 
@@ -56,6 +109,8 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
     });
 
     return () => {
+      clearInterval(interval);
+      clearInterval(interval2);
       ChannelMessagesSignalRServiceInstance.StopReciveChannelMessage();
       ChannelMessagesSignalRServiceInstance.StopReciveAudioRoomCreated();
       ChannelMessagesSignalRServiceInstance.StopReciveAudioRoomDeleted();

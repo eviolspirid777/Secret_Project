@@ -2,10 +2,10 @@ import { Input } from "@/shadcn/ui/input";
 
 import styles from "./styles.module.scss";
 import { useState, type FC } from "react";
-import { FileInput } from "@/pages/MainPage/Friends/FriendChat/MessageBlock/InputBlock/FileInput/FileInput";
-import { SmileBlock } from "@/pages/MainPage/Friends/FriendChat/MessageBlock/InputBlock/SmileBlock/SmileBlock";
 import { Button } from "@/shadcn/ui/button";
-import { VoiceMessageChannel } from "./VoiceMessageChannel/VoiceMessageChannel";
+import { FileInput } from "@/pages/MainPage/MainInformation/Friends/FriendChat/MessageBlock/InputBlock/FileInput/FileInput";
+import { SmileBlock } from "@/pages/MainPage/MainInformation/Friends/FriendChat/MessageBlock/InputBlock/SmileBlock/SmileBlock";
+import { VoiceMessageChannel } from "../VoiceMessageChannel/ui/VoiceMessageChannel";
 
 type InputChannelMessageBlockProps = {
   message: string;

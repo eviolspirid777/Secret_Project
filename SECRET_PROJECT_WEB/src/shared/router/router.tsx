@@ -12,7 +12,7 @@ const ChannelContent = lazy(() =>
 );
 const MyProfile = lazy(() =>
   import(
-    "@/pages/MainPage/MainInformation/Sidebar/Profile/MyProfile/MyProfile"
+    "@/pages/MainPage/MainInformation/Sidebar/Profile/MyProfile/ui/MyProfile"
   ).then((module) => ({
     default: module.MyProfile,
   }))

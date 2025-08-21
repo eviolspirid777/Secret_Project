@@ -96,15 +96,14 @@ namespace Secret_Project_Backend.Controllers
                 };
             }
 
-            channel.ChannelMessages.Add(newMessage);
-
+            var channelMessageFromStore = await _dbContext.ChannelMessages.AddAsync(newMessage);
             await _dbContext.SaveChangesAsync();
 
             foreach(var user in channel.ChannelUsers)
             {
                 var message = new DTOs.ChannelMessageDto
                 {
-                    Id = Guid.Empty,
+                    Id = channelMessageFromStore.Entity.Id,
                     ChannelId = newMessage.ChannelId,
                     SenderId = newMessage.SenderId,
                     SentAt = newMessage.SentAt
