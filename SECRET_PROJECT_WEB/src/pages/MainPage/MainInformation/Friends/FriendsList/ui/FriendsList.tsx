@@ -1,4 +1,4 @@
-import { FriendCard } from "../FriendCard/ui/FriendCard";
+import { FriendCard } from "../FriendCard/ui";
 
 import styles from "./styles.module.scss";
 import { Badge } from "@/shadcn/ui/badge";

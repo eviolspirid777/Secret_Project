@@ -1,7 +1,7 @@
 import { useParams } from "react-router";
 import styles from "./styles.module.scss";
-import { MessageBlock } from "../MessageBlock/ui/MessageBlock";
-import { FriendChatHeader } from "../FriendChatHeader/FriendChatHeader";
+import { MessageBlock } from "../MessageBlock/ui";
+import { FriendChatHeader } from "../FriendChatHeader/ui";
 import { memo, useCallback, useEffect, useState } from "react";
 import { messageSignalRServiceInstance } from "@/shared/services/SignalR/Messages/MessageSignalRService";
 import { useCreateUserRoom } from "@/shared/hooks/message/room/useCreateUserRoom";
@@ -11,7 +11,7 @@ import { useJoinUserRoom } from "@/shared/hooks/message/room/useJoinUserRoom";
 import { useGetUserRoomInformation } from "@/shared/hooks/message/room/useGetUserRoomInformation";
 import { useConnectionAlert } from "@/shared/hooks/connectionAlert/useConnectionAlert";
 import { useDisconnectionAlert } from "@/shared/hooks/connectionAlert/useDisconnectionAlert";
-import { FriendChatAudioAndVideoBlock } from "../FriendChatAudioAndVideoBlock/FriendChatAudioAndVideoBlock";
+import { FriendChatAudioAndVideoBlock } from "../FriendChatAudioAndVideoBlock/ui";
 
 export const FriendChat = memo(() => {
   const { friendId, acceptCall } = useParams();

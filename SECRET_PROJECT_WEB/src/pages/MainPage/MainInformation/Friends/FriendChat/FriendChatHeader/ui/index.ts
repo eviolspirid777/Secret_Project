@@ -1,0 +1,1 @@
+export { FriendChatHeader } from "./FriendChatHeader";

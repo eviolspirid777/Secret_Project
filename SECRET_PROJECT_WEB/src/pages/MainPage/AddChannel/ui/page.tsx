@@ -1,5 +1,5 @@
-import { Adding } from "../Adding/Adding";
-import { Joining } from "../Joining/Joining";
+import { Adding } from "../Adding/ui";
+import { Joining } from "../Joining/ui";
 
 import styles from "./styles.module.scss";
 

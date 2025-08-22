@@ -3,8 +3,8 @@ import { Input } from "@/shadcn/ui/input";
 import styles from "./styles.module.scss";
 import { useState, type FC } from "react";
 import { Button } from "@/shadcn/ui/button";
-import { FileInput } from "@/pages/MainPage/MainInformation/Friends/FriendChat/MessageBlock/InputBlock/FileInput/FileInput";
-import { SmileBlock } from "@/pages/MainPage/MainInformation/Friends/FriendChat/MessageBlock/InputBlock/SmileBlock/SmileBlock";
+import { FileInput } from "@/pages/MainPage/MainInformation/Friends/FriendChat/MessageBlock/InputBlock/FileInput/ui/FileInput";
+import { SmileBlock } from "@/pages/MainPage/MainInformation/Friends/FriendChat/MessageBlock/InputBlock/SmileBlock/ui/SmileBlock";
 import { VoiceMessageChannel } from "../VoiceMessageChannel/ui/VoiceMessageChannel";
 
 type InputChannelMessageBlockProps = {

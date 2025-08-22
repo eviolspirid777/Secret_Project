@@ -1,6 +1,6 @@
 import { useNavigate, Outlet } from "react-router";
 import { IoArrowBackOutline } from "react-icons/io5";
-import { NavigateMenu } from "../NavigateMenu/NavigateMenu";
+import { NavigateMenu } from "../NavigateMenu/ui/NavigateMenu";
 
 import styles from "./styles.module.scss";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";

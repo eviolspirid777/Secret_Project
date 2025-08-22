@@ -18,7 +18,7 @@ const MyProfile = lazy(() =>
   }))
 );
 const MyProfileSettings = lazy(() =>
-  import("@/pages/Settings/MyProfile/page").then((module) => ({
+  import("@/pages/Settings/MyProfile/ui/page").then((module) => ({
     default: module.MyProfile,
   }))
 );
@@ -33,7 +33,7 @@ const Settings = lazy(() =>
   import("@/pages/Settings/ui").then((module) => ({ default: module.Settings }))
 );
 const Security = lazy(() =>
-  import("@/pages/Settings/Security/page").then((module) => ({
+  import("@/pages/Settings/Security/ui/page").then((module) => ({
     default: module.Security,
   }))
 );

@@ -14,8 +14,8 @@ import type { FC } from "react";
 import styles from "./style.module.scss";
 import { useLogin } from "@/shared/hooks/autorization/useLogin";
 import { Loader } from "@/shared/components/Loader/loader";
-import { Error } from "../Error/error";
 import { useNavigate } from "react-router";
+import { Error } from "@/shared/components/Error/error";
 import type { AxiosError } from "axios";
 
 const loginSchema = z.object({

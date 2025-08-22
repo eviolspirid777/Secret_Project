@@ -1,0 +1,1 @@
+export { ShortProfile } from "./ShortProfile";

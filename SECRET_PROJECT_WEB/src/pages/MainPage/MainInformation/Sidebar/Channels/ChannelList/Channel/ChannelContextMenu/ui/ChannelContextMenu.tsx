@@ -8,7 +8,7 @@ import {
 } from "@/shadcn/ui/context-menu";
 import type { ChannelDto } from "@/types/Channel/Channel";
 import { useState, type FC } from "react";
-import { NewUserDialog } from "../NewUserDialog/NewUserDialog";
+import { NewUserDialog } from "../NewUserDialog/ui/NewUserDialog";
 import { toast } from "sonner";
 
 import styles from "./styles.module.scss";

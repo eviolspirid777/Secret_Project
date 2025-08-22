@@ -18,7 +18,7 @@ import { useInView } from "react-intersection-observer";
 
 import styles from "./styles.module.scss";
 import { MessageSendTime } from "@/shared/components/MessageSendTime/MessageSendTime";
-import { RepliedMessageContent } from "../RepliedMessageContent/RepliedMessageContent";
+import { RepliedMessageContent } from "../RepliedMessageContent/ui/RepliedMessageContent";
 import { useAddMessageReaction } from "@/shared/hooks/reactions/useAddMessageReaction";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { useSelector } from "react-redux";

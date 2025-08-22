@@ -1,5 +1,5 @@
 import { useEffect, type FC } from "react";
-import { Friends } from "../Friends/ui/Friends";
+import { Friends } from "../Friends/ui";
 import { useChangeUserActivityState } from "@/shared/hooks/activityStates/useChangeUserActivityState";
 import { useGetUserChannels } from "@/shared/hooks/channel/user/useGetUserChannels";
 import { useMessageDisplay } from "@/shared/hooks/messageAlert/useMessageDisplay";
@@ -8,10 +8,10 @@ import { setChannels } from "@/store/slices/Channels.slice";
 import { setUser } from "@/store/slices/User.slice";
 import type { User } from "@/types/User/User";
 import { useDispatch } from "react-redux";
-import { Sidebar } from "../Sidebar/ui/Sidebar";
+import { Sidebar } from "../Sidebar/ui";
+import { Display } from "../Display/ui";
 
 import styles from "./styles.module.scss";
-import { Display } from "../Display/ui/Display";
 
 type MainInformationProps = {
   userInformation?: User;

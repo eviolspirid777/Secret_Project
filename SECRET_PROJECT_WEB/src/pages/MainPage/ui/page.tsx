@@ -2,8 +2,8 @@ import { localStorageService } from "@/shared/services/localStorageService/local
 import { ErrorPage } from "@/pages/ErrorPage/ui";
 import { useUserInformation } from "@/shared/hooks/user/useUserInformation";
 import { Loader } from "@/shared/components/Loader/loader";
-import { CallDrawer } from "../CallDrawer/CallDrawer";
-import { MainInformation } from "../MainInformation/ui/MainInformation";
+import { CallDrawer } from "../CallDrawer/ui";
+import { MainInformation } from "../MainInformation/ui";
 
 export const Page = () => {
   /*TODO:

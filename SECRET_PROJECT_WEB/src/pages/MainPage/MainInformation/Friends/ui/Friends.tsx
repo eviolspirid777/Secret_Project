@@ -1,5 +1,5 @@
-import { Search } from "../Search/ui/Search";
-import { FriendsList } from "../FriendsList/ui/FriendsList";
+import { Search } from "../Search/ui";
+import { FriendsList } from "../FriendsList/ui";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { useCallback, useEffect, useMemo, useState } from "react";
