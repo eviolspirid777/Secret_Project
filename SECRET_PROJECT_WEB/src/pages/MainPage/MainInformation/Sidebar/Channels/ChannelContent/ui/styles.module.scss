@@ -1,25 +1,32 @@
 @use "@/shared/styles/colors.scss" as *;
 
-.channel-content {
-  display: flex;
-  flex-direction: column;
-  background-color: $background-color;
-  border-radius: 10px;
-
-  &__header {
-    padding: 1rem;
-    border-bottom: 1px solid $color-border;
-
-    h2 {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: $font-color;
-      text-align: center;
-    }
+.channel {
+  &-block {
+    display: grid;
+    grid-template-columns: 5fr 200px;
   }
 
-  &__messages {
-    flex: 1;
-    overflow-y: auto;
+  &-content {
+    display: flex;
+    flex-direction: column;
+    background-color: $background-color;
+    border-radius: 10px;
+
+    &__header {
+      padding: 1rem;
+      border-bottom: 1px solid $color-border;
+
+      h2 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: $font-color;
+        text-align: center;
+      }
+    }
+
+    &__messages {
+      flex: 1;
+      overflow-y: auto;
+    }
   }
 }

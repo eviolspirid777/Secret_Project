@@ -9,6 +9,12 @@ import { useGetChannelUsers } from "@/shared/hooks/channel/user/useGetChannelUse
 import { getChannelById } from "@/store/slices/Channels.slice";
 import type { User } from "@/types/User/User";
 import { Loader } from "@/shared/components/Loader/loader";
+import { ChannelUsersList } from "../ChannelUsersList/ui";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/shadcn/ui/resizable";
 
 export const ChannelContent: FC = () => {
   const { channelId } = useParams();
@@ -35,20 +41,33 @@ export const ChannelContent: FC = () => {
   }
 
   return (
-    <div className={styles["channel-content"]}>
-      <div className={styles["channel-content__header"]}>
-        <h2>{channel.name}</h2>
-      </div>
-      <div className={styles["channel-content__messages"]}>
-        {isChannelUsersLoading ? (
-          <Loader height="screen" className={styles["loader"]} />
-        ) : (
-          <ChannelMessageBlock
-            channelId={channel.id}
-            channelUsers={channelUsers}
-          />
-        )}
-      </div>
-    </div>
+    <ResizablePanelGroup
+      direction="horizontal"
+      className={styles["channel-block"]}
+    >
+      <ResizablePanel
+        defaultSize={98}
+        minSize={90}
+        className={styles["channel-content"]}
+      >
+        <div className={styles["channel-content__header"]}>
+          <h2>{channel.name}</h2>
+        </div>
+        <div className={styles["channel-content__messages"]}>
+          {isChannelUsersLoading ? (
+            <Loader height="screen" className={styles["loader"]} />
+          ) : (
+            <ChannelMessageBlock
+              channelId={channel.id}
+              channelUsers={channelUsers}
+            />
+          )}
+        </div>
+      </ResizablePanel>
+      <ResizableHandle />
+      <ResizablePanel defaultSize={2} minSize={2}>
+        <ChannelUsersList channelUsers={channelUsers} />
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 };
