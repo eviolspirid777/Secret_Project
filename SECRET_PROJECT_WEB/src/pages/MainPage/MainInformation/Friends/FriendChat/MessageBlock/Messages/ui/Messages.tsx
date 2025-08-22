@@ -1,7 +1,7 @@
 import { isNextDay } from "@/shared/helpers/timeFormater/isNextDay";
 import dayjs from "dayjs";
 import { memo, useCallback, useEffect, useRef, useState, type FC } from "react";
-import { Message } from "../Message/ui/Message";
+import { Message } from "../Message/ui";
 import { useDeleteMessage } from "@/shared/hooks/message/useDeleteMessage";
 import { getFriendById } from "@/store/slices/Friends.slice";
 import { getUser } from "@/store/slices/User.slice";

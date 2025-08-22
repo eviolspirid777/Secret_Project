@@ -1,18 +1,20 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import styles from "./styles.module.scss";
-import { Badge } from "@/shared/components/Badge/Badge";
-import { Button } from "@/shadcn/ui/button";
-import { StatusTranslator } from "@/shared/helpers/StatusTranslator/StatusTranslator";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { FaPencilAlt } from "react-icons/fa";
 import { Input } from "@/shadcn/ui/input";
-import { changeName } from "@/store/slices/User.slice";
+import { changeName, setUser } from "@/store/slices/User.slice";
 import { useDispatch } from "react-redux";
-import { Avatar } from "@/shared/components/Avatar/Avatar";
 import { useChangeUserInformation } from "@/shared/hooks/user/useChangeUserInformation";
 import { useChangeUserAvatar } from "@/shared/hooks/user/useChangeUserAvatar";
+import { useUserInformation } from "@/shared/hooks/user/useUserInformation";
+import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
+import { EditButton } from "../EditButton/ui";
+import { ActionButtons } from "../ActionButtons/ui";
+import { Status } from "../Status/ui";
+import { UserName } from "../UserName/ui";
+import { AvatarBlock } from "../AvatarBlock/ui";
 
 export const MyProfile = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -21,8 +23,20 @@ export const MyProfile = () => {
 
   const dispatch = useDispatch();
 
+  const {
+    userInformation,
+    isSuccessUserInformation,
+    isLoadingUserInformation,
+  } = useUserInformation(localStorageService.getUserId() ?? "");
+
+  useEffect(() => {
+    if (userInformation) {
+      dispatch(setUser(userInformation));
+    }
+  }, [isSuccessUserInformation]);
+
   const { changeUserInformationAsync } = useChangeUserInformation();
-  const { changeUserAvatar } = useChangeUserAvatar();
+  const { changeUserAvatar, isUserAvatarLoading } = useChangeUserAvatar();
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(user?.name);
@@ -67,39 +81,16 @@ export const MyProfile = () => {
 
   return (
     <div className={styles["my-profile"]}>
-      <div className={styles["my-profile__avatar-block"]}>
-        <div>
-          <Avatar
-            src={user?.avatar}
-            size="large"
-            className={`${styles["my-profile__avatar"]} ${
-              isEditing && styles["my-profile__avatar-editing"]
-            }`}
-            onClick={isEditing ? handleEditAvatar : undefined}
-          />
-          {isEditing && (
-            <>
-              <FaPencilAlt
-                className={styles["my-profile__avatar-pencil"]}
-                onClick={() => fileInputRef.current?.click()}
-                size={30}
-              />
-              <input
-                ref={fileInputRef}
-                type="file"
-                onChange={handleChangeAvatar}
-                style={{
-                  display: "none",
-                }}
-              />
-            </>
-          )}
-          <Badge
-            className={styles["my-profile__badge"]}
-            variant={user?.status}
-          />
-        </div>
-      </div>
+      <AvatarBlock
+        avatar={user.avatar}
+        fileInputRef={fileInputRef}
+        handleChangeAvatar={handleChangeAvatar}
+        handleEditAvatar={handleEditAvatar}
+        isEditing={isEditing}
+        isLoading={isLoadingUserInformation}
+        isUserAvatarLoading={isUserAvatarLoading}
+        status={user.status}
+      />
       <div className={styles["my-profile__info"]}>
         {isEditing ? (
           <Input
@@ -108,29 +99,22 @@ export const MyProfile = () => {
             onChange={(e) => setName(e.target.value)}
           />
         ) : (
-          <h3 className={styles["my-profile__info-name"]}>{user?.name}</h3>
+          <UserName isLoading={isLoadingUserInformation} userName={user.name} />
         )}
-        <span className={styles["my-profile__info-status"]}>
-          {StatusTranslator(user?.status ?? "Offline")}
-        </span>
+        <Status isLoading={isLoadingUserInformation} status={user.status} />
       </div>
       <div className={styles["my-profile__controls"]}>
         {isEditing ? (
-          <div className={styles["my-profile__controls-buttons"]}>
-            <Button variant="destructive" onClick={handleDecline}>
-              Отменить
-            </Button>
-            <Button variant="default" onClick={handleSave}>
-              Сохранить
-            </Button>
-          </div>
+          <ActionButtons
+            handleDecline={handleDecline}
+            handleSave={handleSave}
+          />
         ) : (
-          <Button
-            variant="default"
-            onClick={setIsEditing.bind(null, !isEditing)}
-          >
-            Редактировать
-          </Button>
+          <EditButton
+            isEditing={isEditing}
+            isLoading={isLoadingUserInformation}
+            setIsEditing={setIsEditing}
+          />
         )}
       </div>
     </div>

@@ -1,12 +1,14 @@
 import type { FC } from "react";
 import styles from "./styles.module.scss";
 import avatarPlaceholder from "/icons/AvatarMockup/anonym_icon.webp";
+import { Loader } from "../Loader/loader";
 
 type AvatarProps = {
   src?: string;
   size?: "small" | "medium" | "large";
   className?: string;
   onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  loading?: boolean;
 };
 
 export const Avatar: FC<AvatarProps> = ({
@@ -14,6 +16,7 @@ export const Avatar: FC<AvatarProps> = ({
   size = "medium",
   className,
   onClick,
+  loading = false,
 }) => {
   const avatarSize = (() => {
     switch (size) {
@@ -35,7 +38,11 @@ export const Avatar: FC<AvatarProps> = ({
       }}
       onClick={onClick}
     >
-      <img src={src ? src : avatarPlaceholder} alt="" />
+      {loading ? (
+        <Loader height="screen" />
+      ) : (
+        <img src={src ? src : avatarPlaceholder} alt="" />
+      )}
     </div>
   );
 };

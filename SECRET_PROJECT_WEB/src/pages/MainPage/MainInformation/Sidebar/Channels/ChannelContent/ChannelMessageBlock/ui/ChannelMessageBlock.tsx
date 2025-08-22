@@ -4,7 +4,7 @@ import { useGetChannelMessages } from "@/shared/hooks/channelMessage/useGetChann
 import styles from "./styles.module.scss";
 import type { User } from "@/types/User/User";
 import type { ChannelMessage as ChannelMessageType } from "@/types/ChannelMessage/ChannelMessage";
-import { ChannelMessage } from "../ChannelMessage/ui/ChannelMessage";
+import { ChannelMessage } from "../ChannelMessage/ui";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { useDeleteChannelMessage } from "@/shared/hooks/channelMessage/useDeleteChannelMessage";
 import { useAddChannelMessage } from "@/shared/hooks/channelMessage/useAddChannelMessage";
@@ -13,7 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Loader } from "@/shared/components/Loader/loader";
 import { isNextDay } from "@/shared/helpers/timeFormater/isNextDay";
 import dayjs from "dayjs";
-import { InputChannelMessageBlock } from "../InputChannelMessageBlock/ui/InputChannelMessageBlock";
+import { InputChannelMessageBlock } from "../InputChannelMessageBlock/ui";
 import { useMessageAlert } from "@/shared/hooks/messageAlert/useMessageAlert";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";

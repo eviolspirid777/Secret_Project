@@ -1,0 +1,60 @@
+@use "@/shared/styles/colors" as *;
+@use "sass:color";
+
+$avatar-size: 120px;
+
+.my-profile {
+  &__avatar-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+
+  &__avatar {
+    width: $avatar-size;
+    height: $avatar-size;
+    border-radius: 50%;
+
+    & img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    &-editing {
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+      box-shadow: 0 0 10px 0 color.adjust($font-color, $lightness: -30%);
+
+      & ~ .my-profile__avatar-pencil {
+        opacity: 0;
+        pointer-events: none;
+        color: color.adjust($font-color, $lightness: -10%);
+      }
+
+      &:hover {
+        opacity: 0.5;
+
+        & ~ .my-profile__avatar-pencil {
+          opacity: 1;
+        }
+      }
+    }
+
+    &-pencil {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    bottom: 0px;
+    left: calc($avatar-size - 40px);
+  }
+}

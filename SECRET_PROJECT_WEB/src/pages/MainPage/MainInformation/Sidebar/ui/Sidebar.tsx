@@ -1,5 +1,5 @@
-import { ChannelList } from "../Channels/ChannelList/ui/ChannelList";
-import { ShortProfile } from "../Profile/ShortProfile/ui/ShortProfile";
+import { ChannelList } from "../Channels/ChannelList/ui";
+import { ShortProfile } from "../Profile/ShortProfile/ui";
 import styles from "./styles.module.scss";
 
 export const Sidebar = () => {

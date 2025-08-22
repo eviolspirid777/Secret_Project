@@ -6,7 +6,11 @@ import { changeUserAvatar as changeUserAvatarAction } from "@/store/slices/User.
 export const useChangeUserAvatar = () => {
   const dispatch = useDispatch();
 
-  const { mutate: changeUserAvatar, isPending } = useMutation({
+  const {
+    mutate: changeUserAvatar,
+    mutateAsync: changeUserAvatarAsync,
+    isPending: isUserAvatarLoading,
+  } = useMutation({
     mutationKey: ["changeUserAvatar"],
     mutationFn: (data: FormData) => apiClient.ChangeUserAvatar(data),
     onSuccess: (data) => {
@@ -15,5 +19,5 @@ export const useChangeUserAvatar = () => {
     },
   });
 
-  return { changeUserAvatar, isPending };
+  return { changeUserAvatar, changeUserAvatarAsync, isUserAvatarLoading };
 };

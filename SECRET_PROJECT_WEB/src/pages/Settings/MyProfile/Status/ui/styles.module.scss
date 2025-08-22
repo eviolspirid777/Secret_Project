@@ -1,0 +1,8 @@
+@use "@/shared/styles/colors" as *;
+@use "sass:color";
+
+.my-profile__info-status {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: color.adjust($font-color, $lightness: -40%);
+}

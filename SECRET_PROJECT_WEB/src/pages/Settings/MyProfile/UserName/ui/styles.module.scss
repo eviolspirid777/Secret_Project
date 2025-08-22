@@ -1,0 +1,8 @@
+@use "@/shared/styles/colors" as *;
+@use "sass:color";
+
+.name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: $font-color;
+}

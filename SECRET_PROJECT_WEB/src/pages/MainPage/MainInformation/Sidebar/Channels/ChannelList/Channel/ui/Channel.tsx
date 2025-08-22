@@ -3,8 +3,8 @@ import type { FC } from "react";
 import { useNavigate } from "react-router";
 
 import { TooltipProvider } from "@/shadcn/ui/tooltip";
-import { ChannelTooltip } from "../ChannelTooltip/ui/ChannelTooltip";
-import { ChannelContextMenu } from "../ChannelContextMenu/ui/ChannelContextMenu";
+import { ChannelTooltip } from "../ChannelTooltip/ui";
+import { ChannelContextMenu } from "../ChannelContextMenu/ui";
 
 import styles from "./styles.module.scss";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shadcn/ui/avatar";
