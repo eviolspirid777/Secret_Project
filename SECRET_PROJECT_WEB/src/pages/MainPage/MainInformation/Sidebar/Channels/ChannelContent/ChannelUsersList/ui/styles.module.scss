@@ -1,0 +1,53 @@
+@use "@/shared/styles/colors.scss" as *;
+@use "sass:color";
+
+.channel-user-list {
+  &-block {
+    flex-grow: 0.07;
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 5px;
+    user-select: none;
+
+    & > h3 {
+      color: color.adjust($font-color, $lightness: -20%);
+      text-align: center;
+    }
+
+    &__items {
+      display: flex;
+      flex-flow: column nowrap;
+      gap: 1rem;
+      padding: 5% 7%;
+
+      &__item {
+        display: flex;
+        flex-flow: row nowrap;
+        gap: 7px;
+        padding: 3%;
+
+        &__avatar {
+          position: relative;
+          &__badge {
+            position: absolute;
+            right: -20%;
+            bottom: -15%;
+          }
+        }
+
+        & span {
+          color: $font-color;
+          cursor: default;
+          font-weight: 500;
+          text-align: center;
+          padding-top: 2%;
+        }
+
+        &:hover {
+          background-color: color.adjust($font-color, $lightness: -60%);
+          border-radius: 10px;
+        }
+      }
+    }
+  }
+}

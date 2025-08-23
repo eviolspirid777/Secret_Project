@@ -42,13 +42,20 @@ export const ChannelMessage: FC<ChannelMessageProps> = memo(
                     .join("")}
                 </AvatarFallback>
               </Avatar>
-              {message.content ? (
-                <div className={styles["message__content"]}>
-                  {message.content}
-                </div>
-              ) : (
-                <div />
-              )}
+              <div className={styles["message__sender-content-block"]}>
+                <strong
+                  className={styles["message__sender-content-block__sender"]}
+                >
+                  {senderName}
+                </strong>
+                {message.content ? (
+                  <div className={styles["message__content"]}>
+                    {message.content}
+                  </div>
+                ) : (
+                  <div />
+                )}
+              </div>
               <span className={styles["message__time"]}>
                 {formatTime(message.sentAt)}
               </span>

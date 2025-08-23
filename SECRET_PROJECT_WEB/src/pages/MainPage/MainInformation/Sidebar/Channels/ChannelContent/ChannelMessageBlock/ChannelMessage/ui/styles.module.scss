@@ -8,6 +8,18 @@
   justify-content: flex-start;
   gap: 10px;
 
+  &__sender-content-block {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 10px;
+
+    &__sender {
+      color: color.scale($font-color, $lightness: -20%);
+      font-weight: 600;
+      cursor: default;
+    }
+  }
+
   &-container {
     display: flex;
     flex-direction: column;

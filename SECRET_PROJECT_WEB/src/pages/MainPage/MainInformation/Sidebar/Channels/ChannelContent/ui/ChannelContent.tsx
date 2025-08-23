@@ -10,16 +10,15 @@ import { getChannelById } from "@/store/slices/Channels.slice";
 import type { User } from "@/types/User/User";
 import { Loader } from "@/shared/components/Loader/loader";
 import { ChannelUsersList } from "../ChannelUsersList/ui";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/shadcn/ui/resizable";
+import { FaUserFriends } from "react-icons/fa";
 
 export const ChannelContent: FC = () => {
   const { channelId } = useParams();
   const [channelUsers, setChannelUsers] = useState<User[]>([]);
+  const [channelUserListAvailable, setChannelUserListAvailable] =
+    useState(false);
 
+  //TODO: реализовать смену статуса у пользователя в списке участников канала
   const {
     channelUsers: channelUsersResponse,
     isChannelUsersSuccess,
@@ -40,18 +39,51 @@ export const ChannelContent: FC = () => {
     return <div>Канал не найден</div>;
   }
 
+  //   <ResizablePanelGroup
+  //     direction="horizontal"
+  //     className={styles["channel-block"]}
+  //   >
+  //     <ResizablePanel
+  //       defaultSize={98}
+  //       minSize={90}
+  //       className={styles["channel-content"]}
+  //     >
+  //       <div className={styles["channel-content__header"]}>
+  //         <h2>{channel.name}</h2>
+  //       </div>
+  //       <div className={styles["channel-content__messages"]}>
+  //         {isChannelUsersLoading ? (
+  //           <Loader height="screen" className={styles["loader"]} />
+  //         ) : (
+  //           <ChannelMessageBlock
+  //             channelId={channel.id}
+  //             channelUsers={channelUsers}
+  //           />
+  //         )}
+  //       </div>
+  //     </ResizablePanel>
+  //     <ResizableHandle
+  //       style={{
+  //         backgroundColor: "red",
+  //       }}
+  //     />
+  //     <ResizablePanel defaultSize={2} minSize={2}>
+  //       <ChannelUsersList channelUsers={channelUsers} />
+  //     </ResizablePanel>
+  //   </ResizablePanelGroup>
+  // );
   return (
-    <ResizablePanelGroup
-      direction="horizontal"
-      className={styles["channel-block"]}
-    >
-      <ResizablePanel
-        defaultSize={98}
-        minSize={90}
-        className={styles["channel-content"]}
-      >
+    <div className={styles["channel-block"]}>
+      <div className={styles["channel-content"]}>
         <div className={styles["channel-content__header"]}>
           <h2>{channel.name}</h2>
+          <FaUserFriends
+            className={`${styles["channel-content__header__friends-icon"]} ${
+              channelUserListAvailable && styles["active"]
+            }`}
+            size={23}
+            onClick={setChannelUserListAvailable.bind(null, (prev) => !prev)}
+          />
         </div>
         <div className={styles["channel-content__messages"]}>
           {isChannelUsersLoading ? (
@@ -63,11 +95,10 @@ export const ChannelContent: FC = () => {
             />
           )}
         </div>
-      </ResizablePanel>
-      <ResizableHandle />
-      <ResizablePanel defaultSize={2} minSize={2}>
+      </div>
+      {channelUserListAvailable && (
         <ChannelUsersList channelUsers={channelUsers} />
-      </ResizablePanel>
-    </ResizablePanelGroup>
+      )}
+    </div>
   );
 };

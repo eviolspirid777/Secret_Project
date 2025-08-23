@@ -1,26 +1,39 @@
 @use "@/shared/styles/colors.scss" as *;
+@use "sass:color";
 
 .channel {
   &-block {
-    display: grid;
-    grid-template-columns: 5fr 200px;
+    display: flex;
+    flex-flow: row nowrap;
+    grid-template-columns: 7fr 1fr;
   }
 
   &-content {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     background-color: $background-color;
     border-radius: 10px;
 
     &__header {
+      position: relative;
       padding: 1rem;
       border-bottom: 1px solid $color-border;
+      // flex: 0.055;
 
       h2 {
         font-size: 1.2rem;
         font-weight: 600;
         color: $font-color;
         text-align: center;
+      }
+
+      &__friends-icon {
+        position: absolute;
+        top: 35%;
+        right: 2%;
+        color: $font-color;
+        cursor: pointer;
       }
     }
 
@@ -29,4 +42,8 @@
       overflow-y: auto;
     }
   }
+}
+
+.active {
+  color: color.adjust($font-color, $lightness: -40%);
 }
