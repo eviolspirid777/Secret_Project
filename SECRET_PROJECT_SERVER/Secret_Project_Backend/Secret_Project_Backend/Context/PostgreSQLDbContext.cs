@@ -60,6 +60,12 @@ namespace Secret_Project_Backend.Context
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Reaction>()
+                .HasOne(r => r.ChannelMessage)
+                .WithMany(cm => cm.Reactions)
+                .HasForeignKey(r => r.ChannelMessageId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Reaction>()
                 .HasOne(r => r.User)
                 .WithMany(u => u.Reactions)
                 .HasForeignKey(r => r.UserId)
@@ -86,6 +92,12 @@ namespace Secret_Project_Backend.Context
                 .HasOne(m => m.Channel)
                 .WithMany(c => c.ChannelMessages)
                 .HasForeignKey(m => m.ChannelId);
+
+            modelBuilder.Entity<ChannelMessage>()
+                .HasOne(m => m.RepliedChannelMessage)
+                .WithMany()
+                .HasForeignKey(m => m.RepliedId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Конфигурация Friendship
             modelBuilder.Entity<Friendship>()

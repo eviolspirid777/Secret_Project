@@ -1,4 +1,6 @@
 ﻿using Secret_Project_Backend.DTOs.Channel;
+using Secret_Project_Backend.DTOs.Reactions;
+using Secret_Project_Backend.DTOs.RepliedMessage;
 using Secret_Project_Backend.Models;
 
 namespace Secret_Project_Backend.DTOs
@@ -11,5 +13,7 @@ namespace Secret_Project_Backend.DTOs
         public string SenderId { get; set; }
         public Guid ChannelId { get; set; }
         public ChannelFileDto? File { get; set; }
+        public RepliedMessageDTO? RepliedMessage { get; set; }
+        public List<ReactionDto>? Reactions { get; set; }
     }
 }

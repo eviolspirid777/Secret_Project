@@ -3,9 +3,13 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Secret_Project_Backend.Context;
 using Secret_Project_Backend.Controllers.Requests.ChannelMessages;
+using Secret_Project_Backend.Controllers.Requests.Channels;
 using Secret_Project_Backend.Controllers.Requests.Messages;
+using Secret_Project_Backend.DTOs.Reactions;
 using Secret_Project_Backend.Mappers.Messages;
+using Secret_Project_Backend.Models;
 using Secret_Project_Backend.Services.ChannelChat;
+using Secret_Project_Backend.Services.Chat;
 using Secret_Project_Backend.Services.S3;
 
 namespace Secret_Project_Backend.Controllers
@@ -17,16 +21,19 @@ namespace Secret_Project_Backend.Controllers
         private readonly PostgreSQLDbContext _dbContext;
         private readonly S3ServiceMessages _s3MessagesService;
         private readonly ChannelChatSignlaRService _channelMessageHub;
+        private readonly ChannelChatSignlaRService _chatMessageService;
 
         public ChannelMessageController(
             PostgreSQLDbContext dbContext,
             S3ServiceMessages s3MessagesService,
-            ChannelChatSignlaRService channelMessageHub
+            ChannelChatSignlaRService channelMessageHub,
+            ChannelChatSignlaRService chatMessageService
         )
         {
             _dbContext = dbContext;
             _s3MessagesService = s3MessagesService;
             _channelMessageHub = channelMessageHub;
+            _chatMessageService = chatMessageService;
         }
 
         [HttpGet("get-channel-messages/{channelId}")]
@@ -37,6 +44,10 @@ namespace Secret_Project_Backend.Controllers
                 .Channels
                 .Include(c => c.ChannelMessages)
                 .ThenInclude(cm => cm.ChannelFile)
+                .Include(c => c.ChannelMessages)
+                .ThenInclude(cm => cm.Reactions)
+                .Include(c => c.ChannelMessages)
+                .ThenInclude(cm => cm.RepliedChannelMessage)
                 .FirstOrDefaultAsync(c => c.Id == channelId);
 
             if(channel == null)
@@ -150,6 +161,52 @@ namespace Secret_Project_Backend.Controllers
             channel.ChannelMessages.Remove(message);
             await _dbContext.SaveChangesAsync();
             return Ok(data.MessageId);
+        }
+
+        [HttpPost("add-message-reaction")]
+        public async Task<IActionResult> AddMessageReaction([FromBody] AddChannelMessageReactionRequest data)
+        {
+            var reaction = new Reaction
+            {
+                Emotion = data.Emotion,
+                ChannelMessageId = data.ChannelMessageId,
+                UserId = data.UserId
+            };
+
+            var reactionFromStore = await _dbContext
+                    .Reactions
+                    .FirstOrDefaultAsync(r => r.ChannelMessageId == data.ChannelMessageId && r.UserId == data.UserId);
+
+            if (reactionFromStore != null)
+            {
+                _dbContext.Reactions.Remove(reactionFromStore);
+            }
+
+            var reactionEntity = await _dbContext.Reactions.AddAsync(reaction);
+
+            await _dbContext.SaveChangesAsync();
+
+            var message = await _dbContext
+                    .ChannelMessages
+                    .Include(cm => cm.Channel)
+                    .ThenInclude(c => c.ChannelUsers)
+                    .FirstOrDefaultAsync(channelMessage => channelMessage.Id == data.ChannelMessageId);
+            
+            if (message != null)
+            {
+                ReactionDto reactionDto = new()
+                {
+                    Id = reactionEntity.Entity.Id.ToString(),
+                    Emotion = data.Emotion,
+                    MessageId = data.ChannelMessageId,
+                    UserId = data.UserId
+                };
+
+                var userIds = message.Channel.ChannelUsers.Select(cu => cu.UserId).ToArray();
+                await _channelMessageHub.NotifyChannelUsersAboutReaction(userIds, reactionDto);
+            }
+
+            return Ok();
         }
     }
 }

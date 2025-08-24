@@ -12,8 +12,8 @@ using Secret_Project_Backend.Context;
 namespace Secret_Project_Backend.Migrations
 {
     [DbContext(typeof(PostgreSQLDbContext))]
-    [Migration("20250620140228_MIGRATION_Reaction_Id_To_Guid")]
-    partial class MIGRATION_Reaction_Id_To_Guid
+    [Migration("20250824171316_MIGRATION_add_replied_channel_messages")]
+    partial class MIGRATION_add_replied_channel_messages
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -315,6 +315,9 @@ namespace Secret_Project_Backend.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("RepliedId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("SenderId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -325,6 +328,8 @@ namespace Secret_Project_Backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ChannelId");
+
+                    b.HasIndex("RepliedId");
 
                     b.HasIndex("SenderId");
 
@@ -447,11 +452,14 @@ namespace Secret_Project_Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ChannelMessageId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Emotion")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("MessageId")
+                    b.Property<Guid?>("MessageId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("UserId")
@@ -459,6 +467,8 @@ namespace Secret_Project_Backend.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ChannelMessageId");
 
                     b.HasIndex("MessageId");
 
@@ -607,6 +617,11 @@ namespace Secret_Project_Backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Secret_Project_Backend.Models.ChannelMessage", "RepliedChannelMessage")
+                        .WithMany()
+                        .HasForeignKey("RepliedId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Secret_Project_Backend.Models.ApplicationUser", "Sender")
                         .WithMany("ChannelMessages")
                         .HasForeignKey("SenderId")
@@ -614,6 +629,8 @@ namespace Secret_Project_Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Channel");
+
+                    b.Navigation("RepliedChannelMessage");
 
                     b.Navigation("Sender");
                 });
@@ -695,17 +712,23 @@ namespace Secret_Project_Backend.Migrations
 
             modelBuilder.Entity("Secret_Project_Backend.Models.Reaction", b =>
                 {
+                    b.HasOne("Secret_Project_Backend.Models.ChannelMessage", "ChannelMessage")
+                        .WithMany("Reactions")
+                        .HasForeignKey("ChannelMessageId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Secret_Project_Backend.Models.Message", "Message")
                         .WithMany("Reactions")
                         .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Secret_Project_Backend.Models.ApplicationUser", "User")
                         .WithMany("Reactions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
+
+                    b.Navigation("ChannelMessage");
 
                     b.Navigation("Message");
 
@@ -762,6 +785,8 @@ namespace Secret_Project_Backend.Migrations
             modelBuilder.Entity("Secret_Project_Backend.Models.ChannelMessage", b =>
                 {
                     b.Navigation("ChannelFile");
+
+                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("Secret_Project_Backend.Models.Message", b =>

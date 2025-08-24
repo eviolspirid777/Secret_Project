@@ -24,6 +24,7 @@ import { localStorageService } from "@/shared/services/localStorageService/local
 import { useSelector } from "react-redux";
 import { getMessageReactions } from "@/store/slices/Message.slice";
 import type { RootState } from "@/store/store";
+import { smiles } from "@/shared/smiles/smiles";
 
 type MessageProps = {
   ref?: (node?: Element | null) => void;
@@ -38,22 +39,6 @@ type MessageProps = {
   isCurrentUser: boolean;
   isLoadingNextMessages: boolean;
 };
-
-const smiles = [
-  "❤️",
-  "👍",
-  "👎",
-  "😄",
-  "😂",
-  "☺️",
-  "🙏",
-  "😢",
-  "😡",
-  "🤡",
-  "💩",
-  "🥶",
-  "🔥",
-];
 
 export const Message: FC<MessageProps> = memo(
   ({

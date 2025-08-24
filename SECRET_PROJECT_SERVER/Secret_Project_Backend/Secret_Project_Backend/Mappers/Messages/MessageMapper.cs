@@ -56,6 +56,7 @@ namespace Secret_Project_Backend.Mappers.Messages
                         Id = reaction.Id.ToString(),
                         Emotion = reaction.Emotion,
                         MessageId = reaction.MessageId,
+                        ChannelMessageId = reaction.ChannelMessageId,
                         UserId = reaction.UserId,
                     });
                 }

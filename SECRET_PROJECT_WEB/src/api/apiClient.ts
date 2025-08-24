@@ -20,7 +20,10 @@ import type {
   Message,
   MessageDeleteRequest,
 } from "@/types/Message/Message";
-import type { AddMessageReactionRequest } from "@/types/Reaction/Request";
+import type {
+  AddChannelMessageReactionRequest,
+  AddMessageReactionRequest,
+} from "@/types/Reaction/Request";
 import type { Room } from "@/types/Room/Room";
 import type { ChangeUserInformationRequest } from "@/types/User/ChangeUserInformationRequest";
 import type { ChangeUserStatusRequest } from "@/types/User/ChangeUserStatusRequest";
@@ -318,6 +321,14 @@ class ApiClient {
       data
     );
 
+    return response.data;
+  }
+
+  async AddChannelMessageReaction(data: AddChannelMessageReactionRequest) {
+    const response = await this.client.post<never>(
+      `${BASE_CHANNEL_MESSAGE_URL}/add-message-reaction`,
+      data
+    );
     return response.data;
   }
 

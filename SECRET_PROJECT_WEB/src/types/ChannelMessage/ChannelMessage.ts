@@ -1,4 +1,8 @@
-import type { Message } from "../Message/Message";
+import type {
+  Message,
+  MessageReaction,
+  RepliedMessage,
+} from "../Message/Message";
 
 export const isChannelMessage = (
   message: Message | ChannelMessage
@@ -13,6 +17,8 @@ export type ChannelMessage = {
   senderId: string;
   channelId: string;
   file?: File;
+  repliedMessage?: RepliedMessage;
+  reactions?: MessageReaction[];
 };
 
 type File = {

@@ -29,6 +29,9 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
   channelUsers,
 }) => {
   const queryClient = useQueryClient();
+  const channelMessagesSignalRServiceRef = useRef(
+    ChannelMessagesSignalRServiceInstance
+  );
 
   const channel = useSelector((state: RootState) =>
     getChannelById(state, { payload: channelId ?? "", type: "" })
@@ -37,8 +40,45 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
-  const { channelMessages, isChannelMessagesLoading } =
-    useGetChannelMessages(channelId);
+  const {
+    channelMessages: channelMessagesFromStore,
+    isChannelMessagesLoading,
+  } = useGetChannelMessages(channelId);
+
+  const [channelMessages, setChannelMessages] = useState(
+    channelMessagesFromStore
+  );
+  useEffect(() => {
+    setChannelMessages(channelMessagesFromStore);
+  }, [channelMessagesFromStore]);
+
+  useEffect(() => {
+    //TODO: Решить вопрос с реакцией
+    channelMessagesSignalRServiceRef.current.OnRecieveChannelReaction(
+      (reaction) => {
+        setChannelMessages((prevChannelMessages) =>
+          prevChannelMessages?.map((channelMessage) => {
+            const isSomeMessageExist =
+              channelMessage.id === reaction.channelMessageId ||
+              channelMessage.id === reaction.messageId;
+            if (isSomeMessageExist) {
+              return {
+                ...channelMessage,
+                reactions: channelMessage.reactions
+                  ? [...channelMessage.reactions, { ...reaction, id: "" }]
+                  : undefined,
+              };
+            }
+            return channelMessage;
+          })
+        );
+      }
+    );
+
+    return () => {
+      channelMessagesSignalRServiceRef.current.StopRecieveChannelReaction();
+    };
+  }, []);
 
   const { playNotificationSound } = useMessageAlert();
 

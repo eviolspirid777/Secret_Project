@@ -9,7 +9,7 @@ export type Message = {
   reactions?: MessageReaction[];
 };
 
-type MessageReaction = {
+export type MessageReaction = {
   id: string;
   messageId: string;
   userId: string;

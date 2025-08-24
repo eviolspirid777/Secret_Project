@@ -1,4 +1,5 @@
-﻿using Riok.Mapperly.Abstractions;
+﻿using Amazon.Auth.AccessControlPolicy;
+using Riok.Mapperly.Abstractions;
 using Secret_Project_Backend.DTOs;
 using Secret_Project_Backend.Models;
 
@@ -36,6 +37,38 @@ namespace Secret_Project_Backend.Mappers.Messages
                     FileUrl = data.ChannelFile.FileUrl,
                     Id = data.ChannelFile.Id
                 };
+            }
+            if (data.RepliedChannelMessage != null)
+            {
+                target.RepliedMessage = new DTOs.RepliedMessage.RepliedMessageDTO();
+                target.RepliedMessage.RepliedMessageId = data.RepliedChannelMessage.Id;
+                target.RepliedMessage.SenderName = data.RepliedChannelMessage.Sender.DisplayName;
+                target.RepliedMessage.Content = data.RepliedChannelMessage.Content;
+                if (data.RepliedChannelMessage.ChannelFile != null)
+                {
+                    target.RepliedMessage.File = new DTOs.File.FileDto
+                    {
+                        Id = data.RepliedChannelMessage.ChannelFile.Id.ToString(),
+                        FileName = data.RepliedChannelMessage.ChannelFile.FileName,
+                        FileType = data.RepliedChannelMessage.ChannelFile.FileType,
+                        FileUrl = data.RepliedChannelMessage.ChannelFile.FileUrl,
+                    };
+                }
+            }
+            if (data.Reactions != null)
+            {
+                target.Reactions = new List<DTOs.Reactions.ReactionDto>();
+                foreach (var reaction in data.Reactions)
+                {
+                    target.Reactions.Add(new DTOs.Reactions.ReactionDto
+                    {
+                        Id = reaction.Id.ToString(),
+                        Emotion = reaction.Emotion,
+                        MessageId = reaction.MessageId,
+                        ChannelMessageId = reaction.ChannelMessageId,
+                        UserId = reaction.UserId,
+                    });
+                }
             }
 
             return target;
