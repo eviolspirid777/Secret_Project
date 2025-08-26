@@ -90,3 +90,9 @@
     }
   }
 }
+
+.file-display {
+  & > div {
+    margin-left: 0px;
+  }
+}

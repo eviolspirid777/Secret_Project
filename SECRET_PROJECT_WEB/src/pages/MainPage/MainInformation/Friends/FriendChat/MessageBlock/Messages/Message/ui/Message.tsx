@@ -1,30 +1,31 @@
-import type { Message as MessageType } from "@/types/Message/Message";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuTrigger,
+  ContextMenuPortal,
   ContextMenuSeparator,
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
-  ContextMenuPortal,
+  ContextMenuTrigger,
 } from "@/shadcn/ui/context-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 import { FileDisplay } from "@/shared/components/FileDisplay/ui/FileDisplay";
-import { memo, useEffect, type FC, type Ref } from "react";
 import { Loader } from "@/shared/components/Loader/loader";
+import type { Message as MessageType } from "@/types/Message/Message";
+import { memo, useEffect, type FC, type Ref } from "react";
 import { useInView } from "react-intersection-observer";
-
-import styles from "./styles.module.scss";
 import { MessageSendTime } from "@/shared/components/MessageSendTime/MessageSendTime";
-import { RepliedMessageContent } from "../RepliedMessageContent/ui";
 import { useAddMessageReaction } from "@/shared/hooks/reactions/useAddMessageReaction";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
-import { useSelector } from "react-redux";
+import { smiles } from "@/shared/smiles/smiles";
 import { getMessageReactions } from "@/store/slices/Message.slice";
 import type { RootState } from "@/store/store";
-import { smiles } from "@/shared/smiles/smiles";
+import { useSelector } from "react-redux";
+import { AvatarBlock } from "../AvatarBlock/ui";
+import { RepliedMessageContent } from "../RepliedMessageContent/ui";
+import { ReactionBlock } from "@/shared/components/ReactionBlock/ui";
+
+import styles from "./styles.module.scss";
 
 type MessageProps = {
   ref?: (node?: Element | null) => void;
@@ -68,18 +69,23 @@ export const Message: FC<MessageProps> = memo(
     const { addMessageReactionAsync } = useAddMessageReaction();
 
     const handleAddReaction = async (smile: string) => {
-      const isReactionAlreadySumbitted = reactionsAttachedToMessage?.some(
-        (el) =>
-          el.userId === localStorageService.getUserId() && el.emotion === smile
-      );
-      if (isReactionAlreadySumbitted) {
-        return;
+      try {
+        const isReactionAlreadySumbitted = reactionsAttachedToMessage?.some(
+          (el) =>
+            el.userId === localStorageService.getUserId() &&
+            el.emotion === smile
+        );
+        if (isReactionAlreadySumbitted) {
+          return;
+        }
+        await addMessageReactionAsync({
+          emotion: smile,
+          messageId: message.id,
+          userId: localStorageService.getUserId() ?? "",
+        });
+      } catch (ex) {
+        console.error(ex);
       }
-      await addMessageReactionAsync({
-        emotion: smile,
-        messageId: message.id,
-        userId: localStorageService.getUserId() ?? "",
-      });
     };
 
     //TODO: В отдельную компоненту вынеси Реакции, чтобы не срабатывал метод группировки ко всем сообщениям,
@@ -118,66 +124,38 @@ export const Message: FC<MessageProps> = memo(
             )}
             <div id={message.id} className={styles["message-container"]}>
               <div className={styles["message"]} ref={ref ?? messageInViewRef}>
-                <Avatar className={styles["message__avatar"]}>
-                  <AvatarImage src={avatar} />
-                  <AvatarFallback>
-                    {senderName
-                      ?.split(" ")
-                      .map((name, index) => {
-                        if ([0, 1].includes(index)) return name[0];
-                      })
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
+                <AvatarBlock avatar={avatar} senderName={senderName} />
                 <div className={styles["message__sender-content-block"]}>
                   <strong
                     className={styles["message__sender-content-block__sender"]}
                   >
                     {senderName}
                   </strong>
-                  {message.content ? (
-                    <div
-                      className={
-                        styles["message__sender-content-block__content"]
-                      }
-                    >
-                      <text>{message.content}</text>
-                      {message.repliedMessage && (
-                        <RepliedMessageContent
-                          repliedMessage={message.repliedMessage}
-                        />
-                      )}
-                      {message.reactions && (
-                        <div
-                          className={
-                            styles[
-                              "message__sender-content-block__reactions-block"
-                            ]
-                          }
-                        >
-                          {Object.keys(groupedReactions).map((el) => (
-                            <div
-                              key={el}
-                              className={
-                                styles[
-                                  "message__sender-content-block__reactions-block__reaction"
-                                ]
-                              }
-                              onClick={handleAddReaction.bind(null, el)}
-                            >
-                              {el} {groupedReactions[el]?.length}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div />
-                  )}
+                  <div
+                    className={styles["message__sender-content-block__content"]}
+                  >
+                    {message.file && (
+                      <FileDisplay
+                        message={message}
+                        className={styles["file-display"]}
+                      />
+                    )}
+                    {message.content && <text>{message.content}</text>}
+                    {message.repliedMessage && (
+                      <RepliedMessageContent
+                        repliedMessage={message.repliedMessage}
+                      />
+                    )}
+                    {message.reactions && (
+                      <ReactionBlock
+                        reactions={groupedReactions}
+                        handleAddReaction={handleAddReaction}
+                      />
+                    )}
+                  </div>
                 </div>
                 <MessageSendTime sentAt={message.sentAt} />
               </div>
-              {message.file && <FileDisplay message={message} />}
             </div>
           </>
         </ContextMenuTrigger>

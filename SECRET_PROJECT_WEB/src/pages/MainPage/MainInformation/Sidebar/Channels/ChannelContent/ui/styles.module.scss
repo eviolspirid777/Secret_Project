@@ -3,6 +3,7 @@
 
 .channel {
   &-block {
+    height: 100%;
     display: flex;
     flex-flow: row nowrap;
     grid-template-columns: 7fr 1fr;

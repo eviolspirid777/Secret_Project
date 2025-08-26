@@ -58,15 +58,18 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
       (reaction) => {
         setChannelMessages((prevChannelMessages) =>
           prevChannelMessages?.map((channelMessage) => {
-            const isSomeMessageExist =
-              channelMessage.id === reaction.channelMessageId ||
-              channelMessage.id === reaction.messageId;
+            const isSomeMessageExist = channelMessage.id === reaction.messageId;
             if (isSomeMessageExist) {
               return {
                 ...channelMessage,
                 reactions: channelMessage.reactions
-                  ? [...channelMessage.reactions, { ...reaction, id: "" }]
-                  : undefined,
+                  ? [
+                      ...channelMessage.reactions.filter(
+                        (r) => r.userId !== reaction.userId
+                      ),
+                      { ...reaction },
+                    ]
+                  : [{ ...reaction }],
               };
             }
             return channelMessage;
@@ -223,31 +226,15 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
         ref={messagesContainerRef}
         className={styles["channel-chat__messages"]}
       >
-        {channelMessages?.map((message, id, messages) => {
-          if (
-            (messages[id - 1] &&
+        {channelMessages?.map((message, id, messages) => (
+          <>
+            {((messages[id - 1] &&
               isNextDay(message.sentAt, messages[id - 1]?.sentAt)) ||
-            messages[id - 1] === undefined
-          ) {
-            return (
-              <>
-                <div className={styles["channel-chat__messages__date"]}>
-                  {dayjs(message.sentAt).format("DD.MM")}
-                </div>
-                <ChannelMessage
-                  key={id}
-                  message={message}
-                  avatar={proceedAvatar(message.senderId)}
-                  senderName={proceedSenderName(message.senderId)}
-                  deleteMessage={deleteMessage}
-                  isCurrentUser={
-                    message.senderId === localStorageService.getUserId()
-                  }
-                />
-              </>
-            );
-          }
-          return (
+              messages[id - 1] === undefined) && (
+              <div className={styles["channel-chat__messages__date"]}>
+                {dayjs(message.sentAt).format("DD.MM")}
+              </div>
+            )}
             <ChannelMessage
               key={id}
               message={message}
@@ -258,8 +245,8 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
                 message.senderId === localStorageService.getUserId()
               }
             />
-          );
-        })}
+          </>
+        ))}
       </div>
       <InputChannelMessageBlock
         message={message}

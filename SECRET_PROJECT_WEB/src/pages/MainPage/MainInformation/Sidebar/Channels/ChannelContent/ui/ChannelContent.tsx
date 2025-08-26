@@ -39,39 +39,6 @@ export const ChannelContent: FC = () => {
     return <div>Канал не найден</div>;
   }
 
-  //   <ResizablePanelGroup
-  //     direction="horizontal"
-  //     className={styles["channel-block"]}
-  //   >
-  //     <ResizablePanel
-  //       defaultSize={98}
-  //       minSize={90}
-  //       className={styles["channel-content"]}
-  //     >
-  //       <div className={styles["channel-content__header"]}>
-  //         <h2>{channel.name}</h2>
-  //       </div>
-  //       <div className={styles["channel-content__messages"]}>
-  //         {isChannelUsersLoading ? (
-  //           <Loader height="screen" className={styles["loader"]} />
-  //         ) : (
-  //           <ChannelMessageBlock
-  //             channelId={channel.id}
-  //             channelUsers={channelUsers}
-  //           />
-  //         )}
-  //       </div>
-  //     </ResizablePanel>
-  //     <ResizableHandle
-  //       style={{
-  //         backgroundColor: "red",
-  //       }}
-  //     />
-  //     <ResizablePanel defaultSize={2} minSize={2}>
-  //       <ChannelUsersList channelUsers={channelUsers} />
-  //     </ResizablePanel>
-  //   </ResizablePanelGroup>
-  // );
   return (
     <div className={styles["channel-block"]}>
       <div className={styles["channel-content"]}>

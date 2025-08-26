@@ -41,7 +41,7 @@ export default class ChannelMessagesSignalRService {
   }
 
   public async OnRecieveChannelReaction(
-    callback: (reaction: ReactionDto) => void
+    callback: (reaction: ReactionDto & { id: string }) => void
   ) {
     this.connection.on("RecieveChannelReaction", callback);
   }

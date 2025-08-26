@@ -39,7 +39,6 @@ const messageSlice = createSlice({
       state,
       action: PayloadAction<{ chatId: string; reaction: ReactionDto }>
     ) => {
-      console.log("TRIGGERED");
       const message = state[action.payload.chatId].find(
         (message) => message.id === action.payload.reaction.messageId
       );

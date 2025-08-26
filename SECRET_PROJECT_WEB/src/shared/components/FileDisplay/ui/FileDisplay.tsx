@@ -14,9 +14,10 @@ import { UnknownFile } from "../FileComponents/UnknownFile/ui/UnknownFile";
 
 type FileDisplayProps = {
   message: Message | ChannelMessage;
+  className?: string;
 };
 
-export const FileDisplay: FC<FileDisplayProps> = ({ message }) => {
+export const FileDisplay: FC<FileDisplayProps> = ({ message, className }) => {
   const [isHovered, setIsHovered] = useState(false);
   const fileDisplayRef = useRef<HTMLDivElement>(null);
 
@@ -65,7 +66,7 @@ export const FileDisplay: FC<FileDisplayProps> = ({ message }) => {
       ref={fileDisplayRef}
       onMouseEnter={setIsHovered.bind(null, true)}
       onMouseLeave={setIsHovered.bind(null, false)}
-      className={styles["file-display-container"]}
+      className={`${styles["file-display-container"]} ${className}`}
     >
       {fileDisply()}
       {isHovered &&
