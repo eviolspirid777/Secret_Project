@@ -13,7 +13,6 @@ import {
 } from "@/shadcn/ui/context-menu";
 import { FileDisplay } from "@/shared/components/FileDisplay/ui/FileDisplay";
 import { formatTime } from "@/shared/helpers/timeFormater/timeFormater";
-import { RepliedMessageContent } from "@/pages/MainPage/MainInformation/Friends/FriendChat/MessageBlock/Messages/Message/RepliedMessageContent/ui";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { useAddChannelMessageReaction } from "@/shared/hooks/reactions/useAddChannelMessageReaction";
 import { smiles } from "@/shared/smiles/smiles";
@@ -21,6 +20,7 @@ import { AvatarBlock } from "../AvatarBlock/ui";
 import { ReactionBlock } from "@/shared/components/ReactionBlock/ui";
 
 import styles from "./styles.module.scss";
+import { RepliedMessageContent } from "@/shared/components/RepliedMessageContent/ui";
 
 type ChannelMessageProps = {
   message: ChannelMessageType;
@@ -28,10 +28,20 @@ type ChannelMessageProps = {
   senderName: string;
   deleteMessage: (messageId: string, forAllUsers: boolean) => Promise<void>;
   isCurrentUser: boolean;
+  setRepliedMessage: React.Dispatch<
+    React.SetStateAction<ChannelMessageType | undefined>
+  >;
 };
 
 export const ChannelMessage: FC<ChannelMessageProps> = memo(
-  ({ message, avatar, senderName, deleteMessage, isCurrentUser }) => {
+  ({
+    message,
+    avatar,
+    senderName,
+    deleteMessage,
+    isCurrentUser,
+    setRepliedMessage,
+  }) => {
     const { addChannelMessageReactionAsync } = useAddChannelMessageReaction();
 
     const groupedReactions = Object.groupBy(
@@ -66,7 +76,7 @@ export const ChannelMessage: FC<ChannelMessageProps> = memo(
       <>
         <ContextMenu>
           <ContextMenuTrigger>
-            <div className={styles["message-container"]}>
+            <div id={message.id} className={styles["message-container"]}>
               <div className={styles["message"]}>
                 <AvatarBlock avatar={avatar} senderName={senderName} />
                 <div className={styles["message__sender-content-block"]}>
@@ -105,7 +115,9 @@ export const ChannelMessage: FC<ChannelMessageProps> = memo(
           <ContextMenuContent>
             <ContextMenuItem>Редактировать</ContextMenuItem>
             <ContextMenuSeparator />
-            <ContextMenuItem>Ответить</ContextMenuItem>
+            <ContextMenuItem onClick={setRepliedMessage.bind(null, message)}>
+              Ответить
+            </ContextMenuItem>
             <ContextMenuSub>
               <ContextMenuSubTrigger>Отреагировать</ContextMenuSubTrigger>
               <ContextMenuPortal>

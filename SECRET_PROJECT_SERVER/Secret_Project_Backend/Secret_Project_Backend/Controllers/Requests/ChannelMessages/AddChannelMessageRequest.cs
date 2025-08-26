@@ -14,5 +14,6 @@ namespace Secret_Project_Backend.Controllers.Requests.ChannelMessages
         public IFormFile? File { get; set; }
         public string? FileType { get; set; }
         public string? FileName { get; set; }
+        public Guid? RepliedMessageId { get; set; }
     }
 }

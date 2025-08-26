@@ -22,10 +22,10 @@ import { getMessageReactions } from "@/store/slices/Message.slice";
 import type { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import { AvatarBlock } from "../AvatarBlock/ui";
-import { RepliedMessageContent } from "../RepliedMessageContent/ui";
 import { ReactionBlock } from "@/shared/components/ReactionBlock/ui";
 
 import styles from "./styles.module.scss";
+import { RepliedMessageContent } from "@/shared/components/RepliedMessageContent/ui";
 
 type MessageProps = {
   ref?: (node?: Element | null) => void;

@@ -6,16 +6,19 @@ import { Button } from "@/shadcn/ui/button";
 import { FileInput } from "@/pages/MainPage/MainInformation/Friends/FriendChat/MessageBlock/InputBlock/FileInput/ui";
 import { SmileBlock } from "@/pages/MainPage/MainInformation/Friends/FriendChat/MessageBlock/InputBlock/SmileBlock/ui";
 import { VoiceMessageChannel } from "../VoiceMessageChannel/ui";
+import type { ChannelMessage } from "@/types/ChannelMessage/ChannelMessage";
 
 type InputChannelMessageBlockProps = {
   message: string;
   setMessage: React.Dispatch<React.SetStateAction<string>>;
   sendMessage: (message: string | null, fileLocal?: File) => void;
   sendFile: (file: File | null) => void;
+  repliedMessage?: ChannelMessage;
 };
 
 export const InputChannelMessageBlock: FC<InputChannelMessageBlockProps> = ({
   message,
+  repliedMessage,
   setMessage,
   sendMessage,
   sendFile,
@@ -35,6 +38,9 @@ export const InputChannelMessageBlock: FC<InputChannelMessageBlockProps> = ({
 
   return (
     <div className={styles["channel-chat__input-container"]}>
+      <span className="text-red-300 absolute t-0 l-0">
+        {repliedMessage?.content}
+      </span>
       <FileInput
         sendFile={sendFile}
         fileCount={fileCount}

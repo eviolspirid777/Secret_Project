@@ -1,7 +1,6 @@
 import { apiClient } from "@/api/apiClient";
 import type { GetMessagesRequest } from "@/types/Message/Message";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
 
 export const useGetMessages = (data: GetMessagesRequest) => {
   const {
@@ -14,7 +13,6 @@ export const useGetMessages = (data: GetMessagesRequest) => {
     fetchNextPage: fetchNextMessages,
     refetch: refetchMessages,
     isFetched: isMessagesFetched,
-    isFetchedAfterMount,
   } = useInfiniteQuery({
     queryKey: ["messages"],
     queryFn: async ({ pageParam }) =>
@@ -32,12 +30,6 @@ export const useGetMessages = (data: GetMessagesRequest) => {
     },
     refetchOnWindowFocus: false,
   });
-
-  useEffect(() => {
-    if (isFetchedAfterMount) {
-      console.log("Fetched");
-    }
-  }, [isFetchedAfterMount]);
 
   return {
     messages,

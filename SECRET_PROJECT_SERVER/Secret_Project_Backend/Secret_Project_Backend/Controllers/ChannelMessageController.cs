@@ -42,12 +42,17 @@ namespace Secret_Project_Backend.Controllers
 
             var channel = await _dbContext
                 .Channels
+                .AsNoTracking()
                 .Include(c => c.ChannelMessages)
                 .ThenInclude(cm => cm.ChannelFile)
                 .Include(c => c.ChannelMessages)
                 .ThenInclude(cm => cm.Reactions)
                 .Include(c => c.ChannelMessages)
                 .ThenInclude(cm => cm.RepliedChannelMessage)
+                .ThenInclude(cm => cm.Sender)
+                .Include(c => c.ChannelMessages)
+                .ThenInclude(cm => cm.RepliedChannelMessage)
+                .ThenInclude(rcm => rcm.ChannelFile)
                 .FirstOrDefaultAsync(c => c.Id == channelId);
 
             if(channel == null)
@@ -87,6 +92,11 @@ namespace Secret_Project_Backend.Controllers
                 ChannelId = data.ChannelId,
                 SentAt = DateTime.UtcNow,
             };
+
+            if(data.RepliedMessageId != null)
+            {
+                newMessage.RepliedId = data.RepliedMessageId;
+            }
 
             if (data.Content != null)
             {

@@ -4,20 +4,18 @@ import { useGetChannelMessages } from "@/shared/hooks/channelMessage/useGetChann
 import styles from "./styles.module.scss";
 import type { User } from "@/types/User/User";
 import type { ChannelMessage as ChannelMessageType } from "@/types/ChannelMessage/ChannelMessage";
-import { ChannelMessage } from "../ChannelMessage/ui";
 import { localStorageService } from "@/shared/services/localStorageService/localStorageService";
 import { useDeleteChannelMessage } from "@/shared/hooks/channelMessage/useDeleteChannelMessage";
 import { useAddChannelMessage } from "@/shared/hooks/channelMessage/useAddChannelMessage";
 import { ChannelMessagesSignalRServiceInstance } from "@/shared/services/SignalR/ChannelMessages/ChannelMessagesSignalRService";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader } from "@/shared/components/Loader/loader";
-import { isNextDay } from "@/shared/helpers/timeFormater/isNextDay";
-import dayjs from "dayjs";
 import { InputChannelMessageBlock } from "../InputChannelMessageBlock/ui";
 import { useMessageAlert } from "@/shared/hooks/messageAlert/useMessageAlert";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { getChannelById } from "@/store/slices/Channels.slice";
+import { ChannelMessages } from "../ChannelMessages/ui";
 
 type ChannelMessageBlockProps = {
   channelId: string;
@@ -38,6 +36,7 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
   );
 
   const [message, setMessage] = useState("");
+  const [repliedMessage, setRepliedMessage] = useState<ChannelMessageType>();
   const [file, setFile] = useState<File | null>(null);
 
   const {
@@ -53,7 +52,6 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
   }, [channelMessagesFromStore]);
 
   useEffect(() => {
-    //TODO: Решить вопрос с реакцией
     channelMessagesSignalRServiceRef.current.OnRecieveChannelReaction(
       (reaction) => {
         setChannelMessages((prevChannelMessages) =>
@@ -112,7 +110,7 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
     ChannelMessagesSignalRServiceInstance.onReciveChannelMessage(
       (channelMessage) => {
         queryClient.setQueryData(
-          ["channel-messages", channelId],
+          ["channel-messages", channelMessage.channelId],
           (oldData: ChannelMessageType[]) => {
             return [...oldData, channelMessage];
           }
@@ -198,8 +196,12 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
       if (message) {
         formData.append("content", message);
       }
+      if (repliedMessage) {
+        formData.append("repliedMessageId", repliedMessage.id);
+      }
       await addChannelMessageAsync(formData);
       setMessage("");
+      setRepliedMessage(undefined);
     }
   };
 
@@ -222,34 +224,17 @@ export const ChannelMessageBlock: FC<ChannelMessageBlockProps> = ({
 
   return (
     <>
-      <div
-        ref={messagesContainerRef}
-        className={styles["channel-chat__messages"]}
-      >
-        {channelMessages?.map((message, id, messages) => (
-          <>
-            {((messages[id - 1] &&
-              isNextDay(message.sentAt, messages[id - 1]?.sentAt)) ||
-              messages[id - 1] === undefined) && (
-              <div className={styles["channel-chat__messages__date"]}>
-                {dayjs(message.sentAt).format("DD.MM")}
-              </div>
-            )}
-            <ChannelMessage
-              key={id}
-              message={message}
-              avatar={proceedAvatar(message.senderId)}
-              senderName={proceedSenderName(message.senderId)}
-              deleteMessage={deleteMessage}
-              isCurrentUser={
-                message.senderId === localStorageService.getUserId()
-              }
-            />
-          </>
-        ))}
-      </div>
+      <ChannelMessages
+        channelMessages={channelMessages}
+        messagesContainerRef={messagesContainerRef}
+        deleteMessage={deleteMessage}
+        proceedAvatar={proceedAvatar}
+        proceedSenderName={proceedSenderName}
+        setRepliedMessage={setRepliedMessage}
+      />
       <InputChannelMessageBlock
         message={message}
+        repliedMessage={repliedMessage}
         setMessage={setMessage}
         sendMessage={sendMessage}
         sendFile={sendFile}
