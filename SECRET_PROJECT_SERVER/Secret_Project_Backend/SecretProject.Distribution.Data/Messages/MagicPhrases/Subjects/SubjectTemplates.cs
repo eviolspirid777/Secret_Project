@@ -2,6 +2,6 @@
 {
     public static class SubjectTemplates
     {
-        public const string EmailConfirmationSubject = "Подтверждение email адреса";
+        public static readonly string EmailConfirmationSubject = "Подтверждение email адреса";
     }
 }
