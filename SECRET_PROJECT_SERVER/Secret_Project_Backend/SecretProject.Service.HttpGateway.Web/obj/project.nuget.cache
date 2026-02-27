@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "vJm/oS2lw6U=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\kasilov\\Desktop\\secret\\SECRET_PROJECT_SERVER\\Secret_Project_Backend\\SecretProject.Service.HttpGateway.Web\\SecretProject.Service.HttpGateway.Web.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\kasilov\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.3\\microsoft.aspnetcore.openapi.10.0.3.nupkg.sha512",
+    "C:\\Users\\kasilov\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
