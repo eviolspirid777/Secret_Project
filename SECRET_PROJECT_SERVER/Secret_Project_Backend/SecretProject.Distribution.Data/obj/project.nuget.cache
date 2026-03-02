@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "YHq/2Js95BQ=",
+  "dgSpecHash": "bil+RpNKrOo=",
   "success": true,
-  "projectFilePath": "C:\\Users\\kasilov\\Desktop\\secret\\SECRET_PROJECT_SERVER\\Secret_Project_Backend\\SecretProject.Distribution.Data\\SecretProject.Distribution.Data.csproj",
+  "projectFilePath": "C:\\Users\\user\\Desktop\\Private\\CSHARP\\SecretProject\\SECRET_PROJECT_SERVER\\Secret_Project_Backend\\SecretProject.Distribution.Data\\SecretProject.Distribution.Data.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\kasilov\\.nuget\\packages\\microsoft.extensions.configuration\\10.0.3\\microsoft.extensions.configuration.10.0.3.nupkg.sha512",
-    "C:\\Users\\kasilov\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.3\\microsoft.extensions.configuration.abstractions.10.0.3.nupkg.sha512",
-    "C:\\Users\\kasilov\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.3\\microsoft.extensions.primitives.10.0.3.nupkg.sha512"
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.configuration\\10.0.3\\microsoft.extensions.configuration.10.0.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.3\\microsoft.extensions.configuration.abstractions.10.0.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.3\\microsoft.extensions.primitives.10.0.3.nupkg.sha512"
   ],
   "logs": []
 }
