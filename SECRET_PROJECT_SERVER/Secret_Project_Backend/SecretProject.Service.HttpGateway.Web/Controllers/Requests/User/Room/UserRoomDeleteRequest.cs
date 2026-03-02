@@ -1,7 +1,6 @@
-﻿namespace Secret_Project_Backend.Controllers.Requests.User.Room
+﻿namespace SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+
+public class UserRoomDeleteRequest
 {
-    public class UserRoomDeleteRequest
-    {
-        public required Guid RoomId { get; set; }
-    }
+    public required Guid RoomId { get; set; }
 }

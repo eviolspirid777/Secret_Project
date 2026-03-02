@@ -1,12 +1,11 @@
 ﻿using Riok.Mapperly.Abstractions;
-using Secret_Project_Backend.DTOs.Room;
+using SecretProject.Platform.Data.DTOs.Room;
 
 
-namespace Secret_Project_Backend.Mappers.Room
+namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Room;
+
+[Mapper]
+public static partial class RoomMapper
 {
-    [Mapper]
-    public static partial class RoomMapper
-    {
-        public static partial RoomDto MapRoomToRoomDto(Models.Room source);
-    }
+    public static partial RoomDto MapRoomToRoomDto(Models.Room source);
 }

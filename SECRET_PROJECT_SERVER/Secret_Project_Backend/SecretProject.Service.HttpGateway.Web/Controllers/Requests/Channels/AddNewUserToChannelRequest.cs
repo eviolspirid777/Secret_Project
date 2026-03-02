@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Secret_Project_Backend.Controllers.Requests.Channels
+namespace SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+
+public class AddNewUserToChannelRequest
 {
-    public class AddNewUserToChannelRequest
-    {
-        public string UserId { get; set; }
-    }
+    public string UserId { get; set; }
 }

@@ -1,8 +1,7 @@
-﻿namespace Secret_Project_Backend.Controllers.Requests.User.Room
+﻿namespace SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+
+public class UserRoomJoinRequest
 {
-    public class UserRoomJoinRequest
-    {
-        public required Guid RoomId { get; set; }
-        public required string UserId { get; set; }
-    }
+    public required Guid RoomId { get; set; }
+    public required string UserId { get; set; }
 }

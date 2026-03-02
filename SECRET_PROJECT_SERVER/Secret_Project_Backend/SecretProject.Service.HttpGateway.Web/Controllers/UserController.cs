@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using SecretProject.Platform.Data.Models;
+using SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.FriendShip;
+using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User;
 using System.Drawing.Imaging;
 
 namespace SecretProject.Service.HttpGateway.Web.Controllers;
@@ -149,6 +153,7 @@ public class UserController : ControllerBase
         return Ok();
     }
     #endregion User
+
     #region Friendship
     [Authorize]
     [HttpGet("friend/get-friend-requests")]
@@ -268,10 +273,11 @@ public class UserController : ControllerBase
         return Ok();
     }
     #endregion Friendship
+
     #region Status
     [Authorize]
     [HttpPost("status/change-status/{id}")]
-    public async Task<IActionResult> ChangeUserStatus(string id, [FromBody] Models.ConnectionState state)
+    public async Task<IActionResult> ChangeUserStatus(string id, [FromBody] ConnectionState state)
     {
         var result = await _userStatusService.ChangeStatusAsync(state,id);
         if(result == false)
@@ -281,6 +287,7 @@ public class UserController : ControllerBase
         return Ok();
     }
     #endregion Status
+
     #region SoundConnectionState
     [Authorize]
     [HttpPost("sound-states/change-microphone-state/{id}")]

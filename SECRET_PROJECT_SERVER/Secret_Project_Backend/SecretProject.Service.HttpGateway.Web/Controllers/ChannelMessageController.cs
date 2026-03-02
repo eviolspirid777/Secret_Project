@@ -1,6 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using SecretProject.Platform.Data.DTOs;
+using SecretProject.Platform.Data.DTOs.Channel;
+using SecretProject.Platform.Data.Models;
+using SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.ChannelMessages;
 
 namespace SecretProject.Service.HttpGateway.Web.Controllers;
 
@@ -64,7 +69,7 @@ public class ChannelMessageController : ControllerBase
             return BadRequest("InvalidChannelId");
         }
 
-        var newMessage = new Models.ChannelMessage
+        var newMessage = new ChannelMessage
         {
             SenderId = data.SenderId,
             ChannelId = data.ChannelId,
@@ -82,7 +87,7 @@ public class ChannelMessageController : ControllerBase
 
             fileUrl =  await _s3MessagesService.UploadFileAsync(fileStream, $"{data.ChannelId}-{data.SenderId}-{DateTime.UtcNow}");
 
-            newMessage.ChannelFile = new Models.ChannelFile
+            newMessage.ChannelFile = new ChannelFile
             {
                 FileUrl = fileUrl,
                 FileName = data.FileName ?? "",
@@ -96,7 +101,7 @@ public class ChannelMessageController : ControllerBase
 
         foreach(var user in channel.ChannelUsers)
         {
-            var message = new DTOs.ChannelMessageDto
+            var message = new ChannelMessageDto
             {
                 Id = Guid.Empty,
                 ChannelId = newMessage.ChannelId,
@@ -106,7 +111,7 @@ public class ChannelMessageController : ControllerBase
 
             if (data.File != null && newMessage.ChannelFile != null)
             {
-                message.File = new DTOs.Channel.ChannelFileDto
+                message.File = new ChannelFileDto
                 {
                     FileUrl = newMessage.ChannelFile.FileUrl,
                     FileName = newMessage.ChannelFile.FileName,

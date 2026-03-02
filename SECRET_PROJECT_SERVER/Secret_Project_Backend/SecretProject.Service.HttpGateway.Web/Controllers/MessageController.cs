@@ -1,5 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SecretProject.Platform.Data.DTOs.Reactions;
+using SecretProject.Platform.Data.DTOs.User;
+using SecretProject.Platform.Data.DTOs.UserRoom;
+using SecretProject.Platform.Data.Models;
+using SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Messages;
+using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User;
+using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.UserRoom;
+using File = SecretProject.Platform.Data.Models.File;
 
 
 namespace SecretProject.Service.HttpGateway.Web.Controllers;
@@ -97,7 +106,7 @@ public class MessageController : ControllerBase
 
             var fileString = await _s3Service.UploadFileAsync(stream, Guid.NewGuid().ToString());
 
-            message.File = new Models.File()
+            message.File = new File()
             {
                 FileName = data.FileName ?? "",
                 FileType = data.FileType ?? "",
@@ -270,7 +279,7 @@ public class MessageController : ControllerBase
         if (callReciver == null) return BadRequest("Invalid UserId");
 
 
-        var addEntityEntry = await _dbContext.UserRooms.AddAsync(new Models.UserRoom
+        var addEntityEntry = await _dbContext.UserRooms.AddAsync(new UserRoom
         {
             LeftUserId = data.FromUserId,
             RightUserId = data.ToUserId
@@ -279,7 +288,7 @@ public class MessageController : ControllerBase
         await _dbContext.SaveChangesAsync();
 
 
-        await _messageService.SendRoomWasCreatedToUserAsync(data.FromUserId, new DTOs.UserRoom.UserRoomDto
+        await _messageService.SendRoomWasCreatedToUserAsync(data.FromUserId, new UserRoomDto
         {
             Id = addEntityEntry.Entity.Id,
             LeftUserId = data.FromUserId,
@@ -288,7 +297,7 @@ public class MessageController : ControllerBase
             MutedVideoUserIds = []
         });
 
-        await _messageService.SendRoomWasCreatedToUserAsync(data.ToUserId, new DTOs.UserRoom.UserRoomDto
+        await _messageService.SendRoomWasCreatedToUserAsync(data.ToUserId, new UserRoomDto
         {
             Id = addEntityEntry.Entity.Id,
             LeftUserId = data.FromUserId,
@@ -297,7 +306,7 @@ public class MessageController : ControllerBase
             MutedVideoUserIds = []
         });
 
-        await _messageService.SendCallingRequestToUserAsync(data.ToUserId, new DTOs.User.UserShortDto
+        await _messageService.SendCallingRequestToUserAsync(data.ToUserId, new UserShortDto
         {
             Id = callReciver.Id,
             Avatar = callReciver.AvatarUrl ?? "",
@@ -354,7 +363,7 @@ public class MessageController : ControllerBase
         await _messageService.SendRoomWasDeletedToUserAsync(leftUser.Id ?? "", data.RoomId);
         await _messageService.SendRoomWasDeletedToUserAsync(rightUser.Id ?? "", data.RoomId);
 
-        await _messageService.AbortCallingRequestToUserAsync(rightUser.Id, new DTOs.User.UserShortDto
+        await _messageService.AbortCallingRequestToUserAsync(rightUser.Id, new UserShortDto
         {
             Id = rightUser.Id,
             Avatar = rightUser.AvatarUrl,

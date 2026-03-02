@@ -1,9 +1,8 @@
-﻿namespace Secret_Project_Backend.Controllers.Requests.Messages
+﻿namespace SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+
+public class GetMessagesRequest
 {
-    public class GetMessagesRequest
-    {
-        public string FirstUserId { get; set; }
-        public string SecondUserId { get; set; }
-        public int Page { get; set; }
-    }
+    public string FirstUserId { get; set; }
+    public string SecondUserId { get; set; }
+    public int Page { get; set; }
 }

@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Secret_Project_Backend.Controllers.Requests.Messages
+namespace SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+
+public class DeleteMessageRequest
 {
-    public class DeleteMessageRequest
-    {
-        public Guid MessageId { get; set; }
-        public bool ForAllUsers { get; set; }
-    }
+    public Guid MessageId { get; set; }
+    public bool ForAllUsers { get; set; }
 }

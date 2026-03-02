@@ -2,6 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using SecretProject.Platform.Data.DTOs;
 using SecretProject.Platform.Data.DTOs.Room;
+using SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Channel;
+using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Room;
+using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User;
 using SecretProject.Service.HttpGateway.Web.DataStore.Models;
 
 

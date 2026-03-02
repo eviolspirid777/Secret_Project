@@ -1,8 +1,7 @@
-﻿namespace Secret_Project_Backend.Controllers.Requests.Messages
+﻿namespace SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+
+public class ChannelMessageDeleteRequest
 {
-    public class ChannelMessageDeleteRequest
-    {
-        public Guid ChannelId { get; set;}
-        public Guid MessageId { get; set;}
-    }
+    public Guid ChannelId { get; set;}
+    public Guid MessageId { get; set;}
 }

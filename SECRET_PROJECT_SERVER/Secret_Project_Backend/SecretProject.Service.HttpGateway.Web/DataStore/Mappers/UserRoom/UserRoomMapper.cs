@@ -1,11 +1,10 @@
 ﻿using Riok.Mapperly.Abstractions;
-using Secret_Project_Backend.DTOs.UserRoom;
+using SecretProject.Platform.Data.DTOs.UserRoom;
 
-namespace Secret_Project_Backend.Mappers.UserRoom
+namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.UserRoom;
+
+[Mapper]
+public static partial class UserRoomMapper
 {
-    [Mapper]
-    public static partial class UserRoomMapper
-    {
-        public static partial UserRoomDto MapUserRoomToUserRoomDto(Models.UserRoom source);
-    }
+    public static partial UserRoomDto MapUserRoomToUserRoomDto(Models.UserRoom source);
 }

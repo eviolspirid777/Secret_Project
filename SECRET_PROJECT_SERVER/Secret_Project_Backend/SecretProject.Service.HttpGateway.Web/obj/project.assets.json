@@ -289,6 +289,9 @@
       "SecretProject.Platform.Data/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "10.0.3"
+        },
         "compile": {
           "bin/placeholder/SecretProject.Platform.Data.dll": {}
         },

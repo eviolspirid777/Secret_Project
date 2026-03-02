@@ -1,8 +1,7 @@
-﻿namespace Secret_Project_Backend.Controllers.Requests.User
+﻿namespace SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+
+public class FriendRequest
 {
-    public class FriendRequest
-    {
-        public string FromUserId { get; set; }
-        public string ToUserId { get; set; }
-    }
+    public string FromUserId { get; set; }
+    public string ToUserId { get; set; }
 }

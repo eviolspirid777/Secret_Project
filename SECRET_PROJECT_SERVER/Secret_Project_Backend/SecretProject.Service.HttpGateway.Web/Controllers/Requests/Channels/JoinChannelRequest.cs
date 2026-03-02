@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Secret_Project_Backend.Controllers.Requests.Channels
+namespace SecretProject.Service.HttpGateway.Web.Controllers.Requests;
+
+public class JoinChannelRequest
 {
-    public class JoinChannelRequest
-    {
-        public string UserId { get; set; }
-        public Guid ChannelId { get; set; }
-    }
+    public string UserId { get; set; }
+    public Guid ChannelId { get; set; }
 }
