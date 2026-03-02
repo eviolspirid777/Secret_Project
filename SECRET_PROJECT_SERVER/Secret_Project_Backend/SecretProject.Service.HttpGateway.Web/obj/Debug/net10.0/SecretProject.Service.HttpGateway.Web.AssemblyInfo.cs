@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SecretProject.Service.HttpGateway.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+43fcd6312d7841ae259b7735cbb66030b56dc1d1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2b0850dd915b587a8d72b73adbcb15d65c4130df")]
 [assembly: System.Reflection.AssemblyProductAttribute("SecretProject.Service.HttpGateway.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SecretProject.Service.HttpGateway.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

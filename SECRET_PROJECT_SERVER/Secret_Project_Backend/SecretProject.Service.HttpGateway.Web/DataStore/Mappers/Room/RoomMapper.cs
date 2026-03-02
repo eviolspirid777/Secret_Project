@@ -1,6 +1,5 @@
 ﻿using Riok.Mapperly.Abstractions;
-using SecretProject.Platform.Data.DTOs.Room;
-
+using SecretProject.Platform.Data.DataStore.DTOs.Room;
 
 namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Room;
 

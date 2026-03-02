@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SecretProject.Platform.Data.DTOs.Reactions;
+using SecretProject.Platform.Data.DataStore.DTOs.Reactions;
+using SecretProject.Platform.Data.DataStore.DTOs.User;
 using SecretProject.Platform.Data.DTOs.User;
 using SecretProject.Platform.Data.DTOs.UserRoom;
 using SecretProject.Platform.Data.Models;
@@ -8,7 +9,7 @@ using SecretProject.Service.HttpGateway.Web.Controllers.Requests;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Messages;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.UserRoom;
-using File = SecretProject.Platform.Data.Models.File;
+using File = SecretProject.Platform.Data.DataStore.Models.File;
 
 
 namespace SecretProject.Service.HttpGateway.Web.Controllers;

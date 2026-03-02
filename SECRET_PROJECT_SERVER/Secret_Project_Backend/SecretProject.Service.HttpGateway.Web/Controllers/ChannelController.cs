@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SecretProject.Platform.Data.DTOs;
+using SecretProject.Platform.Data.DataStore.DTOs;
 using SecretProject.Platform.Data.DTOs.Room;
 using SecretProject.Service.HttpGateway.Web.Controllers.Requests;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Channel;

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using SecretProject.Platform.Data.Models;
+using SecretProject.Platform.Data.DataStore.Models;
 using SecretProject.Service.HttpGateway.Web.Controllers.Requests;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.FriendShip;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User;

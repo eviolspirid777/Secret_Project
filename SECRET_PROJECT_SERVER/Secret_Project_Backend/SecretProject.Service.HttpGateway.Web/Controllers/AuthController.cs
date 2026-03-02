@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SecretProject.Platform.Data.DTOs;
+using SecretProject.Platform.Data.DataStore.DTOs;
 using SecretProject.Service.HttpGateway.Web.DataStore.Models;
 using SecretProject.Service.HttpGateway.Web.Utils;
 

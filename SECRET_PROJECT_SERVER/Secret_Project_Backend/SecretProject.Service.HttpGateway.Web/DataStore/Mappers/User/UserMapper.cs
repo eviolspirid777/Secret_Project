@@ -1,7 +1,6 @@
 ﻿using Riok.Mapperly.Abstractions;
-using SecretProject.Platform.Data.DTOs.User;
-using SecretProject.Platform.Data.Models;
-
+using SecretProject.Platform.Data.DataStore.DTOs.User;
+using SecretProject.Platform.Data.DataStore.Models;
 
 namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User;
 

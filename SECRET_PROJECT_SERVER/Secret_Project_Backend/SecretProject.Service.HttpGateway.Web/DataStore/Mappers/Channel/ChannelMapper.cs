@@ -1,6 +1,6 @@
 ﻿using Riok.Mapperly.Abstractions;
-using SecretProject.Platform.Data.DTOs;
-using SecretProject.Platform.Data.DTOs.ChannelUser;
+using SecretProject.Platform.Data.DataStore.DTOs;
+using SecretProject.Platform.Data.DataStore.DTOs.ChannelUser;
 using SecretProject.Service.HttpGateway.Web.DataStore.Models;
 
 

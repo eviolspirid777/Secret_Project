@@ -1,5 +1,5 @@
 ﻿using Riok.Mapperly.Abstractions;
-using SecretProject.Platform.Data.DTOs.UserRoom;
+using SecretProject.Platform.Data.DataStore.DTOs.UserRoom;
 
 namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.UserRoom;
 

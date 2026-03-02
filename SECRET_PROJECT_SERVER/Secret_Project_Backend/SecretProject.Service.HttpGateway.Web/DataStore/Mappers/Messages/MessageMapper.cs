@@ -1,9 +1,9 @@
 ﻿using Riok.Mapperly.Abstractions;
+using SecretProject.Platform.Data.DataStore.DTOs.Messages;
+using SecretProject.Platform.Data.DataStore.DTOs.Reactions;
+using SecretProject.Platform.Data.DataStore.Models;
 using SecretProject.Platform.Data.DTOs.File;
-using SecretProject.Platform.Data.DTOs.Messages;
-using SecretProject.Platform.Data.DTOs.Reactions;
 using SecretProject.Platform.Data.DTOs.RepliedMessage;
-using SecretProject.Platform.Data.Models;
 
 namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Messages;
 
