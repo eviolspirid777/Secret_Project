@@ -1,11 +1,31 @@
 {
   "version": 2,
-  "dgSpecHash": "ww+iKvlweVI=",
+  "dgSpecHash": "Tmzh4MLeKYI=",
   "success": true,
   "projectFilePath": "C:\\Users\\user\\Desktop\\Private\\CSHARP\\SecretProject\\SECRET_PROJECT_SERVER\\Secret_Project_Backend\\SecretProject.Service.Authentication\\SecretProject.Service.Authentication.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\user\\.nuget\\packages\\google.protobuf\\3.21.5\\google.protobuf.3.21.5.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\grpc.aspnetcore\\2.49.0\\grpc.aspnetcore.2.49.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\grpc.aspnetcore.server\\2.49.0\\grpc.aspnetcore.server.2.49.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\grpc.aspnetcore.server.clientfactory\\2.49.0\\grpc.aspnetcore.server.clientfactory.2.49.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\grpc.core.api\\2.49.0\\grpc.core.api.2.49.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\grpc.net.client\\2.49.0\\grpc.net.client.2.49.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\grpc.net.clientfactory\\2.49.0\\grpc.net.clientfactory.2.49.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\grpc.net.common\\2.49.0\\grpc.net.common.2.49.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\grpc.tools\\2.49.0\\grpc.tools.2.49.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.aspnetcore.identity.entityframeworkcore\\10.0.3\\microsoft.aspnetcore.identity.entityframeworkcore.10.0.3.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.2\\microsoft.aspnetcore.openapi.10.0.2.nupkg.sha512",
-    "C:\\Users\\user\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore\\10.0.3\\microsoft.entityframeworkcore.10.0.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\10.0.3\\microsoft.entityframeworkcore.abstractions.10.0.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\10.0.3\\microsoft.entityframeworkcore.analyzers.10.0.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\10.0.3\\microsoft.entityframeworkcore.relational.10.0.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\namotion.reflection\\3.4.3\\namotion.reflection.3.4.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\njsonschema\\11.5.2\\njsonschema.11.5.2.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\njsonschema.annotations\\11.5.2\\njsonschema.annotations.11.5.2.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\nswag.annotations\\14.6.3\\nswag.annotations.14.6.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\nswag.core\\14.6.3\\nswag.core.14.6.3.nupkg.sha512"
   ],
   "logs": []
 }

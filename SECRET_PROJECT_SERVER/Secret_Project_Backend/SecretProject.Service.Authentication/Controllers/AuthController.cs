@@ -1,70 +1,47 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection;
+using NSwag.Annotations;
+using SecretProject.Authentication.Data.DataStore.Entities;
+using SecretProject.Service.Grpc.v1.Proto;
+using HttpModels = SecretProject.Service.Authentication.Storage.Models.Auth.Requests;
 
 namespace SecretProject.Service.Authentication.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AuthController : ControllerBase
+    public partial class AuthController
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IConfiguration _configuration;
-        private readonly IEmailService _emailService;
-        private readonly ChangeUserStatusService _userStatusService;
-        private readonly ILogger<AuthController> _logger;
-
-        public AuthController(
-            SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager,
-            IConfiguration configuration,
-            IEmailService emailService,
-            ChangeUserStatusService userStatusService,
-            ILogger<AuthController> logger
-        )
+        //private readonly ChangeUserStatusService _userStatusService;
+        public AuthController()
         {
-            _signInManager = signInManager;
-            _userManager = userManager;
-            _configuration = configuration;
-            _emailService = emailService;
-            _userStatusService = userStatusService;
-            _logger = logger;
+            //_userStatusService = userStatusService;
         }
 
-        //[HttpDelete("delete-user")]
-        //public async Task<IActionResult> DeleteAccout([FromQuery] string id)
-        //{
-        //    var user = await _userManager.FindByIdAsync(id);
-        //    if(user == null)
-        //    {
-        //        return BadRequest("Invalid UserData");
-        //    }
-        //    await _userManager.DeleteAsync(user);
-        //    return Ok();
-        //}
-
-        [HttpPost("register")]
-        public async Task<ActionResult> Register([FromBody] RegisterDto model)
+        [OpenApiTag("Auth")]
+        [HttpPost("auth/register")]
+        [ProducesResponseType(typeof(Guid), 200)]
+        [ProducesErrorResponseType(typeof(ProblemDetails))]
+        [OpenApiOperation(nameof(Register), "Регистрация пользователя", "")]
+        public async Task<IActionResult> Register([FromBody] HttpModels.RegisterRequest request, CancellationToken ct)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var foundedUser = await _userManager.FindByEmailAsync(model.Email);
-            if (foundedUser != null)
-                return BadRequest("Пользователь с таким именем уже существует");
 
-            var user = new ApplicationUser
+            var foundedUser = await _userManager.FindByEmailAsync(request.Email);
+
+            if (foundedUser != null)
+                return BadRequest("Пользователь с такой почтой уже существует");
+
+            var user = new AuthUser
             {
-                UserName = model.Email,
-                Email = model.Email,
-                DisplayName = model.Email.Split("@")[0],
+                UserName = request.Email,
+                Email = request.Email,
+                DisplayName = request.DisplayName,
                 AvatarUrl = "",
                 EmailConfirmed = false,
-                Status = Models.ConnectionState.Offline,
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
-
+            var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
@@ -72,11 +49,12 @@ namespace SecretProject.Service.Authentication.Controllers
 
             try
             {
-                await _emailService.SendEmailConfirmationAsync(user.Email, user.Id, token);
+                var emailRequest = new SendEmailConfirmationRequest() { Email =  user.Email, UserId = user.Id, Token = token};
+                await _emailServiceClient.SendEmailConfirmationAsync(new() { Email = user.Email, UserId = user.Id, Token = token }, cancellationToken: ct);
                 _logger.LogInformation($"Пользователь с почтой: {user.Email} отправлен на подтверждение email.");
                 return Ok(new
                 {
-                    message = "Для завершения регистрации проверьте вашу почту и подтвердите email"
+                    message = "Для завершения регистрации проверьте вашу почту и подтвердите учётную запись"
                 });
             }
             catch (Exception ex)
@@ -114,43 +92,43 @@ namespace SecretProject.Service.Authentication.Controllers
             }
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] LoginDto model)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
-                return Unauthorized("Неверные данные для входа");
+        //    var user = await _userManager.FindByEmailAsync(model.Email);
+        //    if (user == null)
+        //        return Unauthorized("Неверные данные для входа");
 
-            if (!await _userManager.IsEmailConfirmedAsync(user))
-            {
-                return Unauthorized("Email не подтвержден. Пожалуйста, подтвердите email для входа.");
-            }
+        //    if (!await _userManager.IsEmailConfirmedAsync(user))
+        //    {
+        //        return Unauthorized("Email не подтвержден. Пожалуйста, подтвердите email для входа.");
+        //    }
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+        //    var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
-            if (!result.Succeeded)
-                return Unauthorized("Неверные учетные данные");
+        //    if (!result.Succeeded)
+        //        return Unauthorized("Неверные учетные данные");
 
-            var (token, expirationDate) = JwtToken.GenerateJwtToken(user, _configuration["Jwt:Key"]);
-            await _userStatusService.ChangeStatusAsync(Models.ConnectionState.Online, user.Id);
-            return Ok(new { token, expirationDate, userId = user.Id });
-        }
+        //    var (token, expirationDate) = JwtToken.GenerateJwtToken(user, _configuration["Jwt:Key"]);
+        //    await _userStatusService.ChangeStatusAsync(Models.ConnectionState.Online, user.Id);
+        //    return Ok(new { token, expirationDate, userId = user.Id });
+        //}
 
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout([FromQuery] string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return BadRequest("Invalid user access!");
-            }
+        //[HttpPost("logout")]
+        //public async Task<IActionResult> Logout([FromQuery] string id)
+        //{
+        //    var user = await _userManager.FindByIdAsync(id);
+        //    if (user == null)
+        //    {
+        //        return BadRequest("Invalid user access!");
+        //    }
 
-            await _userStatusService.ChangeStatusAsync(Models.ConnectionState.Offline, user.Id);
-            await _signInManager.SignOutAsync();
-            return Ok();
-        }
+        //    await _userStatusService.ChangeStatusAsync(Models.ConnectionState.Offline, user.Id);
+        //    await _signInManager.SignOutAsync();
+        //    return Ok();
+        //}
     }
 }

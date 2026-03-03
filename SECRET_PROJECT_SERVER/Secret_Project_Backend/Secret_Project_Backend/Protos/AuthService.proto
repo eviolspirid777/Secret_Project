@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package auth.v1;
+
+option csharp_namespace = "SecretProject.Service.Grpc.v1.Proto";
+
+service AuthService 
+{
+    rpc Register(RegisterRequest) returns (RegisterResponse);
+    
+    rpc Login(LoginRequest) returns (LoginResponse);
+    
+    rpc Logout(LogoutRequest) returns (LogoutResponse);
+}
+
+message RegisterRequest 
+{
+    string email = 1;     
+    string password = 2;   
+    string display_name = 3;
+}
+
+message RegisterResponse 
+{
+    string user_id = 1;          
+    string message = 2;         
+    bool email_confirmation_required = 3; 
+}
+
+message LoginRequest 
+{
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse 
+{
+    string user_id = 1;
+    string access_token = 2;     
+    string refresh_token = 3;    
+    int64 expires_in = 4;        
+    string display_name = 5;
+    bool success = 6;
+    string error_message = 7;    
+}
+
+message LogoutRequest {
+    string user_id = 1;
+    string access_token = 2;    
+}
+
+message LogoutResponse {
+    bool success = 1;
+    string message = 2;         
+}

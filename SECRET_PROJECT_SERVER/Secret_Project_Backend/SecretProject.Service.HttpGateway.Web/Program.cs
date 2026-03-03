@@ -1,4 +1,6 @@
 
+using Microsoft.AspNetCore.Builder;
+
 namespace SecretProject.Service.HttpGateway.Web
 {
     public class Program
@@ -7,18 +9,28 @@ namespace SecretProject.Service.HttpGateway.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
 
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "Messenger API Gateway",
+                    Version = "v1",
+                    Description = "API Gateway for Messenger microservices"
+                });
+            });
+            builder.Services.AddControllers();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.UseSwagger();
+                app.UseSwagger();
             }
 
             app.UseHttpsRedirection();
