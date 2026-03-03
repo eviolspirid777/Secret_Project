@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SecretProject.Platform.Data")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2b0850dd915b587a8d72b73adbcb15d65c4130df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+41c6df3de23e9d96ad919e5f336dd3fd31b2b55c")]
 [assembly: System.Reflection.AssemblyProductAttribute("SecretProject.Platform.Data")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SecretProject.Platform.Data")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
