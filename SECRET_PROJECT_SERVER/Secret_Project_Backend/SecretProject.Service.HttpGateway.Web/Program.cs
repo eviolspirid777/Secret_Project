@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.OpenApi;
 
 namespace SecretProject.Service.HttpGateway.Web
 {
@@ -15,7 +16,7 @@ namespace SecretProject.Service.HttpGateway.Web
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Messenger API Gateway",
                     Version = "v1",
