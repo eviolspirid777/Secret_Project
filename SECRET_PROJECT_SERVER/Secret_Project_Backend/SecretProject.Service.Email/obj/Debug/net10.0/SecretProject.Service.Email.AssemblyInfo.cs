@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SecretProject.Service.Email")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+43fcd6312d7841ae259b7735cbb66030b56dc1d1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d2cb1aa6122922d3f0b89bea55d0406e745ac251")]
 [assembly: System.Reflection.AssemblyProductAttribute("SecretProject.Service.Email")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SecretProject.Service.Email")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
