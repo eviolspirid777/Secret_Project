@@ -1,0 +1,9 @@
+﻿namespace SecretProject.Platform.Data.DataStore.DTOs;
+
+public class ChannelDto
+{
+    public string Id { get; set; }
+    public string Name { get; set; }
+    public string ChannelAvatarUrl { get; set; }
+    public DateTime CreatedAt { get; set; }
+}

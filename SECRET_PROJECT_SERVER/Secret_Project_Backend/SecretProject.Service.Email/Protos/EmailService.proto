@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package email.v1;
+
+option csharp_namespace = "SecretProject.Service.Grpc.v1.Proto";
+
+service EmailService 
+{
+    rpc SendEmailConfirmation(SendEmailConfirmationRequest) returns (SendEmailConfirmationResponse);
+}
+
+message SendEmailConfirmationRequest 
+{
+    string email = 1;     
+    string user_id = 2;   
+    string token = 3;
+}
+
+message SendEmailConfirmationResponse 
+{
+}

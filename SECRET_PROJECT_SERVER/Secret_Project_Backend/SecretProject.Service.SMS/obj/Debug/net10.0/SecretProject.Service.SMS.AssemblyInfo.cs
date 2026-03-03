@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SecretProject.Service.SMS")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1ea8468fa7dc9baee9af4ba784597441503883ed")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2b0850dd915b587a8d72b73adbcb15d65c4130df")]
 [assembly: System.Reflection.AssemblyProductAttribute("SecretProject.Service.SMS")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SecretProject.Service.SMS")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
