@@ -1,2 +1,0 @@
-obj\Debug\net10.0\Protos/EmailService1.cs \
-obj\Debug\net10.0\Protos/EmailService1Grpc.cs: Protos/EmailService1.proto
