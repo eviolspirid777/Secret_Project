@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SecretProject.User.Data")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1f3bddffd39b2f5e6bb5dbcca2e9c1402b085563")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+412ccf4186154c1c43e92cf3092faf3d88413c03")]
 [assembly: System.Reflection.AssemblyProductAttribute("SecretProject.User.Data")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SecretProject.User.Data")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SecretProject.Authentication.Data")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+41c6df3de23e9d96ad919e5f336dd3fd31b2b55c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+412ccf4186154c1c43e92cf3092faf3d88413c03")]
 [assembly: System.Reflection.AssemblyProductAttribute("SecretProject.Authentication.Data")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SecretProject.Authentication.Data")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
