@@ -8,7 +8,7 @@ public class Reaction
     public Guid Id { get; set; }
     public string Emotion { get; set; }
     public string UserId { get; set; }
-    public ApplicationUser User { get; set; }
+    //public ApplicationUser User { get; set; }
     public Guid MessageId { get; set; }
     public Message Message { get; set; }
 }

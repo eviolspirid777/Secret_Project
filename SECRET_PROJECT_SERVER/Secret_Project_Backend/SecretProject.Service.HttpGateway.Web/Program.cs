@@ -1,5 +1,3 @@
-
-using Microsoft.AspNetCore.Builder;
 using Microsoft.OpenApi;
 
 namespace SecretProject.Service.HttpGateway.Web
@@ -10,9 +8,10 @@ namespace SecretProject.Service.HttpGateway.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-
             builder.Services.AddControllers();
+
             builder.Services.AddOpenApi();
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
@@ -23,22 +22,24 @@ namespace SecretProject.Service.HttpGateway.Web
                     Description = "API Gateway for Messenger microservices"
                 });
             });
-            builder.Services.AddControllers();
 
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+
                 app.UseSwagger();
-                app.UseSwagger();
+
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Messenger Gateway API V1");
+                    c.RoutePrefix = "swagger"; // URL: https://localhost:7215/swagger
+                });
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();

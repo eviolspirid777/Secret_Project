@@ -20,8 +20,7 @@ public class AuthDbContext : IdentityDbContext<AuthUser>
         // Никаких связей с другими сущностями!
 
         // Оставляем только самые необходимые индексы
-        modelBuilder.Entity<AuthUser>()
-            .HasConversion<string>();
+        modelBuilder.Entity<AuthUser>();
     }
 
     // Только Identity-related DbSet

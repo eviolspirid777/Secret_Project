@@ -8,7 +8,7 @@ namespace SecretProject.Service.User.DataStore.Context
         public UserDbContext(DbContextOptions<UserDbContext> options) : base(options) { }
 
         public DbSet<UserProfile> UserProfiles { get; set; }
-        public DbSet<Friendship> Friendships { get; set; }
+        //public DbSet<Friendship> Friendships { get; set; }
         public DbSet<UserStatus> UserStatuses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,17 +29,17 @@ namespace SecretProject.Service.User.DataStore.Context
                     .HasForeignKey<UserStatus>(s => s.UserId);
             });
 
-            modelBuilder.Entity<Friendship>(entity =>
-            {
-                entity.HasKey(f => f.Id);
-                entity.HasIndex(f => new { f.UserId, f.FriendId }).IsUnique();
+            //modelBuilder.Entity<Friendship>(entity =>
+            //{
+            //    entity.HasKey(f => f.Id);
+            //    entity.HasIndex(f => new { f.UserId, f.FriendId }).IsUnique();
 
-                // Связи только с UserProfile, не с IdentityUser!
-                entity.HasOne(f => f.User)
-                    .WithMany(u => u.Friends)
-                    .HasForeignKey(f => f.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
+            //    // Связи только с UserProfile, не с IdentityUser!
+            //    entity.HasOne(f => f.User)
+            //        .WithMany(u => u.Friends)
+            //        .HasForeignKey(f => f.UserId)
+            //        .OnDelete(DeleteBehavior.Restrict);
+            //});
         }
     }
 
@@ -50,7 +50,7 @@ namespace SecretProject.Service.User.DataStore.Context
         public string DisplayName { get; set; }
         public string? AvatarUrl { get; set; }
         public UserStatus Status { get; set; }
-        public ICollection<Friendship> Friends { get; set; }
+        //public ICollection<Friendship> Friends { get; set; }
         public DateTime LastSyncedAt { get; set; } // Для eventual consistency
     }
 
