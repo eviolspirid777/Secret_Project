@@ -36,7 +36,7 @@ namespace SecretProject.Service.Authentication.Controllers
             {
                 UserName = request.Email,
                 Email = request.Email,
-                DisplayName = request.DisplayName,
+                DisplayName = string.IsNullOrEmpty(request.DisplayName) ? request.Email : request.DisplayName,
                 AvatarUrl = "",
                 EmailConfirmed = false,
             };

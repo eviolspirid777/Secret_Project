@@ -1,3 +1,219 @@
-/SECRET_PROJECT_SERVER/Secret_Project_Backend/.vs
-SECRET_PROJECT_SERVER/Secret_Project_Backend/.vs/*
-SECRET_PROJECT_SERVER/Secret_Project_Backend/.vs
+# Игнорировать bin и obj во всех микросервисах (ключевое правило!)
+**/bin/
+**/obj/
+**/[Bb]in/
+**/[Oo]bj/
+
+# Игнорировать папки сборки во всех проектах
+**/[Dd]ebug/
+**/[Rr]elease/
+**/x64/
+**/build/
+**/AppPackages/
+
+# Игнорировать специфичные для проекта папки если они есть
+**/pkg/
+**/lib/
+**/Generated/
+**/generated/
+**/Generated_Code/
+**/_Pvt_Extensions/
+
+# ======================================================
+# ФАЙЛЫ ПОЛЬЗОВАТЕЛЯ VISUAL STUDIO
+# ======================================================
+
+# Файлы пользователя
+*.suo
+*.user
+*.userprefs
+*.sln.docstates
+
+# Папка Visual Studio
+.vs/
+**/.vs/
+
+# ======================================================
+# РЕЗУЛЬТАТЫ СБОРКИ
+# ======================================================
+
+# Сгенерированные файлы сборки
+*.dll
+*.exe
+*.pdb
+*.so
+*.dylib
+*.ilk
+*.meta
+*.obj
+*.pch
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+
+# Логи сборки
+*.log
+*.[Ll]og
+[Bb]uild[Ll]og.*
+
+# ======================================================
+# РЕЗУЛЬТАТЫ ТЕСТИРОВАНИЯ
+# ======================================================
+
+[Tt]est[Rr]esult*/
+**/[Tt]est[Rr]esult*/
+
+# ======================================================
+# NUGET ПАКЕТЫ
+# ======================================================
+
+# Папка packages
+packages/
+**/packages/
+
+# Не игнорировать папку build внутри NuGet пакетов (нужно для сборки)
+!packages/*/build/
+!**/packages/*/build/
+
+# Файлы блокировки пакетов
+project.lock.json
+**/project.lock.json
+project.fragment.lock.json
+**/project.fragment.lock.json
+
+# ======================================================
+# ФАЙЛЫ НАСТРОЕК IDE
+# ======================================================
+
+# Visual Studio Code
+.vscode/
+**/.vscode/
+
+# JetBrains Rider/ReSharper
+.idea/
+**/.idea/
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.ncrunch*
+.*crunch*.local.xml
+
+# ======================================================
+# БАЗЫ ДАННЫХ
+# ======================================================
+
+# SQL Server
+App_Data/*.mdf
+App_Data/*.ldf
+*.mdf
+*.ldf
+
+# ======================================================
+# ПУБЛИКАЦИЯ И РАЗВЕРТЫВАНИЕ
+# ======================================================
+
+# Click-Once
+publish/
+**/publish/
+
+# Web публикация
+*.Publish.xml
+*.[Pp]ublish.xml
+*.publishsettings
+**/*.Publish.xml
+**/*.[Pp]ublish.xml
+
+# Azure
+csx
+*.build.csdef
+
+# ======================================================
+# ВРЕМЕННЫЕ ФАЙЛЫ И БЭКАПЫ
+# ======================================================
+
+# Временные файлы
+*.tmp
+*.temp
+*.cache
+*.pidb
+*.svclog
+*.scc
+*.vspscc
+*.vssscc
+
+# Файлы бэкапов
+*~
+~$*
+*.bak
+*.backup
+Backup*/
+**/Backup*/
+
+# Файлы отчетов об обновлении
+_UpgradeReport_Files/
+UpgradeLog*.XML
+UpgradeLog*.htm
+**/_UpgradeReport_Files/
+**/UpgradeLog*.XML
+**/UpgradeLog*.htm
+
+# ======================================================
+# ФАЙЛЫ ОПЕРАЦИОННОЙ СИСТЕМЫ
+# ======================================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Mac
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# ======================================================
+# СПЕЦИФИЧНЫЕ ФАЙЛЫ ПРОЕКТА (настройте под себя)
+# ======================================================
+
+# Файлы конфигурации для разработки (не должны попадать в Git)
+appsettings.Development.json
+**/appsettings.Development.json
+
+# Временные файлы уведомлений
+NotificationDevices.json
+**/NotificationDevices.json
+
+# ======================================================
+# КЭШ И СГЕНЕРИРОВАННЫЕ ФАЙЛЫ
+# ======================================================
+
+# Кэш Visual C++
+ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+
+# Профилировщик Visual Studio
+*.psess
+*.vsp
+*.vspx
+
+# Покрытие кода
+*.dotCover
+
+# Другое
+ClientBin/
+[Ss]tyle[Cc]op.*
+*.dbmdl
+*.pfx
+*.gpState
