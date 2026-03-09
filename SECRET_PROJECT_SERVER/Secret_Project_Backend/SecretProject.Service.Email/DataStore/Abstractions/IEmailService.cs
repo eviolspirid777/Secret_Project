@@ -1,4 +1,4 @@
-﻿namespace SecretProject.Service.Email.Services.Abstractions
+﻿namespace SecretProject.Service.Email.DataStore.Abstractions
 {
     public interface IEmailService
     {

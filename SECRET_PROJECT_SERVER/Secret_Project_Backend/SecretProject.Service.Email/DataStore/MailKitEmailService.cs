@@ -1,9 +1,9 @@
 ﻿using MimeKit;
 using MailKit.Security;
 using SecretProject.Distribution.Data.Messages.Factories;
-using SecretProject.Service.Email.Services.Abstractions;
+using SecretProject.Service.Email.DataStore.Abstractions;
 
-namespace SecretProject.Service.Email.Services
+namespace SecretProject.Service.Email.DataStore
 {
     public class MailKitEmailService : IEmailService
     {
