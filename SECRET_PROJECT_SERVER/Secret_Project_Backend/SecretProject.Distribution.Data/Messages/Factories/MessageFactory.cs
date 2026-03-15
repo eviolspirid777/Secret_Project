@@ -24,7 +24,7 @@ namespace SecretProject.Distribution.Data.Messages.Factories
         }
         public ConfirmationEmailMessage CreateEmailConfirmationMessage(IConfiguration config, string userId, string token)
         {
-            var link = _linkConstructor.GetEmailConfirmationLink(config, userId, token);
+            var link = _linkConstructor.GetEmailConfirmationLink(userId, token);
             var message = _messageConstructor.GetEmailConfirmationMessage(link);
 
             return new ConfirmationEmailMessage(SubjectTemplates.EmailConfirmationSubject, message);

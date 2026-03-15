@@ -5,13 +5,13 @@ namespace SecretProject.Distribution.Data.Constructors.Links
 {
     public interface ILinkConstructor
     {
-        string GetEmailConfirmationLink(IConfiguration configuration, string userId, string token);
+        string GetEmailConfirmationLink(string userId, string token);
     }
-    public class LinkConstructor
+    public class LinkConstructor : ILinkConstructor
     {
-        public string GetEmailConfirmationLink(IConfiguration configuration, string userId, string token)
+        public string GetEmailConfirmationLink(string userId, string token)
         {
-            var baseUrl = configuration[ConfigKeys.ApplicationUrl]?.TrimEnd('/');
+            var baseUrl = ConfigKeys.ApplicationUrl?.TrimEnd('/');
 
             if (string.IsNullOrEmpty(baseUrl))
                 throw new InvalidOperationException("ApplicationUrl не настроен в конфигурации");

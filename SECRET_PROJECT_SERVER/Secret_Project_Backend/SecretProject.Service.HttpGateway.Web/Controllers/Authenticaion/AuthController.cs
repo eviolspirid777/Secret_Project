@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using SecretProject.Service.Grpc.v1.Proto;
-using SecretProject.Service.HttpGateway.Web.DataStore.Authentication.Entities;
-using SecretProject.Service.HttpGateway.Web.DataStore.Authentication.Requests;
+using Microsoft.AspNetCore.Authorization;
+using SecretProject.Platform.Data.DataStore.Entities;
 
 namespace SecretProject.Service.HttpGateway.Web.Controllers;
 
@@ -11,6 +11,7 @@ public partial class AuthController
 {
     [OpenApiTag("Auth")]
     [HttpPost("register")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(Guid), 200)]
     [ProducesErrorResponseType(typeof(ProblemDetails))]
     [OpenApiOperation(nameof(Register), "Регистрация пользователя", "")]

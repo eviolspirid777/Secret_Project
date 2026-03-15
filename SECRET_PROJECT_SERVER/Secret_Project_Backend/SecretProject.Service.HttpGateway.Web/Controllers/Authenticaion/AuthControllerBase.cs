@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
+using SecretProject.Platform.Data.DataStore.Entities;
 using SecretProject.Service.Grpc.v1.Proto;
-using SecretProject.Service.HttpGateway.Web.DataStore.Authentication.Entities;
 
 namespace SecretProject.Service.HttpGateway.Web.Controllers;
 

@@ -7,6 +7,7 @@ namespace SecretProject.Service.Email.DataStore
 {
     public class MailKitEmailService : IEmailService
     {
+        private readonly ILogger<MailKitEmailService> _logger;
         private readonly IConfiguration _configuration;
         private readonly IMessageFactory _messageFactory;
         private readonly string _smtpServer;
@@ -16,11 +17,11 @@ namespace SecretProject.Service.Email.DataStore
         private readonly string _fromEmail;
         private readonly string _fromName;
 
-        public MailKitEmailService(IConfiguration configuration, IMessageFactory messageFactory)
+        public MailKitEmailService(ILogger<MailKitEmailService> logger, IConfiguration configuration, IMessageFactory messageFactory)
         {
             _configuration = configuration;
             _messageFactory = messageFactory;
-
+            _logger = logger;
 
             _smtpServer = _configuration["Email:SmtpServer"];
             _smtpPort = int.Parse(_configuration["Email:SmtpPort"]);
@@ -52,6 +53,10 @@ namespace SecretProject.Service.Email.DataStore
                 await client.AuthenticateAsync(_smtpUsername, _smtpPassword);
                 await client.SendAsync(emailMessage);
             }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при отправке сообщения на почту");
+            }
             finally
             {
                 await client.DisconnectAsync(true);
@@ -63,6 +68,7 @@ namespace SecretProject.Service.Email.DataStore
             var message = _messageFactory.CreateEmailConfirmationMessage(_configuration, userId, token);
 
             await SendEmailAsync(email, message.Subject, message.Text);
+            _logger.LogInformation("Отправлено сообщение с подтверждением на почту {email} пользователю {user}", email, userId);
         }
     }
 }
