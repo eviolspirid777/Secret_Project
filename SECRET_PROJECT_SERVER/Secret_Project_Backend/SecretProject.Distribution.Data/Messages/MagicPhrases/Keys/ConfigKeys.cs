@@ -2,6 +2,6 @@
 {
     public static class ConfigKeys
     {
-        public static readonly string ApplicationUrl = "ApplicationUrl";
+        public static readonly string ApplicationUrl = "https://localhost:7215";
     }
 }

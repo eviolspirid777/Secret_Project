@@ -20,6 +20,18 @@ namespace SecretProject.Service.HttpGateway.Web
             builder.Services.AddControllers();
 
 
+            #region Cors
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()  // ƒл€ разработки - разрешить любые источники
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
+            #endregion
+
             #region Auth
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -132,7 +144,7 @@ namespace SecretProject.Service.HttpGateway.Web
             // gRPC клиенты
             builder.Services.AddGrpcClient<AuthService.AuthServiceClient>(options =>
             {
-                options.Address = new Uri(builder.Configuration["Services:AuthService"] ?? "https://localhost:7045");
+                options.Address = new Uri(builder.Configuration["Services:AuthService"] ?? "http://localhost:5106");
             })
             .ConfigurePrimaryHttpMessageHandler(() =>
             {
@@ -147,7 +159,7 @@ namespace SecretProject.Service.HttpGateway.Web
 
             builder.Services.AddGrpcClient<EmailService.EmailServiceClient>(options =>
             {
-                options.Address = new Uri(builder.Configuration["Services:EmailService"] ?? "https://localhost:7164");
+                options.Address = new Uri(builder.Configuration["Services:EmailService"] ?? "http://localhost:5010");
             })
             .ConfigurePrimaryHttpMessageHandler(() =>
             {
@@ -193,8 +205,10 @@ namespace SecretProject.Service.HttpGateway.Web
                 c.ConfigObject.AdditionalItems["persistAuthorization"] = "true";
             });
 
+            app.UseCors("AllowAll");
             app.UseHttpsRedirection();
             app.UseRouting();
+
 
             app.UseAuthentication();
             app.UseAuthorization();

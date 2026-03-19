@@ -22,7 +22,7 @@ namespace SecretProject.Distribution.Data.Constructors.Links
             if (string.IsNullOrEmpty(token))
                 throw new InvalidOperationException("Token не настроен в конфигурации");
 
-            return $"{baseUrl}/Auth/confirm-email?UserId={userId}&Token={Uri.EscapeDataString(token)}";
+            return $"{baseUrl}/v1/auth/confirm-email?UserId={userId}&Token={Uri.EscapeDataString(token)}";
         }
     }
 }

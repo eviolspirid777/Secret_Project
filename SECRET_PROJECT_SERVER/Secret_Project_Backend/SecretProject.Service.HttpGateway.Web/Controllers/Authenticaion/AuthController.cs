@@ -43,7 +43,7 @@ public partial class AuthController
         try
         {
             var emailRequest = new SendEmailConfirmationRequest() { Email =  user.Email, UserId = user.Id, Token = token};
-            await _emailServiceClient.SendEmailConfirmationAsync(new() { Email = user.Email, UserId = user.Id, Token = token }, cancellationToken: ct);
+            await _emailServiceClient.SendEmailConfirmationAsync(emailRequest, cancellationToken: ct);
             _logger.LogInformation($"Пользователь с почтой: {user.Email} отправлен на подтверждение email.");
             return Ok(new
             {
@@ -59,6 +59,7 @@ public partial class AuthController
     }
 
     [HttpGet("confirm-email")]
+    [AllowAnonymous]
     public async Task<IActionResult> ConfirmEmail([FromQuery] string UserId, [FromQuery] string Token)
     {
         var user = await _userManager.FindByIdAsync(UserId);
