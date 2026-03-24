@@ -1,4 +1,6 @@
-﻿namespace SecretProject.Platform.Data.DataStore.Models;
+﻿using SecretProject.Platform.Data.DataStore.Entities;
+
+namespace SecretProject.Platform.Data.DataStore.Models;
 
 public class ChannelMessage
 {

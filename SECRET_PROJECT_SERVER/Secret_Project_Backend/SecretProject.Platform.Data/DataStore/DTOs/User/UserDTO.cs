@@ -2,9 +2,9 @@
 
 public class UserDTO
 {
-    public string UserId { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
+    public required string Name { get; set; } = string.Empty;
+    public required string Email { get; set; } = string.Empty;
     public string Avatar { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public SoundConnectionState States { get; set; } = new SoundConnectionState();

@@ -11,6 +11,34 @@ service AuthService
     rpc Login(LoginRequest) returns (LoginResponse);
     
     rpc Logout(LogoutRequest) returns (LogoutResponse);
+
+    rpc GetUsersByIds(GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
+}
+
+message GetUsersByIdsRequest
+{
+    repeated string id = 1;
+}
+
+message GetUsersByIdsResponse
+{
+    repeated User users = 1;
+}
+
+message User
+{
+    string id = 1;
+    string name = 2;
+    string email = 3;
+    string avatar = 4;
+    string status = 5;
+    SoundConnectionState soundState = 6;
+}
+
+message SoundConnectionState
+{
+    bool isMicroMuted = 1;
+    bool isHeadphonesMuted = 2;
 }
 
 message RegisterRequest 

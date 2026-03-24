@@ -1,4 +1,6 @@
-﻿namespace SecretProject.Platform.Data.DataStore.Models;
+﻿using SecretProject.Platform.Data.DataStore.Entities;
+
+namespace SecretProject.Platform.Data.DataStore.Models;
 
 public enum ChannelRole
 {
@@ -7,9 +9,9 @@ public enum ChannelRole
 }
 public class ChannelUser
 {
-    public string UserId { get; set; }
-    //public virtual ApplicationUser User { get; set; }
-    public Guid ChannelId { get; set; }
-    public virtual Channel Channel { get; set; }
-    public ChannelRole Role { get; set; }
+    public required Guid UserId { get; set; }
+    //public virtual ApplicationUser? User { get; set; }
+    public Guid? ChannelId { get; set; }
+    //public virtual Channel? Channel { get; set; }
+    public ChannelRole? Role { get; set; }
 }

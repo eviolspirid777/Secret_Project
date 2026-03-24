@@ -141,7 +141,7 @@ namespace SecretProject.Service.HttpGateway.Web
             #endregion
 
             #region Grpc
-            // gRPC клиенты
+
             builder.Services.AddGrpcClient<AuthService.AuthServiceClient>(options =>
             {
                 options.Address = new Uri(builder.Configuration["Services:AuthService"] ?? "http://localhost:5106");
@@ -175,21 +175,19 @@ namespace SecretProject.Service.HttpGateway.Web
             #endregion
 
             #region Database
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
 
-            //    var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
-            //    var pendingList = pendingMigrations.ToList();
+            builder.Services.AddDbContext<ChannelDbContext>(o =>
+            {
+                o.UseNpgsql(connectionString, npgsqlOptions =>
+                {
+                    npgsqlOptions.MigrationsHistoryTable("__EFMigrationHistory", "authentication");
+                    npgsqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorCodesToAdd: null);
+                });
+            });
 
-            //    if (pendingList.Any())
-            //        await dbContext.Database.MigrateAsync();
-            //}
-            //// Настройка pipeline
-            //if (app.Environment.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //}
             #endregion
 
             #region App
