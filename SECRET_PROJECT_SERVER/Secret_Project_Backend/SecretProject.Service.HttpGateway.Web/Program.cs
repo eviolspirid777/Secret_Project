@@ -81,37 +81,7 @@ namespace SecretProject.Service.HttpGateway.Web
                 });
             });
 
-            builder.Services.AddGrpcClient<AuthService.AuthServiceClient>(options =>
-            {
-                options.Address = new Uri(builder.Configuration["Services:AuthService"] ?? "https://localhost:7045");
-            })
-            .ConfigurePrimaryHttpMessageHandler(() =>
-            {
-                var handler = new HttpClientHandler();
-                if (builder.Environment.IsDevelopment())
-                {
-                    handler.ServerCertificateCustomValidationCallback =
-                        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-                }
-
-                return handler;
-            });
-
-            builder.Services.AddGrpcClient<ChannelService.ChannelServiceClient>(options =>
-            {
-                options.Address = new Uri(builder.Configuration["Services:ChannelService"] ?? "https://localhost:7120");
-            })
-            .ConfigurePrimaryHttpMessageHandler(() =>
-            {
-                var handler = new HttpClientHandler();
-                if (builder.Environment.IsDevelopment())
-                {
-                    handler.ServerCertificateCustomValidationCallback =
-                        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-                }
-
-                return handler;
-            });
+            builder.Services.AddProjectGrpcClients(builder.Configuration, builder.Environment);
 
             var app = builder.Build();
 

@@ -61,21 +61,7 @@ namespace SecretProject.Service.Authentication
 
             builder.Services.AddAuthorization();
 
-            builder.Services.AddGrpcClient<EmailService.EmailServiceClient>(options =>
-            {
-                options.Address = new Uri(builder.Configuration["Services:EmailService"] ?? "https://localhost:7164");
-            })
-            .ConfigurePrimaryHttpMessageHandler(() =>
-            {
-                var handler = new HttpClientHandler();
-                if (builder.Environment.IsDevelopment())
-                {
-                    handler.ServerCertificateCustomValidationCallback =
-                        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-                }
-
-                return handler;
-            });
+            builder.Services.AddProjectGrpcClients(builder.Configuration, builder.Environment);
 
             var app = builder.Build();
 
