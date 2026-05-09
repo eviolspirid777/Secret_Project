@@ -1,12 +1,7 @@
-﻿using SecretProject.Platform.Data.DataStore.Entities;
-using System;
-using System.Collections.Generic;
+﻿using SecretProject.Channels.Data.DataStore.Entities;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SecretProject.Platform.Data.DataStore.Models;
+namespace SecretProject.Channels.Data.DataStore.Models;
 
 public class Room
 {

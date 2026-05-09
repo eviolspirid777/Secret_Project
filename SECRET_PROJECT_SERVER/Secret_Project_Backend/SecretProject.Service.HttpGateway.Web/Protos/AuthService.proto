@@ -7,10 +7,14 @@ option csharp_namespace = "SecretProject.Service.Grpc.v1.Proto";
 service AuthService 
 {
     rpc Register(RegisterRequest) returns (RegisterResponse);
+
+    rpc ConfirmEmail(ConfirmEmailRequest) returns (ConfirmEmailResponse);
     
     rpc Login(LoginRequest) returns (LoginResponse);
     
     rpc Logout(LogoutRequest) returns (LogoutResponse);
+
+    rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
 
     rpc GetUsersByIds(GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
 }
@@ -50,9 +54,25 @@ message RegisterRequest
 
 message RegisterResponse 
 {
-    string user_id = 1;          
-    string message = 2;         
-    bool email_confirmation_required = 3; 
+    bool success = 1;
+    string error_message = 2;
+    string user_id = 3;
+    string message = 4;
+    bool email_confirmation_required = 5;
+}
+
+message ConfirmEmailRequest
+{
+    string user_id = 1;
+    string token = 2;
+}
+
+message ConfirmEmailResponse
+{
+    bool success = 1;
+    string error_message = 2;
+    string user_id = 3;
+    string message = 4;
 }
 
 message LoginRequest 
@@ -80,4 +100,14 @@ message LogoutRequest {
 message LogoutResponse {
     bool success = 1;
     string message = 2;         
+}
+
+message DeleteAccountRequest {
+    string user_id = 1;
+}
+
+message DeleteAccountResponse {
+    bool success = 1;
+    string error_message = 2;
+    string message = 3;
 }

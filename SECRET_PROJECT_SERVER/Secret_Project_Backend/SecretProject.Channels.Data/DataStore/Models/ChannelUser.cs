@@ -1,6 +1,5 @@
-﻿using SecretProject.Platform.Data.DataStore.Entities;
-
-namespace SecretProject.Platform.Data.DataStore.Models;
+﻿
+namespace SecretProject.Channels.Data.DataStore.Models;
 
 public enum ChannelRole
 {

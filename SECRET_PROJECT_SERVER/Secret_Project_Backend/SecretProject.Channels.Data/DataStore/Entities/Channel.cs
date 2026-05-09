@@ -1,6 +1,6 @@
-﻿using SecretProject.Platform.Data.DataStore.Models;
+﻿using SecretProject.Channels.Data.DataStore.Models;
 
-namespace SecretProject.Platform.Data.DataStore.Entities
+namespace SecretProject.Channels.Data.DataStore.Entities
 {
     public class Channel
     {

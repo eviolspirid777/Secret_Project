@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SecretProject.Platform.Data.DataStore.Models;
+namespace SecretProject.Channels.Data.DataStore.Models;
 
 public class Reaction
 {

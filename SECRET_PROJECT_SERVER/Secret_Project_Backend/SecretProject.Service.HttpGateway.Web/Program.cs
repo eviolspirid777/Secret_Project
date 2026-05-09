@@ -1,13 +1,8 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+п»їusing Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
-using SecretProject.Platform.Data.DataStore.Context;
 using SecretProject.Service.Grpc.v1.Proto;
-using Npgsql;
 using System.Text;
-using SecretProject.Platform.Data.DataStore.Entities;
 
 namespace SecretProject.Service.HttpGateway.Web
 {
@@ -19,25 +14,20 @@ namespace SecretProject.Service.HttpGateway.Web
 
             builder.Services.AddControllers();
 
-
-            #region Cors
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
                 {
-                    policy.AllowAnyOrigin()  // Для разработки - разрешить любые источники
+                    policy.AllowAnyOrigin()
                           .AllowAnyMethod()
                           .AllowAnyHeader();
                 });
             });
-            #endregion
-
-            #region Auth
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    var jwtKey = builder.Configuration["Jwt:Key"];
+                    var jwtKey = builder.Configuration["Jwt:Key"] ?? string.Empty;
                     var jwtIssuer = builder.Configuration["Jwt:Issuer"];
                     var jwtAudience = builder.Configuration["Jwt:Audience"];
 
@@ -45,16 +35,12 @@ namespace SecretProject.Service.HttpGateway.Web
                     {
                         ValidateIssuer = true,
                         ValidIssuer = jwtIssuer,
-
                         ValidateAudience = true,
                         ValidAudience = jwtAudience,
-
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero,
-
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(jwtKey))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
                     };
 
                     options.Events = new JwtBearerEvents
@@ -64,59 +50,16 @@ namespace SecretProject.Service.HttpGateway.Web
                             var authorization = context.Request.Headers["Authorization"].FirstOrDefault();
                             if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("Bearer "))
                             {
-                                context.Token = authorization.Substring("Bearer ".Length).Trim();
+                                context.Token = authorization["Bearer ".Length..].Trim();
                             }
-                            return Task.CompletedTask;
-                        },
-                        OnChallenge = context =>
-                        {
-                            Console.WriteLine($"OnChallenge: {context.Error}, {context.ErrorDescription}");
+
                             return Task.CompletedTask;
                         }
                     };
                 });
 
             builder.Services.AddAuthorization();
-            #endregion
 
-            #region IdentityContext
-            var connectionString = builder.Configuration.GetConnectionString("PostgreSQL");
-            builder.Services.AddDbContext<AuthDbContext>(o => 
-            {
-                o.UseNpgsql(connectionString, npgsqlOptions =>
-                {
-                    npgsqlOptions.MigrationsHistoryTable("__EFMigrationHistory", "authentication");
-                    npgsqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 5,
-                        maxRetryDelay: TimeSpan.FromSeconds(10),
-                        errorCodesToAdd: null);
-                });
-            });
-
-            builder.Services.AddIdentity<AuthUser, IdentityRole>(options =>
-            {
-                // Настройки пароля
-                options.Password.RequireDigit = true;
-                options.Password.RequiredLength = 1;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = true;
-
-                // Настройки пользователя
-                options.User.RequireUniqueEmail = true;
-                options.SignIn.RequireConfirmedEmail = true;
-
-                // Блокировка после нескольких неудачных попыток
-                //options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                //options.Lockout.MaxFailedAccessAttempts = 5;
-                //options.Lockout.AllowedForNewUsers = true;
-            })
-            .AddEntityFrameworkStores<AuthDbContext>()
-            .AddDefaultTokenProviders();
-            #endregion
-
-            #region Swagger
-            // Настройка Swagger с поддержкой JWT
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
@@ -127,7 +70,6 @@ namespace SecretProject.Service.HttpGateway.Web
                     Description = "API Gateway for Messenger microservices"
                 });
 
-                // Настройка безопасности для Swagger
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -135,16 +77,13 @@ namespace SecretProject.Service.HttpGateway.Web
                     Scheme = "bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "Введите JWT токен в поле ниже. Пример: 'Bearer 12345abcdef'"
+                    Description = "Р’РІРµРґРёС‚Рµ JWT С‚РѕРєРµРЅ РІ РїРѕР»Рµ РЅРёР¶Рµ. РџСЂРёРјРµСЂ: 'Bearer 12345abcdef'"
                 });
             });
-            #endregion
-
-            #region Grpc
 
             builder.Services.AddGrpcClient<AuthService.AuthServiceClient>(options =>
             {
-                options.Address = new Uri(builder.Configuration["Services:AuthService"] ?? "http://localhost:5106");
+                options.Address = new Uri(builder.Configuration["Services:AuthService"] ?? "https://localhost:7045");
             })
             .ConfigurePrimaryHttpMessageHandler(() =>
             {
@@ -154,12 +93,13 @@ namespace SecretProject.Service.HttpGateway.Web
                     handler.ServerCertificateCustomValidationCallback =
                         HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
                 }
+
                 return handler;
             });
 
-            builder.Services.AddGrpcClient<EmailService.EmailServiceClient>(options =>
+            builder.Services.AddGrpcClient<ChannelService.ChannelServiceClient>(options =>
             {
-                options.Address = new Uri(builder.Configuration["Services:EmailService"] ?? "http://localhost:5010");
+                options.Address = new Uri(builder.Configuration["Services:ChannelService"] ?? "https://localhost:7120");
             })
             .ConfigurePrimaryHttpMessageHandler(() =>
             {
@@ -169,52 +109,28 @@ namespace SecretProject.Service.HttpGateway.Web
                     handler.ServerCertificateCustomValidationCallback =
                         HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
                 }
+
                 return handler;
             });
 
-            #endregion
-
-            #region Database
-
-            builder.Services.AddDbContext<ChannelDbContext>(o =>
-            {
-                o.UseNpgsql(connectionString, npgsqlOptions =>
-                {
-                    npgsqlOptions.MigrationsHistoryTable("__EFMigrationHistory", "authentication");
-                    npgsqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 5,
-                        maxRetryDelay: TimeSpan.FromSeconds(10),
-                        errorCodesToAdd: null);
-                });
-            });
-
-            #endregion
-
-            #region App
             var app = builder.Build();
-
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Messenger Gateway API V1");
                 c.RoutePrefix = "swagger";
-
                 c.ConfigObject.AdditionalItems["persistAuthorization"] = "true";
             });
 
             app.UseCors("AllowAll");
             app.UseHttpsRedirection();
             app.UseRouting();
-
-
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.MapControllers();
 
             app.Run();
-            #endregion
         }
     }
 }

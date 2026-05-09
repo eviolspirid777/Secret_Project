@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SecretProject.Platform.Data.DataStore.Models;
+namespace SecretProject.Channels.Data.DataStore.Models;
 
-public class File
+public class ChannelFile
 {
     [Key]
     public Guid Id { get; set; }
@@ -10,6 +10,6 @@ public class File
     public string FileType { get; set; }
     public string FileName { get; set; }
 
-    public Guid MessageId { get; set; }
-    public virtual Message Message { get; set; }
+    public Guid ChannelMessageId { get; set; }
+    public virtual ChannelMessage ChannelMessage { get; set; }
 }

@@ -1,211 +1,143 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SecretProject.Platform.Data.DataStore.DTOs;
-using SecretProject.Platform.Data.DataStore.Models;
 using SecretProject.Service.Grpc.v1.Proto;
 using SecretProject.Service.HttpGateway.Web.DataStore.Channel.Requests;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Channel;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User;
-using System.Security.Claims;
-using Entities = SecretProject.Platform.Data.DataStore.Entities;
-
 
 namespace SecretProject.Service.HttpGateway.Web.Controllers.Channel
 {
     public partial class ChannelController
     {
-        #region Channel
         [HttpGet("get-channel-information/{id}")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetChannelInformation([FromRoute] Guid id)
+        public async Task<IActionResult> GetChannelInformation([FromRoute] Guid id, CancellationToken ct)
         {
-            var channel = await _dbContext
-                .Channels
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var response = await _channelServiceClient.GetChannelInformationAsync(
+                new GetChannelInformationRequest { ChannelId = id.ToString() },
+                cancellationToken: ct);
 
-            if (channel == null)
-            {
-                return NotFound();
-            }
+            if (!response.Success)
+                return NotFound(response.ErrorMessage);
 
-            var mappedChannel = ChannelMapper.ToHttp(channel);
-
-            return Ok(mappedChannel);
+            return Ok(ChannelMapper.ToHttp(response.Channel));
         }
 
         [HttpPost("add-channel")]
         [AllowAnonymous]
-        public async Task<IActionResult> AddChannel(AddNewChannelRequest data)
+        public async Task<IActionResult> AddChannel([FromBody] AddNewChannelRequest data, CancellationToken ct)
         {
-            var userId = Guid.Parse(data.AdminId);
+            var response = await _channelServiceClient.CreateChannelAsync(
+                new CreateChannelRequest
+                {
+                    Name = data.Name,
+                    ChannelAvatarUrl = data.ChannelAvatarUrl ?? string.Empty,
+                    AdminUserId = data.AdminId
+                },
+                cancellationToken: ct);
 
-            var channel = new Entities.Channel
-            {
-                Id = Guid.NewGuid(),
-                Name = data.Name,
-                CreatedAt = DateTime.UtcNow,
-                AdminId = userId,
-                ChannelUsers =
-                [
-                    new()
-                    {
-                        UserId = userId,
-                        Role = ChannelRole.Admin
-                    }
-                ]
-            };
+            if (!response.Success)
+                return BadRequest(response.ErrorMessage);
 
-            await _dbContext.Channels.AddAsync(channel);
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(channel.Id);
+            return Ok(response.ChannelId);
         }
 
         [HttpPost("join-channel")]
         [AllowAnonymous]
-        public async Task<IActionResult> JoinChannel([FromBody] JoinChannelRequest data)
+        public async Task<IActionResult> JoinChannel([FromBody] SecretProject.Service.HttpGateway.Web.DataStore.Channel.Requests.JoinChannelRequest data, CancellationToken ct)
         {
-            var channel = await _dbContext
-                .Channels
-                .Include(c => c.ChannelUsers)
-                .FirstOrDefaultAsync(c => c.Id == data.ChannelId);
+            var response = await _channelServiceClient.JoinChannelAsync(
+                new SecretProject.Service.Grpc.v1.Proto.JoinChannelRequest
+                {
+                    ChannelId = data.ChannelId.ToString(),
+                    UserId = data.UserId
+                },
+                cancellationToken: ct);
 
-            if (channel == null)
-            {
-                return BadRequest("Invalid ChannelId");
-            }
+            if (!response.Success)
+                return BadRequest(response.ErrorMessage);
 
-            channel.ChannelUsers.Add(new ChannelUser
-            {
-                UserId = Guid.Parse(data.UserId),
-                ChannelId = data.ChannelId,
-            });
-
-
-            await _dbContext.SaveChangesAsync();
             return Ok();
         }
 
         [HttpDelete("delete-channel/{id}")]
         [AllowAnonymous]
-        public async Task<IActionResult> DeleteChannel([FromRoute] Guid id)
+        public async Task<IActionResult> DeleteChannel([FromRoute] Guid id, CancellationToken ct)
         {
-            var channel = await _dbContext.Channels.FindAsync(id);
-            if (channel == null)
-            {
-                return BadRequest("Invalid Id");
-            }
-            _dbContext.Channels.Remove(channel);
-            await _dbContext.SaveChangesAsync();
+            var response = await _channelServiceClient.DeleteChannelAsync(
+                new DeleteChannelRequest { ChannelId = id.ToString() },
+                cancellationToken: ct);
 
-            return Ok(channel.Id);
+            if (!response.Success)
+                return BadRequest(response.ErrorMessage);
+
+            return Ok(response.ChannelId);
         }
-        #endregion
 
-        #region ChannelUser
         [HttpGet("get-user-channels/{userId}")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetUserChannels(string userId)
+        public async Task<IActionResult> GetUserChannels([FromRoute] string userId, CancellationToken ct)
         {
-            var user = await _dbContext
-                .Channels
-                .AsNoTracking()
-                .Include(u => u.ChannelUsers)
-                .FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId));
+            var response = await _channelServiceClient.GetUserChannelsAsync(
+                new GetUserChannelsRequest { UserId = userId },
+                cancellationToken: ct);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+            if (!response.Success)
+                return NotFound(response.ErrorMessage);
 
-            var channels = await _dbContext
-                                    .Channels
-                                    .AsNoTracking()
-                                    .Where(ch => ch.ChannelUsers.Any(chu => chu.UserId == Guid.Parse(userId)))
-                                    .ToListAsync();
-
-            var mappedChannels = channels.Select(ChannelMapper.ToHttp);
-
-            var channelsDictionary = new Dictionary<string, ChannelDto>();
-
-            foreach (var channel in mappedChannels)
-            {
-                channelsDictionary.Add(channel.Id, channel);
-            }
+            var channelsDictionary = response.Channels.ToDictionary(
+                pair => pair.Key,
+                pair => ChannelMapper.ToHttp(pair.Value));
 
             return Ok(channelsDictionary);
         }
 
         [HttpGet("channel/{id}/get-channel-users")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetChannelUsers(Guid id)
+        public async Task<IActionResult> GetChannelUsers([FromRoute] Guid id, CancellationToken ct)
         {
-            var channel = await _dbContext.Channels
-                .Include(c => c.ChannelUsers)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var response = await _channelServiceClient.GetChannelUsersAsync(
+                new GetChannelUsersRequest { ChannelId = id.ToString() },
+                cancellationToken: ct);
 
-            if (channel == null)
-                return NotFound();
-            if(channel.ChannelUsers is null)
-            {
-                return Ok();
-            }
-            var request = new GetUsersByIdsRequest
-            {
-                Id = { channel.ChannelUsers.Select(cu => cu.UserId.ToString()) }
-            };
-            var response = await _authServiceClient.GetUsersByIdsAsync(request);
-            var mappedUsers = response.Users.Select(UserMapper.ToDto);
+            if (!response.Success)
+                return NotFound(response.ErrorMessage);
 
-            return Ok(mappedUsers);
+            return Ok(response.Users.Select(UserMapper.ToDto));
         }
 
         [HttpPost("channel/{channelId}/add-user")]
-        public async Task<IActionResult> AddUserToChannel([FromRoute] Guid channelId, [FromBody] AddNewUserToChannelRequest data)
+        public async Task<IActionResult> AddUserToChannel([FromRoute] Guid channelId, [FromBody] AddNewUserToChannelRequest data, CancellationToken ct)
         {
-            var channelExist = await _dbContext.Channels.AnyAsync(c => c.Id == channelId);
+            var response = await _channelServiceClient.AddUserToChannelAsync(
+                new AddUserToChannelRequest
+                {
+                    ChannelId = channelId.ToString(),
+                    UserId = data.UserId.ToString()
+                },
+                cancellationToken: ct);
 
-            var response = await _authServiceClient.GetUsersByIdsAsync(new() { Id = { data.UserId.ToString() } });
-            var user = response.Users.FirstOrDefault();
-            if (user is null || !channelExist)
-            {
-                return BadRequest("Пользователя или канала с таким идентификатором не существует");
-            }
+            if (!response.Success)
+                return BadRequest(response.ErrorMessage);
 
-            var userAlreadyJoined = await _dbContext.ChannelUsers.AnyAsync(cu => cu.UserId == data.UserId && cu.ChannelId == channelId);
-            if (userAlreadyJoined)
-            {
-                return BadRequest("Пользователь уже состоит в данном канале");
-            }
-
-            await _dbContext.ChannelUsers.AddAsync(new ChannelUser
-            {
-                ChannelId = channelId,
-                UserId = data.UserId,
-            });
-
-            await _dbContext.SaveChangesAsync();
             return Ok();
         }
 
         [HttpDelete("channel/{channelId}/delete-user/{userId}")]
-        public async Task<IActionResult> DeleteUserFromChannel([FromRoute] Guid channelId, [FromRoute] string userId)
+        public async Task<IActionResult> DeleteUserFromChannel([FromRoute] Guid channelId, [FromRoute] string userId, CancellationToken ct)
         {
-            var channelUser = await _dbContext
-                .ChannelUsers
-                .FirstOrDefaultAsync(cu => cu.ChannelId == channelId && cu.UserId == Guid.Parse(userId));
+            var response = await _channelServiceClient.DeleteUserFromChannelAsync(
+                new DeleteUserFromChannelRequest
+                {
+                    ChannelId = channelId.ToString(),
+                    UserId = userId
+                },
+                cancellationToken: ct);
 
-            if (channelUser == null)
-            {
-                return NotFound();
-            }
+            if (!response.Success)
+                return NotFound(response.ErrorMessage);
 
-            _dbContext.ChannelUsers.Remove(channelUser);
-
-            await _dbContext.SaveChangesAsync();
             return Ok();
         }
-        #endregion ChannelUser
     }
 }

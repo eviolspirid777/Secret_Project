@@ -17,7 +17,7 @@ namespace SecretProject.Service.Authentication.Storage.Mappers
                 Id = source.Id,
                 Avatar = source.AvatarUrl,
                 Email = source.Email,
-                Name = source.UserName,
+                Name = source.DisplayName,
                 SoundState = new(),
                 Status = "Статус неизвестен"
             };

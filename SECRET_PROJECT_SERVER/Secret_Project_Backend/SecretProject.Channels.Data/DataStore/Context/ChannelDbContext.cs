@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SecretProject.Platform.Data.DataStore.Entities;
-using SecretProject.Platform.Data.DataStore.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SecretProject.Channels.Data.DataStore.Entities;
+using SecretProject.Channels.Data.DataStore.Models;
 
-namespace SecretProject.Platform.Data.DataStore.Context;
+namespace SecretProject.Channels.Data.DataStore.Context;
 
 public class ChannelDbContext : DbContext
 {
@@ -23,7 +20,7 @@ public class ChannelDbContext : DbContext
     public DbSet<ChannelMessage> ChannelMessages => Set<ChannelMessage>();
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<ChannelUser> ChannelUsers => Set<ChannelUser>();
-    public DbSet<ChannelFile> ChannelFiles => Set<ChannelFile>(); // Добавлено
+    public DbSet<ChannelFile> ChannelFiles => Set<ChannelFile>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

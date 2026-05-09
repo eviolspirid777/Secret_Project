@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package channel.v1;
+
+option csharp_namespace = "SecretProject.Service.Grpc.v1.Proto";
+
+service ChannelService
+{
+    rpc GetChannelInformation(GetChannelInformationRequest) returns (GetChannelInformationResponse);
+    rpc CreateChannel(CreateChannelRequest) returns (CreateChannelResponse);
+    rpc JoinChannel(JoinChannelRequest) returns (ChannelOperationResponse);
+    rpc DeleteChannel(DeleteChannelRequest) returns (DeleteChannelResponse);
+    rpc GetUserChannels(GetUserChannelsRequest) returns (GetUserChannelsResponse);
+    rpc GetChannelUsers(GetChannelUsersRequest) returns (GetChannelUsersResponse);
+    rpc AddUserToChannel(AddUserToChannelRequest) returns (ChannelOperationResponse);
+    rpc DeleteUserFromChannel(DeleteUserFromChannelRequest) returns (ChannelOperationResponse);
+}
+
+message ChannelView
+{
+    string id = 1;
+    string name = 2;
+    string channel_avatar_url = 3;
+    string created_at_utc = 4;
+}
+
+message GetChannelInformationRequest
+{
+    string channel_id = 1;
+}
+
+message GetChannelInformationResponse
+{
+    bool success = 1;
+    string error_message = 2;
+    ChannelView channel = 3;
+}
+
+message CreateChannelRequest
+{
+    string name = 1;
+    string channel_avatar_url = 2;
+    string admin_user_id = 3;
+}
+
+message CreateChannelResponse
+{
+    bool success = 1;
+    string error_message = 2;
+    string channel_id = 3;
+}
+
+message JoinChannelRequest
+{
+    string channel_id = 1;
+    string user_id = 2;
+}
+
+message DeleteChannelRequest
+{
+    string channel_id = 1;
+}
+
+message DeleteChannelResponse
+{
+    bool success = 1;
+    string error_message = 2;
+    string channel_id = 3;
+}
+
+message GetUserChannelsRequest
+{
+    string user_id = 1;
+}
+
+message GetUserChannelsResponse
+{
+    bool success = 1;
+    string error_message = 2;
+    map<string, ChannelView> channels = 3;
+}
+
+message GetChannelUsersRequest
+{
+    string channel_id = 1;
+}
+
+message GetChannelUsersResponse
+{
+    bool success = 1;
+    string error_message = 2;
+    repeated ChannelUserView users = 3;
+}
+
+message AddUserToChannelRequest
+{
+    string channel_id = 1;
+    string user_id = 2;
+}
+
+message DeleteUserFromChannelRequest
+{
+    string channel_id = 1;
+    string user_id = 2;
+}
+
+message ChannelOperationResponse
+{
+    bool success = 1;
+    string error_message = 2;
+}
+
+message ChannelUserView
+{
+    string id = 1;
+    string name = 2;
+    string email = 3;
+    string avatar = 4;
+    string status = 5;
+    bool is_micro_muted = 6;
+    bool is_headphones_muted = 7;
+}

@@ -4,14 +4,14 @@ package auth.v1;
 
 option csharp_namespace = "SecretProject.Service.Grpc.v1.Proto";
 
-service AuthService 
+service AuthService
 {
     rpc Register(RegisterRequest) returns (RegisterResponse);
 
     rpc ConfirmEmail(ConfirmEmailRequest) returns (ConfirmEmailResponse);
-    
+
     rpc Login(LoginRequest) returns (LoginResponse);
-    
+
     rpc Logout(LogoutRequest) returns (LogoutResponse);
 
     rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
@@ -45,14 +45,14 @@ message SoundConnectionState
     bool isHeadphonesMuted = 2;
 }
 
-message RegisterRequest 
+message RegisterRequest
 {
-    string email = 1;     
-    string password = 2;   
+    string email = 1;
+    string password = 2;
     string display_name = 3;
 }
 
-message RegisterResponse 
+message RegisterResponse
 {
     bool success = 1;
     string error_message = 2;
@@ -75,31 +75,31 @@ message ConfirmEmailResponse
     string message = 4;
 }
 
-message LoginRequest 
+message LoginRequest
 {
     string email = 1;
     string password = 2;
 }
 
-message LoginResponse 
+message LoginResponse
 {
     string user_id = 1;
-    string access_token = 2;     
-    string refresh_token = 3;    
-    int64 expires_in = 4;        
+    string access_token = 2;
+    string refresh_token = 3;
+    int64 expires_in = 4;
     string display_name = 5;
     bool success = 6;
-    string error_message = 7;    
+    string error_message = 7;
 }
 
 message LogoutRequest {
     string user_id = 1;
-    string access_token = 2;    
+    string access_token = 2;
 }
 
 message LogoutResponse {
     bool success = 1;
-    string message = 2;         
+    string message = 2;
 }
 
 message DeleteAccountRequest {

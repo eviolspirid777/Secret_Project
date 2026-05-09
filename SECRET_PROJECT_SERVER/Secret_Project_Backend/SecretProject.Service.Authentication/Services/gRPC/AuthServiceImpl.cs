@@ -1,36 +1,211 @@
-﻿using Grpc.Core;
-using Microsoft.EntityFrameworkCore;
-using SecretProject.Authentication.Data.DataStore.Context;
+using Grpc.Core;
+using Microsoft.AspNetCore.Identity;
 using SecretProject.Authentication.Data.DataStore.Entities;
 using SecretProject.Service.Authentication.Storage.Mappers;
 using SecretProject.Service.Grpc.v1.Proto;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 namespace SecretProject.Service.Authentication.Services.gRPC
 {
-    public class AuthServiceImpl(AuthDbContext dbContext) : AuthService.AuthServiceBase
+    public class AuthServiceImpl(
+        UserManager<AuthUser> userManager,
+        SignInManager<AuthUser> signInManager,
+        IConfiguration configuration,
+        EmailService.EmailServiceClient emailServiceClient) : AuthService.AuthServiceBase
     {
-        private readonly AuthDbContext _dbContext = dbContext;
+        private readonly UserManager<AuthUser> _userManager = userManager;
+        private readonly SignInManager<AuthUser> _signInManager = signInManager;
+        private readonly IConfiguration _configuration = configuration;
+        private readonly EmailService.EmailServiceClient _emailServiceClient = emailServiceClient;
 
         public override async Task<RegisterResponse> Register(RegisterRequest request, ServerCallContext context)
         {
-            Console.WriteLine("Зашли в метод регистрации по grpc");
-            return new() { };
-            //return base.Register(request, context);
+            var foundedUser = await _userManager.FindByEmailAsync(request.Email);
+            if (foundedUser != null)
+            {
+                return new RegisterResponse
+                {
+                    Success = false,
+                    ErrorMessage = "Пользователь с такой почтой уже существует"
+                };
+            }
+
+            var user = new AuthUser
+            {
+                UserName = request.Email,
+                Email = request.Email,
+                DisplayName = string.IsNullOrWhiteSpace(request.DisplayName) ? request.Email : request.DisplayName,
+                AvatarUrl = string.Empty,
+                EmailConfirmed = false
+            };
+
+            var result = await _userManager.CreateAsync(user, request.Password);
+            if (!result.Succeeded)
+            {
+                return new RegisterResponse
+                {
+                    Success = false,
+                    ErrorMessage = string.Join("; ", result.Errors.Select(e => e.Description))
+                };
+            }
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            try
+            {
+                await _emailServiceClient.SendEmailConfirmationAsync(
+                    new SendEmailConfirmationRequest
+                    {
+                        Email = user.Email ?? string.Empty,
+                        UserId = user.Id,
+                        Token = token
+                    },
+                    cancellationToken: context.CancellationToken);
+
+                return new RegisterResponse
+                {
+                    Success = true,
+                    UserId = user.Id,
+                    Message = "Для завершения регистрации проверьте вашу почту и подтвердите учётную запись",
+                    EmailConfirmationRequired = true
+                };
+            }
+            catch
+            {
+                await _userManager.DeleteAsync(user);
+
+                return new RegisterResponse
+                {
+                    Success = false,
+                    ErrorMessage = "Ошибка при отправке письма подтверждения. Пожалуйста, попробуйте позже."
+                };
+            }
         }
 
-        public override Task<LoginResponse> Login(LoginRequest request, ServerCallContext context)
+        public override async Task<ConfirmEmailResponse> ConfirmEmail(ConfirmEmailRequest request, ServerCallContext context)
         {
-            Console.WriteLine("Зашли в метод логина по grpc");
+            var user = await _userManager.FindByIdAsync(request.UserId);
+            if (user == null)
+            {
+                return new ConfirmEmailResponse
+                {
+                    Success = false,
+                    ErrorMessage = "Пользователь не найден!"
+                };
+            }
 
-            return base.Login(request, context);
+            var result = await _userManager.ConfirmEmailAsync(user, request.Token);
+            if (!result.Succeeded)
+            {
+                return new ConfirmEmailResponse
+                {
+                    Success = false,
+                    ErrorMessage = "Ошибка при подтверждении email"
+                };
+            }
+
+            return new ConfirmEmailResponse
+            {
+                Success = true,
+                UserId = user.Id,
+                Message = "Email подтвержден!"
+            };
         }
 
-        public override Task<LogoutResponse> Logout(LogoutRequest request, ServerCallContext context)
+        public override async Task<LoginResponse> Login(LoginRequest request, ServerCallContext context)
         {
-            Console.WriteLine("Зашли в метод логаута по grpc");
-            return base.Logout(request, context);
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return new LoginResponse
+                {
+                    Success = false,
+                    ErrorMessage = "Неверные данные для входа"
+                };
+            }
+
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+            {
+                return new LoginResponse
+                {
+                    Success = false,
+                    ErrorMessage = "Email не подтвержден. Пожалуйста, подтвердите email для входа."
+                };
+            }
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+            if (!result.Succeeded)
+            {
+                return new LoginResponse
+                {
+                    Success = false,
+                    ErrorMessage = "Неверные учетные данные"
+                };
+            }
+
+            var (token, expirationDate) = GenerateJwtToken(user);
+
+            return new LoginResponse
+            {
+                Success = true,
+                UserId = user.Id,
+                DisplayName = user.DisplayName,
+                AccessToken = token,
+                ExpiresIn = new DateTimeOffset(expirationDate).ToUnixTimeSeconds()
+            };
         }
 
+        public override async Task<LogoutResponse> Logout(LogoutRequest request, ServerCallContext context)
+        {
+            var user = await _userManager.FindByIdAsync(request.UserId);
+            if (user == null)
+            {
+                return new LogoutResponse
+                {
+                    Success = false,
+                    Message = "Пользователь не найден!"
+                };
+            }
+
+            await _signInManager.SignOutAsync();
+            return new LogoutResponse
+            {
+                Success = true,
+                Message = "Выход выполнен"
+            };
+        }
+
+        public override async Task<DeleteAccountResponse> DeleteAccount(DeleteAccountRequest request, ServerCallContext context)
+        {
+            var user = await _userManager.FindByIdAsync(request.UserId);
+            if (user == null)
+            {
+                return new DeleteAccountResponse
+                {
+                    Success = false,
+                    ErrorMessage = "Пользователь не найден!"
+                };
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                return new DeleteAccountResponse
+                {
+                    Success = false,
+                    ErrorMessage = string.Join("; ", result.Errors.Select(e => e.Description))
+                };
+            }
+
+            return new DeleteAccountResponse
+            {
+                Success = true,
+                Message = "Аккаунт удален"
+            };
+        }
 
         public override async Task<GetUsersByIdsResponse> GetUsersByIds(GetUsersByIdsRequest request, ServerCallContext context)
         {
@@ -39,17 +214,44 @@ namespace SecretProject.Service.Authentication.Services.gRPC
                 return new GetUsersByIdsResponse();
             }
 
-            var ids = request.Id.ToList();
-
-            var users = await _dbContext.Set<AuthUser>()
-                .Where(u => ids.Contains(u.Id))
-                .ToListAsync();
-
-            var mappedUsers = users.Select(UserMapper.ToGrpc);
             var response = new GetUsersByIdsResponse();
-            response.Users.AddRange(mappedUsers);
+
+            foreach (var id in request.Id.Distinct())
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                if (user != null)
+                {
+                    response.Users.Add(UserMapper.ToGrpc(user));
+                }
+            }
 
             return response;
+        }
+
+        private (string token, DateTime expirationDate) GenerateJwtToken(AuthUser user)
+        {
+            var issuer = _configuration["Jwt:Issuer"];
+            var audience = _configuration["Jwt:Audience"];
+            var secretKey = _configuration["Jwt:Key"] ?? string.Empty;
+            var expirationDate = DateTime.UtcNow.AddDays(1);
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                expires: expirationDate,
+                signingCredentials: credentials);
+
+            return (new JwtSecurityTokenHandler().WriteToken(token), expirationDate);
         }
     }
 }
