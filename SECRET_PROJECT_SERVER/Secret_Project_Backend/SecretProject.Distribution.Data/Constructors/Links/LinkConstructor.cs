@@ -1,17 +1,15 @@
-﻿using Microsoft.Extensions.Configuration;
-using SecretProject.Distribution.Data.Messages.MagicPhrases.Keys;
-
 namespace SecretProject.Distribution.Data.Constructors.Links
 {
     public interface ILinkConstructor
     {
-        string GetEmailConfirmationLink(string userId, string token);
+        string GetEmailConfirmationLink(string applicationUrl, string userId, string token);
     }
+
     public class LinkConstructor : ILinkConstructor
     {
-        public string GetEmailConfirmationLink(string userId, string token)
+        public string GetEmailConfirmationLink(string applicationUrl, string userId, string token)
         {
-            var baseUrl = ConfigKeys.ApplicationUrl?.TrimEnd('/');
+            var baseUrl = applicationUrl?.TrimEnd('/');
 
             if (string.IsNullOrEmpty(baseUrl))
                 throw new InvalidOperationException("ApplicationUrl не настроен в конфигурации");

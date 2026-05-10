@@ -1,19 +1,19 @@
-﻿using Grpc.Core;
-using Microsoft.Extensions.Configuration;
+using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SecretProject.Service.Channels.Configuration;
 using SecretProject.Service.Grpc.v1.Proto;
 
 public static class GrpcExtensions
 {
     public static IServiceCollection AddProjectGrpcClients(
         this IServiceCollection services,
-        IConfiguration configuration,
+        ServiceEndpointsOptions serviceEndpoints,
         IHostEnvironment environment)
     {
         AddClient<AuthService.AuthServiceClient>(
             services,
-            configuration["Services:AuthService"],
+            serviceEndpoints.AuthService,
             environment);
 
         return services;
@@ -36,7 +36,6 @@ public static class GrpcExtensions
             .ConfigurePrimaryHttpMessageHandler(() =>
             {
                 var handler = new HttpClientHandler();
-
                 if (environment.IsDevelopment())
                 {
                     handler.ServerCertificateCustomValidationCallback =

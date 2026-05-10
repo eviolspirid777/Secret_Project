@@ -1,15 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
 using SecretProject.Distribution.Data.Constructors.Links;
 using SecretProject.Distribution.Data.Constructors.Messages;
 using SecretProject.Distribution.Data.Messages.MagicPhrases.Subjects;
 using SecretProject.Distribution.Data.Messages.Templates;
 
-
 namespace SecretProject.Distribution.Data.Messages.Factories
 {
     public interface IMessageFactory
     {
-        ConfirmationEmailMessage CreateEmailConfirmationMessage(IConfiguration config, string userId, string token);
+        ConfirmationEmailMessage CreateEmailConfirmationMessage(string applicationUrl, string userId, string token);
     }
 
     public class MessageFactory : IMessageFactory
@@ -22,9 +20,10 @@ namespace SecretProject.Distribution.Data.Messages.Factories
             _messageConstructor = messageConstructor;
             _linkConstructor = linkConstructor;
         }
-        public ConfirmationEmailMessage CreateEmailConfirmationMessage(IConfiguration config, string userId, string token)
+
+        public ConfirmationEmailMessage CreateEmailConfirmationMessage(string applicationUrl, string userId, string token)
         {
-            var link = _linkConstructor.GetEmailConfirmationLink(userId, token);
+            var link = _linkConstructor.GetEmailConfirmationLink(applicationUrl, userId, token);
             var message = _messageConstructor.GetEmailConfirmationMessage(link);
 
             return new ConfirmationEmailMessage(SubjectTemplates.EmailConfirmationSubject, message);

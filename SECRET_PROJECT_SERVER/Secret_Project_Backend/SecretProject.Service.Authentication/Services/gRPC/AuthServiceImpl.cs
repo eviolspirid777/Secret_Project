@@ -1,6 +1,8 @@
 using Grpc.Core;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using SecretProject.Authentication.Data.DataStore.Entities;
+using SecretProject.Service.Authentication.Configuration;
 using SecretProject.Service.Authentication.Storage.Mappers;
 using SecretProject.Service.Grpc.v1.Proto;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,12 +15,12 @@ namespace SecretProject.Service.Authentication.Services.gRPC
     public class AuthServiceImpl(
         UserManager<AuthUser> userManager,
         SignInManager<AuthUser> signInManager,
-        IConfiguration configuration,
+        IOptions<JwtOptions> jwtOptions,
         EmailService.EmailServiceClient emailServiceClient) : AuthService.AuthServiceBase
     {
         private readonly UserManager<AuthUser> _userManager = userManager;
         private readonly SignInManager<AuthUser> _signInManager = signInManager;
-        private readonly IConfiguration _configuration = configuration;
+        private readonly JwtOptions _jwtOptions = jwtOptions.Value;
         private readonly EmailService.EmailServiceClient _emailServiceClient = emailServiceClient;
 
         public override async Task<RegisterResponse> Register(RegisterRequest request, ServerCallContext context)
@@ -230,9 +232,6 @@ namespace SecretProject.Service.Authentication.Services.gRPC
 
         private (string token, DateTime expirationDate) GenerateJwtToken(AuthUser user)
         {
-            var issuer = _configuration["Jwt:Issuer"];
-            var audience = _configuration["Jwt:Audience"];
-            var secretKey = _configuration["Jwt:Key"] ?? string.Empty;
             var expirationDate = DateTime.UtcNow.AddDays(1);
 
             var claims = new[]
@@ -241,12 +240,12 @@ namespace SecretProject.Service.Authentication.Services.gRPC
                 new Claim(ClaimTypes.Name, user.UserName ?? string.Empty)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: issuer,
-                audience: audience,
+                issuer: _jwtOptions.Issuer,
+                audience: _jwtOptions.Audience,
                 claims: claims,
                 expires: expirationDate,
                 signingCredentials: credentials);

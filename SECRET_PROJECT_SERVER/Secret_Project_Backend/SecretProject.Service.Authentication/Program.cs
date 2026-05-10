@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SecretProject.Authentication.Data.DataStore.Context;
 using SecretProject.Authentication.Data.DataStore.Entities;
+using SecretProject.Service.Authentication.Configuration;
 using SecretProject.Service.Authentication.Services.gRPC;
 using SecretProject.Service.Grpc.v1.Proto;
 using System.Text;
@@ -15,13 +16,36 @@ namespace SecretProject.Service.Authentication
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var postgresOptions = builder.Configuration
+                .GetRequiredSection(PostgreSqlOptions.SectionName)
+                .Get<PostgreSqlOptions>() ?? throw new InvalidOperationException("ConnectionStrings section is required.");
+            var jwtOptions = builder.Configuration
+                .GetRequiredSection(JwtOptions.SectionName)
+                .Get<JwtOptions>() ?? throw new InvalidOperationException("Jwt section is required.");
+            var serviceEndpoints = builder.Configuration
+                .GetRequiredSection(ServiceEndpointsOptions.SectionName)
+                .Get<ServiceEndpointsOptions>() ?? throw new InvalidOperationException("Services section is required.");
 
             builder.Services.AddGrpc();
+            builder.Services.AddOptions<PostgreSqlOptions>()
+                .Bind(builder.Configuration.GetRequiredSection(PostgreSqlOptions.SectionName))
+                .Validate(options => !string.IsNullOrWhiteSpace(options.PostgreSQL), "ConnectionStrings:PostgreSQL is required.")
+                .ValidateOnStart();
+            builder.Services.AddOptions<JwtOptions>()
+                .Bind(builder.Configuration.GetRequiredSection(JwtOptions.SectionName))
+                .Validate(options => !string.IsNullOrWhiteSpace(options.Key), "Jwt:Key is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.Issuer), "Jwt:Issuer is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.Audience), "Jwt:Audience is required.")
+                .ValidateOnStart();
+            builder.Services.AddOptions<ServiceEndpointsOptions>()
+                .Bind(builder.Configuration.GetRequiredSection(ServiceEndpointsOptions.SectionName))
+                .Validate(options => !string.IsNullOrWhiteSpace(options.EmailService), "Services:EmailService is required.")
+                .ValidateOnStart();
 
             builder.Services.AddDbContext<AuthDbContext>(options =>
             {
                 options.UseNpgsql(
-                    builder.Configuration.GetConnectionString("PostgreSQL"),
+                    postgresOptions.PostgreSQL,
                     npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "authentication"));
             });
 
@@ -42,26 +66,22 @@ namespace SecretProject.Service.Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    var jwtKey = builder.Configuration["Jwt:Key"] ?? string.Empty;
-                    var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-                    var jwtAudience = builder.Configuration["Jwt:Audience"];
-
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateIssuer = !string.IsNullOrWhiteSpace(jwtIssuer),
-                        ValidIssuer = jwtIssuer,
-                        ValidateAudience = !string.IsNullOrWhiteSpace(jwtAudience),
-                        ValidAudience = jwtAudience,
+                        ValidateIssuer = true,
+                        ValidIssuer = jwtOptions.Issuer,
+                        ValidateAudience = true,
+                        ValidAudience = jwtOptions.Audience,
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
                     };
                 });
 
             builder.Services.AddAuthorization();
 
-            builder.Services.AddProjectGrpcClients(builder.Configuration, builder.Environment);
+            builder.Services.AddProjectGrpcClients(serviceEndpoints, builder.Environment);
 
             var app = builder.Build();
 

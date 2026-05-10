@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using SecretProject.Service.Grpc.v1.Proto;
+using SecretProject.Service.HttpGateway.Web.Configuration;
 using System.Text;
 
 namespace SecretProject.Service.HttpGateway.Web
@@ -11,8 +12,25 @@ namespace SecretProject.Service.HttpGateway.Web
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var jwtOptions = builder.Configuration
+                .GetRequiredSection(JwtOptions.SectionName)
+                .Get<JwtOptions>() ?? throw new InvalidOperationException("Jwt section is required.");
+            var serviceEndpoints = builder.Configuration
+                .GetRequiredSection(ServiceEndpointsOptions.SectionName)
+                .Get<ServiceEndpointsOptions>() ?? throw new InvalidOperationException("Services section is required.");
 
             builder.Services.AddControllers();
+            builder.Services.AddOptions<JwtOptions>()
+                .Bind(builder.Configuration.GetRequiredSection(JwtOptions.SectionName))
+                .Validate(options => !string.IsNullOrWhiteSpace(options.Key), "Jwt:Key is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.Issuer), "Jwt:Issuer is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.Audience), "Jwt:Audience is required.")
+                .ValidateOnStart();
+            builder.Services.AddOptions<ServiceEndpointsOptions>()
+                .Bind(builder.Configuration.GetRequiredSection(ServiceEndpointsOptions.SectionName))
+                .Validate(options => !string.IsNullOrWhiteSpace(options.AuthService), "Services:AuthService is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.ChannelService), "Services:ChannelService is required.")
+                .ValidateOnStart();
 
             builder.Services.AddCors(options =>
             {
@@ -27,20 +45,16 @@ namespace SecretProject.Service.HttpGateway.Web
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    var jwtKey = builder.Configuration["Jwt:Key"] ?? string.Empty;
-                    var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-                    var jwtAudience = builder.Configuration["Jwt:Audience"];
-
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
-                        ValidIssuer = jwtIssuer,
+                        ValidIssuer = jwtOptions.Issuer,
                         ValidateAudience = true,
-                        ValidAudience = jwtAudience,
+                        ValidAudience = jwtOptions.Audience,
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
                     };
 
                     options.Events = new JwtBearerEvents
@@ -81,7 +95,7 @@ namespace SecretProject.Service.HttpGateway.Web
                 });
             });
 
-            builder.Services.AddProjectGrpcClients(builder.Configuration, builder.Environment);
+            builder.Services.AddProjectGrpcClients(serviceEndpoints, builder.Environment);
 
             var app = builder.Build();
 

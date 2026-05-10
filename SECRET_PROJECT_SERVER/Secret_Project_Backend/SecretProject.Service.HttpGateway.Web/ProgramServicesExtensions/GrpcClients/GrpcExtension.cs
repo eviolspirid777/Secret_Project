@@ -1,24 +1,24 @@
-﻿using Grpc.Core;
-using Microsoft.Extensions.Configuration;
+using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SecretProject.Service.Grpc.v1.Proto;
+using SecretProject.Service.HttpGateway.Web.Configuration;
 
 public static class GrpcExtensions
 {
     public static IServiceCollection AddProjectGrpcClients(
         this IServiceCollection services,
-        IConfiguration configuration,
+        ServiceEndpointsOptions serviceEndpoints,
         IHostEnvironment environment)
     {
         AddClient<AuthService.AuthServiceClient>(
             services,
-            configuration["Services:AuthService"],
+            serviceEndpoints.AuthService,
             environment);
 
         AddClient<ChannelService.ChannelServiceClient>(
             services,
-            configuration["Services:ChannelService"],
+            serviceEndpoints.ChannelService,
             environment);
 
         return services;

@@ -26,12 +26,7 @@ public class ChannelDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            var connectionString = "Host=localhost;Port=5432;Database=SecretProject;Username=postgres;Password=sas07291mem;";
-
-            optionsBuilder.UseNpgsql(connectionString, npgsqlOptions =>
-            {
-                npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", _schema);
-            });
+            throw new InvalidOperationException("ChannelDbContext requires externally configured DbContextOptions.");
         }
     }
 
