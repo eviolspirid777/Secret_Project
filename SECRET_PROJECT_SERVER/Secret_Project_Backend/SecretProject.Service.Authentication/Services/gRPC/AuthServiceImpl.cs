@@ -1,23 +1,29 @@
 using Grpc.Core;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
+using SecretProject.Authentication.Data.DataStore.Context;
 using SecretProject.Authentication.Data.DataStore.Entities;
 using SecretProject.Service.Authentication.Configuration;
+using SecretProject.Service.Authentication.Storage.Contracts.Events;
 using SecretProject.Service.Authentication.Storage.Mappers;
 using SecretProject.Service.Grpc.v1.Proto;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Text.Json;
 
 namespace SecretProject.Service.Authentication.Services.gRPC
 {
     public class AuthServiceImpl(
+        AuthDbContext authDbContext,
         UserManager<AuthUser> userManager,
         SignInManager<AuthUser> signInManager,
         IOptions<JwtOptions> jwtOptions,
         EmailService.EmailServiceClient emailServiceClient) : AuthService.AuthServiceBase
     {
+        private readonly AuthDbContext _authDbContext = authDbContext;
         private readonly UserManager<AuthUser> _userManager = userManager;
         private readonly SignInManager<AuthUser> _signInManager = signInManager;
         private readonly JwtOptions _jwtOptions = jwtOptions.Value;
@@ -40,9 +46,10 @@ namespace SecretProject.Service.Authentication.Services.gRPC
                 UserName = request.Email,
                 Email = request.Email,
                 DisplayName = string.IsNullOrWhiteSpace(request.DisplayName) ? request.Email : request.DisplayName,
-                AvatarUrl = string.Empty,
                 EmailConfirmed = false
             };
+
+            await using IDbContextTransaction transaction = await _authDbContext.Database.BeginTransactionAsync(context.CancellationToken);
 
             var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
@@ -67,6 +74,31 @@ namespace SecretProject.Service.Authentication.Services.gRPC
                     },
                     cancellationToken: context.CancellationToken);
 
+                var integrationEvent = new IntegrationEventEnvelope<UserRegisteredEvent>
+                {
+                    EventId = Guid.NewGuid(),
+                    EventType = EventTypes.UserRegistered,
+                    OccurredAtUtc = DateTime.UtcNow,
+                    Version = 1,
+                    Payload = new UserRegisteredEvent
+                    {
+                        UserId = user.Id,
+                        Email = user.Email ?? string.Empty,
+                        DisplayName = user.DisplayName
+                    }
+                };
+
+                _authDbContext.OutboxMessages.Add(new OutboxMessage
+                {
+                    Id = integrationEvent.EventId,
+                    Type = integrationEvent.EventType,
+                    Payload = JsonSerializer.Serialize(integrationEvent),
+                    OccurredAtUtc = integrationEvent.OccurredAtUtc
+                });
+
+                await _authDbContext.SaveChangesAsync(context.CancellationToken);
+                await transaction.CommitAsync(context.CancellationToken);
+
                 return new RegisterResponse
                 {
                     Success = true,
@@ -77,7 +109,7 @@ namespace SecretProject.Service.Authentication.Services.gRPC
             }
             catch
             {
-                await _userManager.DeleteAsync(user);
+                await transaction.RollbackAsync(context.CancellationToken);
 
                 return new RegisterResponse
                 {

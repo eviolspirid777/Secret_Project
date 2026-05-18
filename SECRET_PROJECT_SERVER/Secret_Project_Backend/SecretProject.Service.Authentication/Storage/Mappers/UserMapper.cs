@@ -15,7 +15,6 @@ namespace SecretProject.Service.Authentication.Storage.Mappers
             return new()
             {
                 Id = source.Id,
-                Avatar = source.AvatarUrl,
                 Email = source.Email,
                 Name = source.DisplayName,
                 SoundState = new(),

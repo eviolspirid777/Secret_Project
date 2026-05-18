@@ -37,7 +37,7 @@ namespace SecretProject.Service.Channels
 
             var app = builder.Build();
 
-            app.UseHttpsRedirection();
+            app.UseHttpsRedirection();  
             app.UseRouting();
             app.MapGrpcService<ChannelServiceImpl>();
             app.MapGet("/health", () => "Channels Service is running").AllowAnonymous();

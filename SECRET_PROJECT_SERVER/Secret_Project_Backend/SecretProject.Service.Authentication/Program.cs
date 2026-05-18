@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using SecretProject.Authentication.Data.DataStore.Context;
 using SecretProject.Authentication.Data.DataStore.Entities;
 using SecretProject.Service.Authentication.Configuration;
+using SecretProject.Service.Authentication.Infrastructure.Messaging;
 using SecretProject.Service.Authentication.Services.gRPC;
 using SecretProject.Service.Grpc.v1.Proto;
 using System.Text;
@@ -40,6 +41,12 @@ namespace SecretProject.Service.Authentication
             builder.Services.AddOptions<ServiceEndpointsOptions>()
                 .Bind(builder.Configuration.GetRequiredSection(ServiceEndpointsOptions.SectionName))
                 .Validate(options => !string.IsNullOrWhiteSpace(options.EmailService), "Services:EmailService is required.")
+                .ValidateOnStart();
+            builder.Services.AddOptions<RabbitMqOptions>()
+                .Bind(builder.Configuration.GetRequiredSection(RabbitMqOptions.SectionName))
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Host), "RabbitMq:Host is required.")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Username), "RabbitMq:Username is required.")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Password), "RabbitMq:Password is required.")
                 .ValidateOnStart();
 
             builder.Services.AddDbContext<AuthDbContext>(options =>
@@ -82,6 +89,8 @@ namespace SecretProject.Service.Authentication
             builder.Services.AddAuthorization();
 
             builder.Services.AddProjectGrpcClients(serviceEndpoints, builder.Environment);
+            builder.Services.AddSingleton<IEventPublisher, RabbitMqEventPublisher>();
+            builder.Services.AddHostedService<OutboxProcessor>();
 
             var app = builder.Build();
 

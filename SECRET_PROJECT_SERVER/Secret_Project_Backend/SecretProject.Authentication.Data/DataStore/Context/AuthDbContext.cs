@@ -11,6 +11,7 @@ public class AuthDbContext : IdentityDbContext<AuthUser>
     public AuthDbContext() { }
     public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
     public DbSet<AuthUser> AuthUsers => Set<AuthUser>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -27,13 +28,6 @@ public class AuthDbContext : IdentityDbContext<AuthUser>
         modelBuilder.Entity<AuthUser>(entity =>
         {
             entity.ToTable("Users", _schema);
-
-            entity.Property(e => e.DisplayName)
-                .IsRequired()
-                .HasMaxLength(256);
-
-            entity.Property(e => e.AvatarUrl)
-                .HasMaxLength(2048);
         });
 
         modelBuilder.Entity<IdentityUserClaim<string>>(entity =>
@@ -66,8 +60,15 @@ public class AuthDbContext : IdentityDbContext<AuthUser>
             entity.ToTable("UserRoles", _schema);
         });
 
-        modelBuilder.Entity<AuthUser>()
-            .HasIndex(u => u.DisplayName)
-            .HasDatabaseName("IX_Users_DisplayName");
+        modelBuilder.Entity<OutboxMessage>(entity =>
+        {
+            entity.ToTable("OutboxMessages", _schema);
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Type).IsRequired();
+            entity.Property(x => x.Payload).IsRequired();
+            entity.Property(x => x.OccurredAtUtc).IsRequired();
+            entity.Property(x => x.ProcessedAtUtc);
+            entity.Property(x => x.Error);
+        });
     }
 }
