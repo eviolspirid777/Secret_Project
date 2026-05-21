@@ -65,11 +65,10 @@ namespace SecretProject.Service.Authentication.Services.gRPC
 
             try
             {
-                await _emailServiceClient.SendEmailConfirmationAsync(
-                    new SendEmailConfirmationRequest
+                await _emailServiceClient.SendEmailConfirmationAsync(new()
                     {
                         Email = user.Email ?? string.Empty,
-                        UserId = user.Id,
+                        UserId = user.Id.ToString(),
                         Token = token
                     },
                     cancellationToken: context.CancellationToken);
@@ -102,7 +101,7 @@ namespace SecretProject.Service.Authentication.Services.gRPC
                 return new RegisterResponse
                 {
                     Success = true,
-                    UserId = user.Id,
+                    UserId = user.Id.ToString(),
                     Message = "Для завершения регистрации проверьте вашу почту и подтвердите учётную запись",
                     EmailConfirmationRequired = true
                 };
@@ -144,7 +143,7 @@ namespace SecretProject.Service.Authentication.Services.gRPC
             return new ConfirmEmailResponse
             {
                 Success = true,
-                UserId = user.Id,
+                UserId = user.Id.ToString(),
                 Message = "Email подтвержден!"
             };
         }
@@ -185,7 +184,7 @@ namespace SecretProject.Service.Authentication.Services.gRPC
             return new LoginResponse
             {
                 Success = true,
-                UserId = user.Id,
+                UserId = user.Id.ToString(),
                 DisplayName = user.DisplayName,
                 AccessToken = token,
                 ExpiresIn = new DateTimeOffset(expirationDate).ToUnixTimeSeconds()
@@ -268,7 +267,7 @@ namespace SecretProject.Service.Authentication.Services.gRPC
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName ?? string.Empty)
             };
 

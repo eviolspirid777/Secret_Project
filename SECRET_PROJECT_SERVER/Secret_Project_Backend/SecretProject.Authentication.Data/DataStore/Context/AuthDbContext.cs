@@ -5,7 +5,7 @@ using SecretProject.Authentication.Data.DataStore.Entities;
 
 namespace SecretProject.Authentication.Data.DataStore.Context;
 
-public class AuthDbContext : IdentityDbContext<AuthUser>
+public class AuthDbContext : IdentityDbContext<AuthUser, IdentityRole<Guid>, Guid>
 {
     private readonly string _schema = "authentication";
     public AuthDbContext() { }
@@ -30,32 +30,32 @@ public class AuthDbContext : IdentityDbContext<AuthUser>
             entity.ToTable("Users", _schema);
         });
 
-        modelBuilder.Entity<IdentityUserClaim<string>>(entity =>
+        modelBuilder.Entity<IdentityUserClaim<Guid>>(entity =>
         {
             entity.ToTable("UserClaims", _schema);
         });
 
-        modelBuilder.Entity<IdentityUserLogin<string>>(entity =>
+        modelBuilder.Entity<IdentityUserLogin<Guid>>(entity =>
         {
             entity.ToTable("UserLogins", _schema);
         });
 
-        modelBuilder.Entity<IdentityUserToken<string>>(entity =>
+        modelBuilder.Entity<IdentityUserToken<Guid>>(entity =>
         {
             entity.ToTable("UserTokens", _schema);
         });
 
-        modelBuilder.Entity<IdentityRole>(entity =>
+        modelBuilder.Entity<IdentityRole<Guid>>(entity =>
         {
             entity.ToTable("Roles", _schema);
         });
 
-        modelBuilder.Entity<IdentityRoleClaim<string>>(entity =>
+        modelBuilder.Entity<IdentityRoleClaim<Guid>>(entity =>
         {
             entity.ToTable("RoleClaims", _schema);
         });
 
-        modelBuilder.Entity<IdentityUserRole<string>>(entity =>
+        modelBuilder.Entity<IdentityUserRole<Guid>>(entity =>
         {
             entity.ToTable("UserRoles", _schema);
         });

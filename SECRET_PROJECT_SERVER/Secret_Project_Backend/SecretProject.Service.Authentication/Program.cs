@@ -57,7 +57,7 @@ namespace SecretProject.Service.Authentication
             });
 
             builder.Services
-                .AddIdentity<AuthUser, IdentityRole>(options =>
+                .AddIdentity<AuthUser, IdentityRole<Guid>>(options =>
                 {
                     options.Password.RequireDigit = true;
                     options.Password.RequiredLength = 1;
