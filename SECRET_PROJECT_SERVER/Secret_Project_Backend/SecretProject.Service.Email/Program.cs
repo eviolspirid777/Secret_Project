@@ -1,6 +1,9 @@
 using SecretProject.Distribution.Data.Constructors.Links;
 using SecretProject.Distribution.Data.Constructors.Messages;
 using SecretProject.Distribution.Data.Messages.Factories;
+using SecretProject.Infrastructure.Messaging.Events.Auth;
+using SecretProject.Infrastructure.Messaging.Events.Email;
+using SecretProject.Infrastructure.Messaging.Extension;
 using SecretProject.Service.Email.Configuration;
 using SecretProject.Service.Email.DataStore;
 using SecretProject.Service.Email.DataStore.Abstractions;
@@ -24,6 +27,12 @@ namespace SecretProject.Service.Email
                 .Validate(options => !string.IsNullOrWhiteSpace(options.FromName), "Email:FromName is required.")
                 .Validate(options => !string.IsNullOrWhiteSpace(options.ApplicationUrl), "Email:ApplicationUrl is required.")
                 .ValidateOnStart();
+
+            builder.Services.AddRabbitMqMessaging(builder.Configuration);
+            builder.Services.AddRabbitMqConsumer("secretproject.email.events", consumer =>
+            {
+                consumer.Subscribe<EmailConfirmationRequestedEvent>(AuthenticationEventTypes.EmailConfirmationRequested);
+            });
 
             builder.Services.AddGrpc();
             builder.Services.AddControllers();

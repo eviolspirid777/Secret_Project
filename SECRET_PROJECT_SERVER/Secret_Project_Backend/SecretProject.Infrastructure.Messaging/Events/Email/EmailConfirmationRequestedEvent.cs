@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SecretProject.Infrastructure.Messaging.Events.Auth
+namespace SecretProject.Infrastructure.Messaging.Events.Email
 {
     public sealed class EmailConfirmationRequestedEvent
     {
