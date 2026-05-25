@@ -23,14 +23,16 @@ namespace SecretProject.User.Data.DataStore.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            //modelBuilder(_schema);
+            modelBuilder.HasDefaultSchema(_schema);
 
             modelBuilder.Entity<UserProfile>(entity =>
             {
+                entity.ToTable("UserProfiles", _schema);
                 entity.HasKey(u => u.Id);
                 entity.Property(u => u.Name).IsRequired();
                 entity.Property(u => u.PresenceState).IsRequired();
                 entity.Property(u => u.ActivationState).IsRequired();
+                entity.Property(u => u.CreatedAt).IsRequired();
                 entity.Property(u => u.LastSeenAt);
                 entity.Property(u => u.Bio);
                 entity.Property(u => u.AvatarFileId);
@@ -38,7 +40,10 @@ namespace SecretProject.User.Data.DataStore.Context
 
             modelBuilder.Entity<ProcessedEvent>(entity =>
             {
-               // entity.
+                entity.ToTable("ProcessedEvents", _schema);
+                entity.HasKey(e => e.EventId);
+                entity.Property(e => e.EventType).IsRequired();
+                entity.Property(e => e.ProcessedAtUtc).IsRequired();
             });
         }
     }

@@ -4,6 +4,9 @@ using SecretProject.Service.User.ProgramServicesExtensions.GrpcClients;
 using SecretProject.Service.User.Services.gRPC;
 using SecretProject.User.Data.DataStore.Context;
 using SecretProject.Infrastructure.Messaging.Extension;
+using SecretProject.Infrastructure.Messaging.Abstractions;
+using SecretProject.Infrastructure.Messaging.Events.Auth;
+using SecretProject.Service.User.Infrastructure.Messaging;
 
 
 namespace SecretProject.Service.User;
@@ -36,6 +39,14 @@ public class Program
                 .ValidateOnStart();
 
         builder.Services.AddRabbitMqMessaging(builder.Configuration);
+        builder.Services.AddRabbitMqConsumer("secretproject.user.events", consumer =>
+        {
+            consumer.Subscribe<UserRegisteredEvent>(AuthenticationEventTypes.UserRegistered);
+            consumer.Subscribe<UserEmailConfirmedEvent>(AuthenticationEventTypes.UserEmailConfirmed);
+        });
+
+        builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredEvent>, UserRegisteredEventHandler>();
+        builder.Services.AddScoped<IIntegrationEventHandler<UserEmailConfirmedEvent>, UserEmailConfirmedEventHandler>();
 
         builder.Services.AddDbContext<UserDbContext>(options =>
         {

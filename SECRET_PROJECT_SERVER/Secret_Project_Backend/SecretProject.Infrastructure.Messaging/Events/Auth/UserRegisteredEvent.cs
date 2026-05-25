@@ -1,4 +1,4 @@
-namespace SecretProject.Service.Authentication.Storage.Contracts.Events;
+namespace SecretProject.Infrastructure.Messaging.Events.Auth;
 
 public sealed class UserRegisteredEvent
 {

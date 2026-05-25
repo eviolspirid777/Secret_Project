@@ -26,6 +26,11 @@
 # Файлы пользователя
 *.suo
 *.user
+!SecretProject.Service.User/
+!SecretProject.Service.User/**
+SecretProject.Service.User/*.csproj.user
+SecretProject.Service.User/bin/
+SecretProject.Service.User/obj/
 *.userprefs
 *.sln.docstates
 

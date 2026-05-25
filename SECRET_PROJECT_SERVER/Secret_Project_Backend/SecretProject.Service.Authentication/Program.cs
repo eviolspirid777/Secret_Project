@@ -85,7 +85,6 @@ namespace SecretProject.Service.Authentication
             builder.Services.AddAuthorization();
 
             builder.Services.AddProjectGrpcClients(serviceEndpoints, builder.Environment);
-            builder.Services.AddSingleton<IEventPublisher, RabbitMqEventPublisher>();
             builder.Services.AddHostedService<OutboxProcessor>();
 
             var app = builder.Build();

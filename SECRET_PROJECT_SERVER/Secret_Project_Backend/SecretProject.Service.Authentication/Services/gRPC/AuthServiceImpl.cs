@@ -2,18 +2,20 @@ using Grpc.Core;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using SecretProject.Authentication.Data.DataStore.Context;
 using SecretProject.Authentication.Data.DataStore.Entities;
+using SecretProject.Infrastructure.Messaging.Contracts;
+using SecretProject.Infrastructure.Messaging.Events.Auth;
+using SecretProject.Infrastructure.Messaging.Events.Email;
+using SecretProject.Infrastructure.Messaging.Serialization;
 using SecretProject.Service.Authentication.Configuration;
-using SecretProject.Service.Authentication.Storage.Contracts.Events;
 using SecretProject.Service.Authentication.Storage.Mappers;
 using SecretProject.Service.Grpc.v1.Proto;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json;
-using SecretProject.Infrastructure.Messaging.Abstractions;
 
 namespace SecretProject.Service.Authentication.Services.gRPC
 {
@@ -21,16 +23,12 @@ namespace SecretProject.Service.Authentication.Services.gRPC
         AuthDbContext authDbContext,
         UserManager<AuthUser> userManager,
         SignInManager<AuthUser> signInManager,
-        IOptions<JwtOptions> jwtOptions,
-        EmailService.EmailServiceClient emailServiceClient,
-        IEventPublisher eventPublisher) : AuthService.AuthServiceBase
+        IOptions<JwtOptions> jwtOptions) : AuthService.AuthServiceBase
     {
         private readonly AuthDbContext _authDbContext = authDbContext;
         private readonly UserManager<AuthUser> _userManager = userManager;
         private readonly SignInManager<AuthUser> _signInManager = signInManager;
         private readonly JwtOptions _jwtOptions = jwtOptions.Value;
-        private readonly EmailService.EmailServiceClient _emailServiceClient = emailServiceClient;
-        private readonly IEventPublisher _eventPublisher = eventPublisher;
 
         public override async Task<RegisterResponse> Register(RegisterRequest request, ServerCallContext context)
         {
@@ -68,13 +66,13 @@ namespace SecretProject.Service.Authentication.Services.gRPC
 
             try
             {
-                var integrationEvent = new IntegrationEventEnvelope<UserRegisteredEvent>
+                var userProfileCreate = new IntegrationEventEnvelope<UserRegisteredEvent>
                 {
                     EventId = Guid.NewGuid(),
-                    EventType = EventTypes.UserRegistered,
+                    EventType = AuthenticationEventTypes.UserRegistered,
                     OccurredAtUtc = DateTime.UtcNow,
                     Version = 1,
-                    Payload = new UserRegisteredEvent
+                    Message = new UserRegisteredEvent
                     {
                         UserId = user.Id,
                         Email = user.Email ?? string.Empty,
@@ -82,13 +80,36 @@ namespace SecretProject.Service.Authentication.Services.gRPC
                     }
                 };
 
-                _authDbContext.OutboxMessages.Add(new OutboxMessage
+                var emailRequested = new IntegrationEventEnvelope<EmailConfirmationRequestedEvent>
                 {
-                    Id = integrationEvent.EventId,
-                    Type = integrationEvent.EventType,
-                    Payload = JsonSerializer.Serialize(integrationEvent),
-                    OccurredAtUtc = integrationEvent.OccurredAtUtc
-                });
+                    EventId = Guid.NewGuid(),
+                    EventType = AuthenticationEventTypes.EmailConfirmationRequested,
+                    OccurredAtUtc = DateTime.UtcNow,
+                    Version = 1,
+                    Message = new EmailConfirmationRequestedEvent
+                    {
+                        UserId = user.Id,
+                        Email = user.Email ?? string.Empty,
+                        ConfirmationToken = token
+                    }
+                };
+                
+                _authDbContext.OutboxMessages.AddRange(
+                    new OutboxMessage
+                    {
+                        Id = userProfileCreate.EventId,
+                        Type = userProfileCreate.EventType,
+                        Payload = JsonSerializer.Serialize(userProfileCreate),
+                        OccurredAtUtc = userProfileCreate.OccurredAtUtc
+                    },
+                    new OutboxMessage 
+                    {
+                        Id = emailRequested.EventId,
+                        Type = emailRequested.EventType,
+                        Payload = JsonSerializer.Serialize(emailRequested),
+                        OccurredAtUtc = emailRequested.OccurredAtUtc
+                    });
+
 
                 await _authDbContext.SaveChangesAsync(context.CancellationToken);
                 await transaction.CommitAsync(context.CancellationToken);
@@ -134,6 +155,29 @@ namespace SecretProject.Service.Authentication.Services.gRPC
                     ErrorMessage = "Ошибка при подтверждении email"
                 };
             }
+
+            var confirmed = new IntegrationEventEnvelope<UserEmailConfirmedEvent>
+            {
+                EventId = Guid.NewGuid(),
+                EventType = AuthenticationEventTypes.UserEmailConfirmed,
+                OccurredAtUtc = DateTimeOffset.UtcNow,
+                Version = 1,
+                Message = new UserEmailConfirmedEvent
+                {
+                    UserId = user.Id,
+                    ConfirmedAtUtc = DateTimeOffset.UtcNow
+                }
+            };
+
+            _authDbContext.OutboxMessages.Add(new OutboxMessage
+            {
+                Id = confirmed.EventId,
+                Type = confirmed.EventType,
+                Payload = IntegrationEventSerializer.Serialize(confirmed),
+                OccurredAtUtc = confirmed.OccurredAtUtc
+            });
+
+            await _authDbContext.SaveChangesAsync(context.CancellationToken);
 
             return new ConfirmEmailResponse
             {

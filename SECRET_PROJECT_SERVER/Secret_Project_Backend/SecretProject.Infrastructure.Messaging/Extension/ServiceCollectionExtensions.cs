@@ -22,6 +22,25 @@ namespace SecretProject.Infrastructure.Messaging.Extension
 
             return services;
         }
+
+        public static IServiceCollection AddRabbitMqConsumer(
+            this IServiceCollection services,
+            string queueName,
+            Action<RabbitMqConsumerBuilder> configure)
+        {
+            var builder = new RabbitMqConsumerBuilder();
+            configure(builder);
+
+            services.AddSingleton(new RabbitMqConsumerSettings
+            {
+                QueueName = queueName,
+                Subscriptions = builder.Build()
+            });
+
+            services.AddHostedService<RabbitMqConsumer>();
+
+            return services;
+        }
     }
 
 }

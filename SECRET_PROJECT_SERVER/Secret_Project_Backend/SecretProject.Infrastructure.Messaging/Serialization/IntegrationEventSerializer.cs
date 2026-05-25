@@ -1,20 +1,20 @@
-﻿using SecretProject.Infrastructure.Messaging.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text.Json;
+using SecretProject.Infrastructure.Messaging.Contracts;
 
-namespace SecretProject.Infrastructure.Messaging.Serialization
+namespace SecretProject.Infrastructure.Messaging.Serialization;
+
+public static class IntegrationEventSerializer
 {
-    public static class IntegrationEventSerializer
-    {
-        public static string Serialize<TPayload>(IntegrationEventEnvelope<TPayload> envelope) where TPayload : class
-        {
-            return Serialize<TPayload>(envelope); 
-        }
+    private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
 
-        public static IntegrationEventEnvelope<TPayload>? Deserialize<TPayload>(string json) where TPayload : class
-        {
-            return Deserialize<TPayload>(json); 
-        }
+    public static string Serialize<TMessage>(IntegrationEventEnvelope<TMessage> envelope) where TMessage : class
+    {
+        return JsonSerializer.Serialize(envelope, Options);
     }
+
+    public static IntegrationEventEnvelope<TMessage>? Deserialize<TMessage>(string json) where TMessage : class
+    {
+        return JsonSerializer.Deserialize<IntegrationEventEnvelope<TMessage>>(json, Options);
+    }
+
 }
