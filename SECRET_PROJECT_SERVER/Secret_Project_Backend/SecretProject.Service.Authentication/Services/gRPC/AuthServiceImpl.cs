@@ -13,6 +13,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json;
+using SecretProject.Infrastructure.Messaging.Abstractions;
 
 namespace SecretProject.Service.Authentication.Services.gRPC
 {
@@ -21,13 +22,15 @@ namespace SecretProject.Service.Authentication.Services.gRPC
         UserManager<AuthUser> userManager,
         SignInManager<AuthUser> signInManager,
         IOptions<JwtOptions> jwtOptions,
-        EmailService.EmailServiceClient emailServiceClient) : AuthService.AuthServiceBase
+        EmailService.EmailServiceClient emailServiceClient,
+        IEventPublisher eventPublisher) : AuthService.AuthServiceBase
     {
         private readonly AuthDbContext _authDbContext = authDbContext;
         private readonly UserManager<AuthUser> _userManager = userManager;
         private readonly SignInManager<AuthUser> _signInManager = signInManager;
         private readonly JwtOptions _jwtOptions = jwtOptions.Value;
         private readonly EmailService.EmailServiceClient _emailServiceClient = emailServiceClient;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
 
         public override async Task<RegisterResponse> Register(RegisterRequest request, ServerCallContext context)
         {
@@ -65,14 +68,6 @@ namespace SecretProject.Service.Authentication.Services.gRPC
 
             try
             {
-                await _emailServiceClient.SendEmailConfirmationAsync(new()
-                    {
-                        Email = user.Email ?? string.Empty,
-                        UserId = user.Id.ToString(),
-                        Token = token
-                    },
-                    cancellationToken: context.CancellationToken);
-
                 var integrationEvent = new IntegrationEventEnvelope<UserRegisteredEvent>
                 {
                     EventId = Guid.NewGuid(),

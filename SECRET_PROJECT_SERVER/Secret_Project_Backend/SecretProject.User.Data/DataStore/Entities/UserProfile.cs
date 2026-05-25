@@ -6,12 +6,12 @@
         public required string Name { get; set; }
         public required PresenceState PresenceState { get; set; }
         public required ActivationState ActivationState { get; set; }
-        public required DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public DateTime? DeletedAt { get; set; }
+        public required DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset? UpdatedAt { get; set; }
+        public DateTimeOffset? DeletedAt { get; set; }
         public Guid? AvatarFileId { get; set; }
         public string? Bio {  get; set; }
-        public DateTime? LastSeenAt { get; set; }
+        public DateTimeOffset? LastSeenAt { get; set; }
     }
 
     public enum PresenceState

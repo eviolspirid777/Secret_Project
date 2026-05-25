@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SecretProject.Authentication.Data.DataStore.Context;
+using SecretProject.Infrastructure.Messaging.Abstractions;
 
 namespace SecretProject.Service.Authentication.Infrastructure.Messaging
 {

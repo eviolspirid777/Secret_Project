@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SecretProject.User.Data.DataStore.Entities
+namespace SecretProject.Infrastructure.Messaging.Events
 {
     public class ProcessedEvent
     {

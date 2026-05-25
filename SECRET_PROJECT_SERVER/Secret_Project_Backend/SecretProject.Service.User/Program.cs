@@ -3,6 +3,7 @@ using SecretProject.Service.User.Configuration;
 using SecretProject.Service.User.ProgramServicesExtensions.GrpcClients;
 using SecretProject.Service.User.Services.gRPC;
 using SecretProject.User.Data.DataStore.Context;
+using SecretProject.Infrastructure.Messaging.Extension;
 
 
 namespace SecretProject.Service.User;
@@ -33,17 +34,8 @@ public class Program
                 .Validate(options => !string.IsNullOrWhiteSpace(options.Issuer), "Jwt:Issuer is required.")
                 .Validate(options => !string.IsNullOrWhiteSpace(options.Audience), "Jwt:Audience is required.")
                 .ValidateOnStart();
-        builder.Services.AddOptions<RabbitMqOptions>()
-                .Bind(builder.Configuration.GetRequiredSection(RabbitMqOptions.SectionName))
-                .Validate(o => !string.IsNullOrWhiteSpace(o.Host), "RabbitMq:Host is required.")
-                .Validate(o => !string.IsNullOrWhiteSpace(o.Username), "RabbitMq:Username is required.")
-                .Validate(o => !string.IsNullOrWhiteSpace(o.Password), "RabbitMq:Password is required.")
-                .ValidateOnStart();
-        //builder.Services.AddOptions<ServiceEndpointsOptions>()
-        //    .Bind(builder.Configuration.GetRequiredSection(ServiceEndpointsOptions.SectionName))
-        //    .Validate(options => !string.IsNullOrWhiteSpace(options.EmailService), "Services:EmailService is required.")
-        //    .ValidateOnStart();
 
+        builder.Services.AddRabbitMqMessaging(builder.Configuration);
 
         builder.Services.AddDbContext<UserDbContext>(options =>
         {
@@ -52,7 +44,7 @@ public class Program
                 npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "user"));
         });
 
-        builder.Services.AddProjectGrpcClients(serviceEndpoints, builder.Environment);
+        builder.Services.AddGrpcClients(serviceEndpoints, builder.Environment);
 
         var app = builder.Build();
 
