@@ -1,13 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using SecretProject.Service.User.Configuration;
-using SecretProject.Service.User.ProgramServicesExtensions.GrpcClients;
-using SecretProject.Service.User.Services.gRPC;
 using SecretProject.User.Data.DataStore.Context;
 using SecretProject.Infrastructure.Messaging.Extension;
 using SecretProject.Infrastructure.Messaging.Abstractions;
 using SecretProject.Infrastructure.Messaging.Events.Auth;
 using SecretProject.Service.User.Infrastructure.Messaging;
-
+using SecretProject.Service.User.ProgramServicesExtensions;
+using SecretProject.Service.User.Services.gRPC;
 
 namespace SecretProject.Service.User;
 

@@ -1,22 +1,18 @@
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SecretProject.Service.Authentication.Configuration;
-using SecretProject.Service.Grpc.v1.Proto;
+using SecretProject.Service.User.Configuration;
 
-namespace SecretProject.Service.Authentication.ProgramServicesExtensions;
+
+namespace SecretProject.Service.User.ProgramServicesExtensions;
 
 public static class GrpcExtensions
 {
-    public static IServiceCollection AddProjectGrpcClients(
+    public static IServiceCollection AddGrpcClients(
         this IServiceCollection services,
         ServiceEndpointsOptions serviceEndpoints,
         IHostEnvironment environment)
     {
-        AddClient<EmailService.EmailServiceClient>(
-            services,
-            serviceEndpoints.EmailService,
-            environment);
 
         return services;
     }
