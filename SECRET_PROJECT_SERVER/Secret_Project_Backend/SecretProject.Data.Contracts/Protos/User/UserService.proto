@@ -9,6 +9,7 @@ service UserService
     rpc GetUserInformation(GetUserInformationRequest) returns (GetUserInformationResponse);
     rpc ChangeUserStatus(ChangeUserStatusRequest) returns (ChangeUserStatusResponse);
     rpc GetFriendRequests(GetFriendRequestsRequest) returns (GetFriendRequestsResponse);
+    rpc GetFriends(GetFriendsRequest) returns (GetFriendsResponse);
 }
 
 message GetUserInformationRequest 
@@ -38,6 +39,16 @@ message GetFriendRequestsRequest
 }
 
 message GetFriendRequestsResponse
+{
+    repeated UserDto users = 1;
+}
+
+message GetFriendsRequest
+{
+    string id = 1;
+}
+
+message GetFriendsResponse
 {
     repeated UserDto users = 1;
 }

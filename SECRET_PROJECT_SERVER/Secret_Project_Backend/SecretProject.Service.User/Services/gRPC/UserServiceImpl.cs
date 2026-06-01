@@ -3,6 +3,7 @@ using SecretProject.Service.User.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using SecretProject.Data.Contracts.User;
 using Grpc.Core;
+using System.Runtime.InteropServices;
 
 namespace SecretProject.Service.User.Services.gRPC
 {
@@ -33,6 +34,14 @@ namespace SecretProject.Service.User.Services.gRPC
                 throw new ArgumentException("Не удалось распарсить string id в Guid");
 
             return await _userService.GetFriendRequests(guidId);
+        }
+
+        public override async Task<GetFriendsResponse> GetFriends(GetFriendsRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.Id, out var guidId))
+                throw new ArgumentException("Не удалось распарсить string id в Guid");
+
+            return await _userService.GetFriends(guidId);
         }
     }
 }

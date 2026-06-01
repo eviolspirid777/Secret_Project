@@ -16,13 +16,13 @@ namespace SecretProject.Service.User.Storage.Mappers
             var friendList = new List<UserDto>();
             foreach(var user in source)
             {
-                var mappedUser = user.ToGrpcPrivate();
+                var mappedUser = user.ToGrpcPublic();
                 friendList.Add(mappedUser);
             }
             return new() { Users = { friendList } };
         }
 
-        private static UserDto ToGrpcPrivate(this UserProfile source)
+        public static UserDto ToGrpcPublic(this UserProfile source)
         {
             return new()
             {

@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using SecretProject.Data.Contracts.User;
 using SecretProject.Service.User.Abstractions;
 using SecretProject.Service.User.Storage.Mappers;
 using SecretProject.User.Data.DataStore.Context;
 using SecretProject.User.Data.DataStore.Entities;
+using System.Net;
 
 namespace SecretProject.Service.User.Services
 {
@@ -44,19 +46,21 @@ namespace SecretProject.Service.User.Services
 
         public async Task<GetFriendRequestsResponse> GetFriendRequests(Guid id)
         {
-            var user = GetUserOrThrow(id);
-            var friendsId = _dbContext.Friendships.Where(x => x.UserId == id).Select(x => x.FriendId).ToList();
-            if (friendsId is null)
+            var user = await GetUserOrThrow(id);
+
+            var friends = await FindFriends(id);
+            if(friends.Count == 0)
                 return new() { Users = { new Google.Protobuf.Collections.RepeatedField<UserDto>() } };
 
-            var friends = new List<UserProfile>();
-            foreach(var friendId in friendsId)
-            {
-                var friend = await GetUserOrThrow(friendId);
-                friends.Add(friend);
-            }
-
             return new() { Users = { friends.ToGrpc().Users } };
+        }
+
+        public async Task<GetFriendsResponse> GetFriends(Guid id)
+        {
+            var user = await GetUserOrThrow(id);
+            var friends = await FindFriends(id);
+
+            return new() { Users = { friends.Select(x => x.ToGrpcPublic()) } };
         }
 
         public async Task<GetUserInformationResponse> GetUserInformation(Guid id)
@@ -64,6 +68,18 @@ namespace SecretProject.Service.User.Services
             var user = await GetUserOrThrow(id);
 
             return user.ToGrpc();
+        }
+
+        private async Task<List<UserProfile>> FindFriends(Guid userId)
+        {
+            var friends = new List<UserProfile>();
+            var friendsId = _dbContext.Friendships.Where(x => x.UserId == userId).Select(x => x.FriendId).ToList();
+            foreach (var friendId in friendsId)
+            {
+                var friend = await GetUserOrThrow(friendId);
+                friends.Add(friend);
+            }
+            return friends;
         }
 
         private async Task<UserProfile> GetUserOrThrow(Guid id)

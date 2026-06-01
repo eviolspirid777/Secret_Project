@@ -125,20 +125,20 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
             }
         }
 
-        //[AllowAnonymous]
-        //[HttpGet("friend/get-user-friends/{id}")]
-        //public async Task<IActionResult> GetUserFriends(string id)
-        //{
-        //    try
-        //    {
-        //        var friends = await _userServiceClient.GetUserFriendsAsync(id);
-        //        return Ok(friends);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
+        [AllowAnonymous]
+        [HttpGet("friend/get-user-friends/{id}")]
+        public async Task<IActionResult> GetUserFriends(string id)
+        {
+            try
+            {
+                var response = await _userServiceClient.GetFriendsAsync(new() { Id = id });
+                return Ok(response.Users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         //[Authorize]
         //[HttpPost("friend/send-request")]
