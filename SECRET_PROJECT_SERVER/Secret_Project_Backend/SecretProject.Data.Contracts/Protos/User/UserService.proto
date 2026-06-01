@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package user.v1;
+
+option csharp_namespace = "SecretProject.Data.Contracts.User";
+
+service UserService 
+{
+    rpc GetUserInformation(GetUserInformationRequest) returns (GetUserInformationResponse);
+    rpc ChangeUserStatus(ChangeUserStatusRequest) returns (ChangeUserStatusResponse);
+}
+
+message GetUserInformationRequest 
+{
+    string id = 1;
+}
+
+message GetUserInformationResponse 
+{
+    string id = 1;
+    string name = 2;
+    string email = 3;
+    string avatar = 4;
+    string status = 5;
+    SoundConnectionState soundState = 6;
+}
+
+message ChangeUserStatusRequest
+{
+    string status = 1;
+    string userId = 2;
+}
+
+message ChangeUserStatusResponse
+{
+    bool status = 1;
+}
+
+message SoundConnectionState
+{
+    bool IsMicrophoneMuted = 1;
+    bool IsHeadphonesMuted = 2;
+}

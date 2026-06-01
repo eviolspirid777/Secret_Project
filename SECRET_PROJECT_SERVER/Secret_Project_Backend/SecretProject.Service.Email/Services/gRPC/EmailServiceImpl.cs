@@ -1,7 +1,6 @@
 ﻿using Grpc.Core;
-using SecretProject.Distribution.Data.Messages.Factories;
+using SecretProject.Data.Contracts.Email;
 using SecretProject.Service.Email.DataStore.Abstractions;
-using SecretProject.Service.Grpc.v1.Proto;
 
 namespace SecretProject.Service.Email.Services.gRPC
 {

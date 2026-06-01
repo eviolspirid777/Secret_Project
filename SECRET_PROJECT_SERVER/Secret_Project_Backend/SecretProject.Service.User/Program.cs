@@ -7,6 +7,8 @@ using SecretProject.Infrastructure.Messaging.Events.Auth;
 using SecretProject.Service.User.Infrastructure.Messaging;
 using SecretProject.Service.User.ProgramServicesExtensions;
 using SecretProject.Service.User.Services.gRPC;
+using SecretProject.Service.User.Abstractions;
+using SecretProject.Service.User.Services;
 
 namespace SecretProject.Service.User;
 
@@ -46,6 +48,8 @@ public class Program
 
         builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredEvent>, UserRegisteredEventHandler>();
         builder.Services.AddScoped<IIntegrationEventHandler<UserEmailConfirmedEvent>, UserEmailConfirmedEventHandler>();
+
+        builder.Services.AddScoped<IUserService, UserService>();
 
         builder.Services.AddDbContext<UserDbContext>(options =>
         {

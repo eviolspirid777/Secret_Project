@@ -1,8 +1,7 @@
 using Grpc.Core;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using SecretProject.Data.Contracts.Email;
 using SecretProject.Service.Authentication.Configuration;
-using SecretProject.Service.Grpc.v1.Proto;
+
 
 namespace SecretProject.Service.Authentication.ProgramServicesExtensions;
 

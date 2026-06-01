@@ -1,4 +1,5 @@
 using SecretProject.Data.Contracts.Channel;
+using SecretProject.Data.Contracts.User;
 using SecretProject.Service.HttpGateway.Web.DataStore.User.Responses;
 
 namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User
@@ -18,6 +19,24 @@ namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User
                 {
                     IsMicrophoneMuted = source.IsMicroMuted,
                     IsHeadphonesMuted = source.IsHeadphonesMuted
+                }
+            };
+        }
+
+        //TODO: заглушка на стейты
+        public static UserDto ToDto(this GetUserInformationResponse source)
+        {
+            return new UserDto
+            {
+                UserId = Guid.TryParse(source.Id, out var userId) ? userId : Guid.Empty,
+                Name = source.Name,
+                Avatar = source.Avatar,
+                Email = source.Email,
+                Status = source.Status,
+                States = new SoundConnectionStateDto
+                {
+                    IsMicrophoneMuted = false,
+                    IsHeadphonesMuted = false
                 }
             };
         }

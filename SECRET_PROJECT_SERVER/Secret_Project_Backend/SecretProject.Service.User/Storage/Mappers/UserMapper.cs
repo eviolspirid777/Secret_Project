@@ -1,21 +1,21 @@
 ﻿using Riok.Mapperly.Abstractions;
-using SecretProject.Authentication.Data.DataStore.Entities;
-using SecretProject.Data.Contracts.Authentication;
+using SecretProject.Data.Contracts.User;
+using SecretProject.User.Data.DataStore.Entities;
 
-namespace SecretProject.Service.Authentication.Storage.Mappers
+namespace SecretProject.Service.User.Storage.Mappers
 {
     [Mapper(EnumMappingStrategy = EnumMappingStrategy.ByName)]
 
     #region ToGrpc
     public static partial class UserMapper
     {
-        public static User ToGrpc(AuthUser source)
+        public static GetUserInformationResponse ToGrpc(this UserProfile source)
         {
             return new()
             {
                 Id = source.Id.ToString(),
-                Email = source.Email,
-                Name = source.DisplayName,
+                Email = "Надо расширить модель",
+                Name = source.Name,
                 SoundState = new(),
                 Status = "Статус неизвестен"
             };

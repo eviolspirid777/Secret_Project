@@ -6,4 +6,5 @@ public sealed class ServiceEndpointsOptions
 
     public string AuthService { get; init; } = string.Empty;
     public string ChannelService { get; init; } = string.Empty;
+    public string UserService { get; init; } = string.Empty;
 }

@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using NSwag.Annotations;
 using Microsoft.AspNetCore.Mvc;
-using SecretProject.Data.Contracts.Channel;
+using SecretProject.Data.Contracts.User;
 
 
 namespace SecretProject.Service.HttpGateway.Web.Controllers.User
 {
-    [OpenApiController("Channel")]
+    [OpenApiController("User")]
     [Route("/v1/user")]
-    [Authorize]
-    public partial class UserController(ILogger<UserController> logger) : ControllerBase
+    public partial class UserController(ILogger<UserController> logger, UserService.UserServiceClient userServiceClient) : ControllerBase
     {
         private readonly ILogger<UserController> _logger = logger;
+        private readonly UserService.UserServiceClient _userServiceClient = userServiceClient;
     }
 }

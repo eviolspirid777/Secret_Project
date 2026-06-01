@@ -2,6 +2,7 @@ using Grpc.Core;
 using SecretProject.Data.Contracts.Channel;
 using SecretProject.Data.Contracts.Authentication;
 using SecretProject.Service.HttpGateway.Web.Configuration;
+using SecretProject.Data.Contracts.User;
 
 public static class GrpcExtensions
 {
@@ -18,6 +19,11 @@ public static class GrpcExtensions
         AddClient<ChannelService.ChannelServiceClient>(
             services,
             serviceEndpoints.ChannelService,
+            environment);
+
+        AddClient<UserService.UserServiceClient>(
+            services,
+            serviceEndpoints.UserService,
             environment);
 
         return services;
