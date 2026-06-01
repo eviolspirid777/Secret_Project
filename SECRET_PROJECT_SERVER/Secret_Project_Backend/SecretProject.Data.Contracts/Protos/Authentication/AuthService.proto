@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth.v1;
 
-option csharp_namespace = "SecretProject.Service.Grpc.v1.Proto";
+option csharp_namespace = "SecretProject.Data.Contracts.Authentication";
 
 service AuthService 
 {

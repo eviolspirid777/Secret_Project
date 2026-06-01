@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package channel.v1;
 
-option csharp_namespace = "SecretProject.Service.Grpc.v1.Proto";
+option csharp_namespace = "SecretProject.Data.Contracts.Channel";
 
 service ChannelService
 {

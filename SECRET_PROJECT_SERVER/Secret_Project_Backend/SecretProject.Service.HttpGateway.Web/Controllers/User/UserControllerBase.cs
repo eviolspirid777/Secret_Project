@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using NSwag.Annotations;
 using Microsoft.AspNetCore.Mvc;
-using SecretProject.Service.Grpc.v1.Proto;
+using SecretProject.Data.Contracts.Channel;
 
 
 namespace SecretProject.Service.HttpGateway.Web.Controllers.User

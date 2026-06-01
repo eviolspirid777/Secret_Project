@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
-using SecretProject.Service.Grpc.v1.Proto;
+using SecretProject.Data.Contracts.Channel;
 using SecretProject.Service.HttpGateway.Web.Configuration;
 using System.Text;
 

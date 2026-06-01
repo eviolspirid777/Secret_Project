@@ -231,14 +231,14 @@ namespace SecretProject.Authentication.Data.Migrations
                     b.Property<string>("Error")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("OccurredAtUtc")
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Payload")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("ProcessedAtUtc")
+                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Type")

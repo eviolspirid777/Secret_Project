@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SecretProject.Service.Grpc.v1.Proto;
+using SecretProject.Data.Contracts.Channel;
 using SecretProject.Service.HttpGateway.Web.DataStore.Channel.Requests;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Channel;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User;
@@ -47,7 +47,7 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.Channel
         public async Task<IActionResult> JoinChannel([FromBody] SecretProject.Service.HttpGateway.Web.DataStore.Channel.Requests.JoinChannelRequest data, CancellationToken ct)
         {
             var response = await _channelServiceClient.JoinChannelAsync(
-                new SecretProject.Service.Grpc.v1.Proto.JoinChannelRequest
+                new SecretProject.Data.Contracts.Channel.JoinChannelRequest
                 {
                     ChannelId = data.ChannelId.ToString(),
                     UserId = data.UserId

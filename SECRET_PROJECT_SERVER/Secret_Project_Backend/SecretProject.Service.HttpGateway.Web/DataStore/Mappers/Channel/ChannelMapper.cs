@@ -1,4 +1,4 @@
-using SecretProject.Service.Grpc.v1.Proto;
+using SecretProject.Data.Contracts.Channel;
 using SecretProject.Service.HttpGateway.Web.DataStore.Channel.Responses;
 
 namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Channel

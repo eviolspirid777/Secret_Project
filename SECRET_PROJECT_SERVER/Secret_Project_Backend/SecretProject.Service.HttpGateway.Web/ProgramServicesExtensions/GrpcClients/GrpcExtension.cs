@@ -1,7 +1,6 @@
 using Grpc.Core;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using SecretProject.Service.Grpc.v1.Proto;
+using SecretProject.Data.Contracts.Channel;
+using SecretProject.Data.Contracts.Authentication;
 using SecretProject.Service.HttpGateway.Web.Configuration;
 
 public static class GrpcExtensions
