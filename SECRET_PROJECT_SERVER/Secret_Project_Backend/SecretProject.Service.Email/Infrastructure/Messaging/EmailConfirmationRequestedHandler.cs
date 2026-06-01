@@ -6,15 +6,15 @@ namespace SecretProject.Service.Email.Infrastructure.Messaging
 {
     public class EmailConfirmationRequestedHandler() : IIntegrationEventHandler<EmailConfirmationRequestedEvent>
     {
-        public Task HandleAsync(IntegrationEventEnvelope<EmailConfirmationRequestedEvent> envelope, CancellationToken cancellationToken)
+        public async Task HandleAsync(IntegrationEventEnvelope<EmailConfirmationRequestedEvent> envelope, CancellationToken cancellationToken)
         {
-            var alreadyProcessed = await dbContext.ProcessedEvents
-                        .AnyAsync(x => x.EventId == envelope.EventId, cancellationToken);
+            //var alreadyProcessed = await dbContext.ProcessedEvents
+            //            .AnyAsync(x => x.EventId == envelope.EventId, cancellationToken);
 
-            if (alreadyProcessed)
-            {
-                return;
-            }
+            //if (alreadyProcessed)
+            //{
+            //    return;
+            //}
         }
     }
 }
