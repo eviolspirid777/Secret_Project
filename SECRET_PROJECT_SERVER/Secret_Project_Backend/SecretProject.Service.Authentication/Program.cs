@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SecretProject.Authentication.Data.DataStore.Context;
 using SecretProject.Authentication.Data.DataStore.Entities;
+using SecretProject.Infrastructure.Messaging.Extension;
 using SecretProject.Service.Authentication.Configuration;
 using SecretProject.Service.Authentication.Infrastructure.Messaging;
+using SecretProject.Service.Authentication.ProgramServicesExtensions;
 using SecretProject.Service.Authentication.Services.gRPC;
-using SecretProject.Infrastructure.Messaging.Extension;
 using System.Text;
 
 namespace SecretProject.Service.Authentication
