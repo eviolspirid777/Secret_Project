@@ -46,6 +46,7 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to change user status for user {UserId}", request.UserId);
                 return BadRequest("Неправильный статус");
             }
         }
@@ -110,40 +111,34 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         #region Friendship
         [AllowAnonymous]
         [HttpGet("friend/get-friend-requests")]
-        public async Task<IActionResult> GetFriendRequestCount([FromQuery] string id)
-        {
-            var response = await _userServiceClient.
-            if (id == null)
-            {
-                return BadRequest();
-            }
-
-            var _friendships = await _dbContext
-                            .Friendships
-                            .AsNoTracking()
-                            .Include(f => f.Friend)
-                            .Include(f => f.User)
-                            .Where(f => f.FriendId == id && f.Status == FriendshipStatus.Pending)
-                            .ToListAsync();
-
-            var friends = _friendships.Select(FriendShipMapper.MapFriendshipToFriendshipDto).Select(f => f.User);
-            return Ok(friends);
-        }
-
-        [AllowAnonymous]
-        [HttpGet("friend/get-user-friends/{id}")]
-        public async Task<IActionResult> GetUserFriends(string id)
+        public async Task<IActionResult> GetFriendRequest([FromQuery] string id)
         {
             try
             {
-                var friends = await _userServiceClient.GetUserFriendsAsync(id);
-                return Ok(friends);
+                var response = await _userServiceClient.GetFriendRequestsAsync(new() { UserId = id });
+                return Ok(response.Users.Select(x => x.ToDto()));
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to get friend requests for user {UserId}", id);
                 return BadRequest(ex.Message);
             }
         }
+
+        //[AllowAnonymous]
+        //[HttpGet("friend/get-user-friends/{id}")]
+        //public async Task<IActionResult> GetUserFriends(string id)
+        //{
+        //    try
+        //    {
+        //        var friends = await _userServiceClient.GetUserFriendsAsync(id);
+        //        return Ok(friends);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
         //[Authorize]
         //[HttpPost("friend/send-request")]

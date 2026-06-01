@@ -7,7 +7,7 @@ export const channelsSlice = createSlice({
   name: "channels",
   initialState,
   reducers: {
-    setChannels: (state, action: PayloadAction<Record<string, ChannelDto>>) => {
+    setChannels: (_state, action: PayloadAction<Record<string, ChannelDto>>) => {
       return action.payload;
     },
     addChannel: (state, action: PayloadAction<ChannelDto>) => {

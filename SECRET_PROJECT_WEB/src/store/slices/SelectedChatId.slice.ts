@@ -4,7 +4,7 @@ const selectedChatIdSlice = createSlice({
   name: "selectedChatId",
   initialState: "",
   reducers: {
-    setSelectedChatId: (state, action: PayloadAction<string>) => {
+    setSelectedChatId: (_state, action: PayloadAction<string>) => {
       return action.payload;
     },
   },

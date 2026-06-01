@@ -10,6 +10,7 @@ namespace SecretProject.User.Data.DataStore.Context
         public UserDbContext(DbContextOptions<UserDbContext> options) : base(options) { }
 
         public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+        public DbSet<Friendship> Friendships => Set<Friendship>();
         public DbSet<ProcessedEvent> ProcessedEvents => Set<ProcessedEvent>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -44,6 +45,15 @@ namespace SecretProject.User.Data.DataStore.Context
                 entity.HasKey(e => e.EventId);
                 entity.Property(e => e.EventType).IsRequired();
                 entity.Property(e => e.ProcessedAtUtc).IsRequired();
+            });
+
+            modelBuilder.Entity<Friendship>(entity =>
+            {
+                entity.ToTable("Friendships", _schema);
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.UserId).IsRequired();
+                entity.Property(x => x.FriendId).IsRequired();
+                entity.Property(x => x.Status).IsRequired();
             });
         }
     }

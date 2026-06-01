@@ -6,9 +6,27 @@ namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User
 {
     public static class UserMapper
     {
-        public static UserDto ToDto(this ChannelUserView source)
+        //TODO: заглушка на стейты
+        public static DataStore.User.Responses.UserDto ToDto(this Data.Contracts.User.UserDto source)
         {
-            return new UserDto
+            return new()
+            {
+                UserId = Guid.TryParse(source.Id, out var userId) ? userId : Guid.Empty,
+                Name = source.Name,
+                Avatar = source.Avatar,
+                Email = source.Email,
+                Status = source.Status,
+                States = new SoundConnectionStateDto
+                {
+                    IsMicrophoneMuted = false,
+                    IsHeadphonesMuted = false
+                }
+            };
+        }
+        
+        public static DataStore.User.Responses.UserDto ToDto(this ChannelUserView source)
+        {
+            return new DataStore.User.Responses.UserDto
             {
                 UserId = Guid.TryParse(source.Id, out var userId) ? userId : Guid.Empty,
                 Name = source.Name,
@@ -24,15 +42,15 @@ namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User
         }
 
         //TODO: заглушка на стейты
-        public static UserDto ToDto(this GetUserInformationResponse source)
+        public static DataStore.User.Responses.UserDto ToDto(this GetUserInformationResponse source)
         {
-            return new UserDto
+            return new DataStore.User.Responses.UserDto
             {
-                UserId = Guid.TryParse(source.Id, out var userId) ? userId : Guid.Empty,
-                Name = source.Name,
-                Avatar = source.Avatar,
-                Email = source.Email,
-                Status = source.Status,
+                UserId = Guid.TryParse(source.User.Id, out var userId) ? userId : Guid.Empty,
+                Name = source.User.Name,
+                Avatar = source.User.Avatar,
+                Email = source.User.Email,
+                Status = source.User.Status,
                 States = new SoundConnectionStateDto
                 {
                     IsMicrophoneMuted = false,

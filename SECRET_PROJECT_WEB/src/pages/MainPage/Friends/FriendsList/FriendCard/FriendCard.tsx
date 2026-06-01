@@ -56,7 +56,7 @@ export const FriendCard = ({ friend }: FriendCardProps) => {
             {unreadedMessagesUsersId.includes(friend.userId) && (
               <Badge
                 className={styles["friend-card__unreaded-messages-badge"]}
-                variant="destructive"
+                variant="NotDisturb"
               />
             )}
           </div>

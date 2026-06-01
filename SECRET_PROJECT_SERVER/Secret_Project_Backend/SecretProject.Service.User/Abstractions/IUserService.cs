@@ -6,5 +6,6 @@ namespace SecretProject.Service.User.Abstractions
     {
         Task<GetUserInformationResponse> GetUserInformation(Guid id);
         Task<ChangeUserStatusResponse> ChangeUserStatus(Guid id, string status);
+        Task<GetFriendRequestsResponse> GetFriendRequests(Guid id);
     }
 }

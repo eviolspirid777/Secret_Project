@@ -217,3 +217,5 @@ ClientBin/
 *.dbmdl
 *.pfx
 *.gpState
+
+*.txt

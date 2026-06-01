@@ -25,7 +25,14 @@ namespace SecretProject.Service.User.Services.gRPC
                 throw new ArgumentException("Пустая строка статуса");
 
             return await _userService.ChangeUserStatus(guidId, request.Status);
+        }
 
+        public override async Task<GetFriendRequestsResponse> GetFriendRequests(GetFriendRequestsRequest request, ServerCallContext context)
+        {
+            if(!Guid.TryParse(request.UserId, out var guidId))
+                throw new ArgumentException("Не удалось распарсить string id в Guid");
+
+            return await _userService.GetFriendRequests(guidId);
         }
     }
 }

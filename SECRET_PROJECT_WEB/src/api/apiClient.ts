@@ -33,15 +33,15 @@ import type {
   UserRoom,
 } from "@/types/UserRoom/UserRoom";
 import type { AxiosInstance } from "axios";
-import axios from "axios";
+import axios, { AxiosHeaders } from "axios";
 
 // const BASE_AUTH_URL = import.meta.env.VITE_API_URL;
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const BASE_AUTH_URL = `${apiUrl}/Auth`;
-const BASE_USER_URL = `${apiUrl}/api/User`;
-const BASE_MESSAGE_URL = `${apiUrl}/api/Message`;
-const BASE_CHANNEL_URL = `${apiUrl}/api/Channel`;
+const BASE_AUTH_URL = `${apiUrl}/v1/auth`;
+const BASE_USER_URL = `${apiUrl}/v1/user`;
+const BASE_MESSAGE_URL = `${apiUrl}/v1/message`;
+const BASE_CHANNEL_URL = `${apiUrl}/v1/channel`;
 const BASE_CHANNEL_MESSAGE_URL = `${apiUrl}/api/ChannelMessage`;
 
 class ApiClient {
@@ -56,10 +56,39 @@ class ApiClient {
         "Content-Type": "application/json",
       },
     });
+
+    this.sessionToken = localStorageService.getToken();
+    const expiresAt = localStorageService.getItem("expiresAt");
+
+    if (this.sessionToken) {
+      this.client.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${this.sessionToken}`;
+    }
+
+    if (expiresAt) {
+      this.expiresAt = new Date(expiresAt);
+      this.setupTokenExpiration(expiresAt);
+    }
+
+    this.client.interceptors.request.use((config) => {
+      const token = this.sessionToken ?? localStorageService.getToken();
+
+      if (token) {
+        config.headers = AxiosHeaders.from(config.headers);
+        config.headers.set("Authorization", `Bearer ${token}`);
+      } else if (config.url?.includes("/v1/user/")) {
+        console.warn("Request to protected user endpoint without sessionToken", {
+          url: config.url,
+        });
+      }
+
+      return config;
+    });
   }
 
   private removeAuthorization() {
-    this.client.defaults.headers.common["Authorization"] = null;
+    delete this.client.defaults.headers.common["Authorization"];
     this.sessionToken = null;
     this.expiresAt = null;
     if (this.tokenTimeoutId) {
@@ -87,6 +116,18 @@ class ApiClient {
     console.log(
       `Токен истечет через ${Math.floor(timeUntilExpiration / 1000 / 60)} минут`
     );
+  }
+
+  private getAuthorizationHeaders() {
+    const token = this.sessionToken ?? localStorageService.getToken();
+
+    if (!token) {
+      return {};
+    }
+
+    return {
+      Authorization: `Bearer ${token}`,
+    };
   }
 
   async Login(data: LoginRequest) {
@@ -161,7 +202,10 @@ class ApiClient {
 
   async GetUserInformation(id: string) {
     const response = await this.client.get<User>(
-      `${BASE_USER_URL}/user-information/${id}`
+      `${BASE_USER_URL}/user-information/${id}`,
+      {
+        headers: this.getAuthorizationHeaders(),
+      }
     );
 
     return response.data;

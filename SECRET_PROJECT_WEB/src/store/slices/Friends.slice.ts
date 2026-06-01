@@ -6,7 +6,7 @@ const friendsSlice = createSlice({
   name: "friends",
   initialState,
   reducers: {
-    setFriends: (state, action: PayloadAction<User[]>) => {
+    setFriends: (_state, action: PayloadAction<User[]>) => {
       return action.payload;
     },
     setFriendStatus: (

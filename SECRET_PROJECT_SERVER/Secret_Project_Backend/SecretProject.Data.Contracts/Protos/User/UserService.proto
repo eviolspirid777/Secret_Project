@@ -8,6 +8,7 @@ service UserService
 {
     rpc GetUserInformation(GetUserInformationRequest) returns (GetUserInformationResponse);
     rpc ChangeUserStatus(ChangeUserStatusRequest) returns (ChangeUserStatusResponse);
+    rpc GetFriendRequests(GetFriendRequestsRequest) returns (GetFriendRequestsResponse);
 }
 
 message GetUserInformationRequest 
@@ -17,12 +18,7 @@ message GetUserInformationRequest
 
 message GetUserInformationResponse 
 {
-    string id = 1;
-    string name = 2;
-    string email = 3;
-    string avatar = 4;
-    string status = 5;
-    SoundConnectionState soundState = 6;
+    UserDto user = 1;
 }
 
 message ChangeUserStatusRequest
@@ -34,6 +30,26 @@ message ChangeUserStatusRequest
 message ChangeUserStatusResponse
 {
     bool status = 1;
+}
+
+message GetFriendRequestsRequest
+{
+    string userId = 1;
+}
+
+message GetFriendRequestsResponse
+{
+    repeated UserDto users = 1;
+}
+
+message UserDto
+{
+    string id = 1;
+    string name = 2;
+    string email = 3;
+    string avatar = 4;
+    string status = 5;
+    SoundConnectionState soundState = 6;
 }
 
 message SoundConnectionState

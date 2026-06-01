@@ -13,11 +13,14 @@ namespace SecretProject.Service.User.Storage.Mappers
         {
             return new()
             {
-                Id = source.Id.ToString(),
-                Email = "Надо расширить модель",
-                Name = source.Name,
-                SoundState = new(),
-                Status = "Статус неизвестен"
+                User = new()
+                {
+                    Id = source.Id.ToString(),
+                    Email = "Надо расширить модель",
+                    Name = source.Name,
+                    SoundState = new(),
+                    Status = "Статус неизвестен"
+                }
             };
         }
     }

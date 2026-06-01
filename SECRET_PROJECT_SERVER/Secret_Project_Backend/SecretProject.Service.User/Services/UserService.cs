@@ -42,14 +42,37 @@ namespace SecretProject.Service.User.Services
             };
         }
 
+        public async Task<GetFriendRequestsResponse> GetFriendRequests(Guid id)
+        {
+            var user = GetUserOrThrow(id);
+            var friendsId = _dbContext.Friendships.Where(x => x.UserId == id).Select(x => x.FriendId).ToList();
+            if (friendsId is null)
+                return new() { Users = { new Google.Protobuf.Collections.RepeatedField<UserDto>() } };
+
+            var friends = new List<UserProfile>();
+            foreach(var friendId in friendsId)
+            {
+                var friend = await GetUserOrThrow(friendId);
+                friends.Add(friend);
+            }
+
+            return new() { Users = { friends.ToGrpc().Users } };
+        }
+
         public async Task<GetUserInformationResponse> GetUserInformation(Guid id)
+        {
+            var user = await GetUserOrThrow(id);
+
+            return user.ToGrpc();
+        }
+
+        private async Task<UserProfile> GetUserOrThrow(Guid id)
         {
             var user = await _dbContext.UserProfiles.FirstOrDefaultAsync(x => x.Id == id);
             if (user is null)
                 throw new InvalidOperationException($"Не удалось найти пользователя с таким идентификатором {id}");
 
-            return user.ToGrpc();
+            return user;
         }
-
     }
 }
