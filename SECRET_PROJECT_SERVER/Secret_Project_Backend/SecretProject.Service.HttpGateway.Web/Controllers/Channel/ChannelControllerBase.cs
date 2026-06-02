@@ -7,7 +7,7 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.Channel
 {
     [OpenApiController("Channel")]
     [Route("/v1/channel")]
-    [AllowAnonymous]
+    [Authorize]
     public partial class ChannelController(
         ILogger<ChannelController> logger,
         ChannelService.ChannelServiceClient channelServiceClient) : ControllerBase

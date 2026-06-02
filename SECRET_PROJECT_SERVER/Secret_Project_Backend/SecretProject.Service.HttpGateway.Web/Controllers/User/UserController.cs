@@ -38,7 +38,6 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         //    return Ok(userAvatarUrl);
         //}
 
-        [AllowAnonymous]
         [HttpPost("change-user-status")]
         public async Task<IActionResult> ChangeStatusUser([FromBody] ChangeUserStatusRequest request, CancellationToken ct)
         {
@@ -76,7 +75,6 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         //    return Ok(result);
         //}
 
-        [AllowAnonymous]
         [HttpGet("user-information/{id}")]
         public async Task<IActionResult> GetUserInformation(string id, CancellationToken ct)
         {
@@ -123,7 +121,6 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         #endregion User
 
         #region Friendship
-        [AllowAnonymous]
         [HttpGet("friend/get-friend-requests")]
         public async Task<IActionResult> GetFriendRequest([FromQuery] string id)
         {
@@ -144,7 +141,6 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
             }
         }
 
-        [AllowAnonymous]
         [HttpGet("friend/get-user-friends/{id}")]
         public async Task<IActionResult> GetUserFriends(string id)
         {

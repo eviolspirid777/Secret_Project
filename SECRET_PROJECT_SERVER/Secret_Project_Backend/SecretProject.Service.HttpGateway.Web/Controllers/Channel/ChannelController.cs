@@ -13,7 +13,6 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.Channel
     public partial class ChannelController
     {
         [HttpGet("get-channel-information/{id}")]
-        [AllowAnonymous]
         public async Task<IActionResult> GetChannelInformation([FromRoute] Guid id, CancellationToken ct)
         {
             try
@@ -40,7 +39,6 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.Channel
         }
 
         [HttpPost("add-channel")]
-        [AllowAnonymous]
         public async Task<IActionResult> AddChannel([FromBody] AddNewChannelRequest data, CancellationToken ct)
         {
             try
@@ -73,7 +71,6 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.Channel
         }
 
         [HttpPost("join-channel")]
-        [AllowAnonymous]
         public async Task<IActionResult> JoinChannel([FromBody] DataStore.Channel.Requests.JoinChannelRequest data, CancellationToken ct)
         {
             try
@@ -105,7 +102,6 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.Channel
         }
 
         [HttpDelete("delete-channel/{id}")]
-        [AllowAnonymous]
         public async Task<IActionResult> DeleteChannel([FromRoute] Guid id, CancellationToken ct)
         {
             try
@@ -133,7 +129,6 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.Channel
         }
 
         [HttpGet("get-user-channels/{userId}")]
-        [AllowAnonymous]
         public async Task<IActionResult> GetUserChannels([FromRoute] string userId, CancellationToken ct)
         {
             try
@@ -165,7 +160,6 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.Channel
         }
 
         [HttpGet("channel/{id}/get-channel-users")]
-        [AllowAnonymous]
         public async Task<IActionResult> GetChannelUsers([FromRoute] Guid id, CancellationToken ct)
         {
             try

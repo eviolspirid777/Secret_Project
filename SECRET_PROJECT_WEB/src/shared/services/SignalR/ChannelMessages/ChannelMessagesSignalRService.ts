@@ -7,7 +7,7 @@ export default class ChannelMessagesSignalRService {
   private connection: signalR.HubConnection;
 
   constructor() {
-    const apiUrl = import.meta.env.VITE_API_URL;
+    const apiUrl = import.meta.env.VITE_SIGNALR_URL;
     const BASE_URL = `${apiUrl}/channelMessagesHub`;
 
     this.connection = new signalR.HubConnectionBuilder()

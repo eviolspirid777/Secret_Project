@@ -8,6 +8,7 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
 {
     [OpenApiController("User")]
     [Route("/v1/user")]
+    [Authorize]
     public partial class UserController(ILogger<UserController> logger, UserService.UserServiceClient userServiceClient) : ControllerBase
     {
         private readonly ILogger<UserController> _logger = logger;

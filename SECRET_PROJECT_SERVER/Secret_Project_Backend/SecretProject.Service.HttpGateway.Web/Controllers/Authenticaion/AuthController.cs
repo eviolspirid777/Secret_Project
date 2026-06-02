@@ -111,7 +111,6 @@ public partial class AuthController
     }
 
     [HttpPost("logout")]
-    [AllowAnonymous]
     public async Task<IActionResult> Logout([FromQuery] string id, CancellationToken ct)
     {
         try
@@ -135,7 +134,6 @@ public partial class AuthController
     }
 
     [HttpDelete("delete")]
-    [AllowAnonymous]
     public async Task<IActionResult> DeleteAccount([FromQuery] string id, CancellationToken ct)
     {
         try

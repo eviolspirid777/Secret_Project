@@ -7,7 +7,7 @@ export class UserStatusesSignalRService {
 
   constructor() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(import.meta.env.VITE_API_URL + "/statusHub", {
+      .withUrl(import.meta.env.VITE_SIGNALR_URL + "/statusHub", {
         accessTokenFactory: () => localStorageService.getToken() ?? "",
       })
       .withAutomaticReconnect()

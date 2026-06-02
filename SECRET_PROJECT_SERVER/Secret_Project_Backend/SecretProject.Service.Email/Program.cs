@@ -40,7 +40,7 @@ namespace SecretProject.Service.Email
             {
                 options.UseNpgsql(
                     postgresOptions.PostgreSQL,
-                    npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "user"));
+                    npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "distribution"));
             });
 
             builder.Services.AddRabbitMqMessaging(builder.Configuration);

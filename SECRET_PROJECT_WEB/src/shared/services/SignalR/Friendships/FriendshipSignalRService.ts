@@ -5,7 +5,7 @@ export default class FriendshipSignalRService {
   private connection: signalR.HubConnection;
 
   constructor() {
-    const apiUrl = import.meta.env.VITE_API_URL;
+    const apiUrl = import.meta.env.VITE_SIGNALR_URL;
     const BASE_URL = `${apiUrl}/friendHub`;
 
     this.connection = new signalR.HubConnectionBuilder()
