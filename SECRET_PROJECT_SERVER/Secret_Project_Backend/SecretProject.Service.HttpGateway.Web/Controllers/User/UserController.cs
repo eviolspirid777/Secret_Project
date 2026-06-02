@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Grpc.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SecretProject.Data.Contracts.User;
+using SecretProject.Service.HttpGateway.Web.DataStore.Common;
+using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Grpc;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User;
 using System.Data;
 
@@ -37,17 +40,22 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
 
         [AllowAnonymous]
         [HttpPost("change-user-status")]
-        public async Task<IActionResult> ChangeStatusUser([FromBody] ChangeUserStatusRequest request)
+        public async Task<IActionResult> ChangeStatusUser([FromBody] ChangeUserStatusRequest request, CancellationToken ct)
         {
             try
             {
-                var response = _userServiceClient.ChangeUserStatus(request);
+                var response = await _userServiceClient.ChangeUserStatusAsync(request, cancellationToken: ct);
                 return Ok(response);
+            }
+            catch(RpcException ex)
+            {
+                _logger.LogError(ex, "gRPC ошибка {UserId}", request.UserId);
+                return this.ToHttpResult(ex);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to change user status for user {UserId}", request.UserId);
-                return BadRequest("Неправильный статус");
+                _logger.LogError(ex, "Неожиданная ошибка при попытке поменять статус пользователю {UserId}", request.UserId);
+                return StatusCode(500, new ErrorResponse("Internal server error"));
             }
         }
 
@@ -70,16 +78,22 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
 
         [AllowAnonymous]
         [HttpGet("user-information/{id}")]
-        public async Task<IActionResult> GetUserInformation(string id)
+        public async Task<IActionResult> GetUserInformation(string id, CancellationToken ct)
         {
             try
             {
-                var response = await _userServiceClient.GetUserInformationAsync(new() { Id = id });
-                return Ok(response.ToDto());
+                var response = await _userServiceClient.GetUserInformationAsync(new() { Id = id }, cancellationToken: ct);
+                return Ok(response.User.ToDto());
+            }
+            catch (RpcException ex)
+            {
+                _logger.LogError(ex, "gRPC ошибка {UserId}", id);
+                return this.ToHttpResult(ex);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Неожиданная ошибка при попытке получить информацию о пользователе {UserId}", id);
+                return StatusCode(500, new ErrorResponse("Internal server error"));
             }
         }
 
@@ -118,10 +132,15 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
                 var response = await _userServiceClient.GetFriendRequestsAsync(new() { UserId = id });
                 return Ok(response.Users.Select(x => x.ToDto()));
             }
+            catch (RpcException ex)
+            {
+                _logger.LogError(ex, "gRPC ошибка {UserId}", id);
+                return this.ToHttpResult(ex);
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to get friend requests for user {UserId}", id);
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Неожиданная ошибка при попытке получить запросы в друзья пользователя {UserId}", id);
+                return StatusCode(500, new ErrorResponse("Internal server error"));
             }
         }
 
@@ -134,9 +153,15 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
                 var response = await _userServiceClient.GetFriendsAsync(new() { Id = id });
                 return Ok(response.Users);
             }
+            catch (RpcException ex)
+            {
+                _logger.LogError(ex, "gRPC ошибка {UserId}", id);
+                return this.ToHttpResult(ex);
+            }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Неожиданная ошибка при попытке получить друзей пользователя {UserId}", id);
+                return StatusCode(500, new ErrorResponse("Internal server error"));
             }
         }
 

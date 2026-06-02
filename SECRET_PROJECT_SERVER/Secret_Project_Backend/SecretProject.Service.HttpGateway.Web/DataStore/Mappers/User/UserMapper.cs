@@ -40,23 +40,5 @@ namespace SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User
                 }
             };
         }
-
-        //TODO: заглушка на стейты
-        public static DataStore.User.Responses.UserDto ToDto(this GetUserInformationResponse source)
-        {
-            return new DataStore.User.Responses.UserDto
-            {
-                UserId = Guid.TryParse(source.User.Id, out var userId) ? userId : Guid.Empty,
-                Name = source.User.Name,
-                Avatar = source.User.Avatar,
-                Email = source.User.Email,
-                Status = source.User.Status,
-                States = new SoundConnectionStateDto
-                {
-                    IsMicrophoneMuted = false,
-                    IsHeadphonesMuted = false
-                }
-            };
-        }
     }
 }

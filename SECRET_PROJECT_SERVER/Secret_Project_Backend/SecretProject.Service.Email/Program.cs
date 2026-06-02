@@ -1,12 +1,16 @@
+using Microsoft.EntityFrameworkCore;
 using SecretProject.Distribution.Data.Constructors.Links;
 using SecretProject.Distribution.Data.Constructors.Messages;
+using SecretProject.Distribution.Data.DataStore.Context;
 using SecretProject.Distribution.Data.Messages.Factories;
+using SecretProject.Infrastructure.Messaging.Abstractions;
 using SecretProject.Infrastructure.Messaging.Events.Auth;
 using SecretProject.Infrastructure.Messaging.Events.Email;
 using SecretProject.Infrastructure.Messaging.Extension;
 using SecretProject.Service.Email.Configuration;
 using SecretProject.Service.Email.DataStore;
 using SecretProject.Service.Email.DataStore.Abstractions;
+using SecretProject.Service.Email.Infrastructure.Messaging;
 using SecretProject.Service.Email.Services.gRPC;
 
 namespace SecretProject.Service.Email
@@ -16,6 +20,10 @@ namespace SecretProject.Service.Email
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            var postgresOptions = builder.Configuration
+                .GetRequiredSection(PostgreSqlOptions.SectionName)
+                .Get<PostgreSqlOptions>() ?? throw new InvalidOperationException("ConnectionStrings section is required.");
 
             builder.Services.AddOptions<EmailOptions>()
                 .Bind(builder.Configuration.GetRequiredSection(EmailOptions.SectionName))
@@ -28,11 +36,19 @@ namespace SecretProject.Service.Email
                 .Validate(options => !string.IsNullOrWhiteSpace(options.ApplicationUrl), "Email:ApplicationUrl is required.")
                 .ValidateOnStart();
 
+            builder.Services.AddDbContext<DistributionDbContext>(options =>
+            {
+                options.UseNpgsql(
+                    postgresOptions.PostgreSQL,
+                    npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "user"));
+            });
+
             builder.Services.AddRabbitMqMessaging(builder.Configuration);
             builder.Services.AddRabbitMqConsumer("secretproject.email.events", consumer =>
             {
                 consumer.Subscribe<EmailConfirmationRequestedEvent>(AuthenticationEventTypes.EmailConfirmationRequested);
             });
+            builder.Services.AddScoped<IIntegrationEventHandler<EmailConfirmationRequestedEvent>, EmailConfirmationRequestedHandler>();
 
             builder.Services.AddGrpc();
             builder.Services.AddControllers();

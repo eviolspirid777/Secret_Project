@@ -1,11 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using SecretProject.Data.Contracts.User;
 using SecretProject.Service.User.Abstractions;
+using SecretProject.Service.User.Exceptions;
 using SecretProject.Service.User.Storage.Mappers;
 using SecretProject.User.Data.DataStore.Context;
 using SecretProject.User.Data.DataStore.Entities;
-using System.Net;
 
 namespace SecretProject.Service.User.Services
 {
@@ -16,22 +15,10 @@ namespace SecretProject.Service.User.Services
 
         public async Task<ChangeUserStatusResponse> ChangeUserStatus(Guid id, string status)
         {
-            var user = await _dbContext.UserProfiles.FirstOrDefaultAsync(x => x.Id == id);
-            if (user is null)
-            {
-                return new ChangeUserStatusResponse
-                {
-                    Status = false
-                };
-            }
+            var user = await GetUserOrThrow(id);
 
             if (!Enum.TryParse<PresenceState>(status, ignoreCase: true, out var presenceState))
-            {
-                return new ChangeUserStatusResponse
-                {
-                    Status = false
-                };
-            }
+                throw new InvalidUserStatusException(status);
 
             user.PresenceState = presenceState;
             user.UpdatedAt = DateTimeOffset.UtcNow;
@@ -49,7 +36,7 @@ namespace SecretProject.Service.User.Services
             var user = await GetUserOrThrow(id);
 
             var friends = await FindFriends(id);
-            if(friends.Count == 0)
+            if (friends.Count == 0)
                 return new() { Users = { new Google.Protobuf.Collections.RepeatedField<UserDto>() } };
 
             return new() { Users = { friends.ToGrpc().Users } };
@@ -79,6 +66,7 @@ namespace SecretProject.Service.User.Services
                 var friend = await GetUserOrThrow(friendId);
                 friends.Add(friend);
             }
+
             return friends;
         }
 
@@ -86,7 +74,7 @@ namespace SecretProject.Service.User.Services
         {
             var user = await _dbContext.UserProfiles.FirstOrDefaultAsync(x => x.Id == id);
             if (user is null)
-                throw new InvalidOperationException($"Не удалось найти пользователя с таким идентификатором {id}");
+                throw new UserNotFoundException(id);
 
             return user;
         }
