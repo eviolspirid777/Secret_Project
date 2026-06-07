@@ -4,6 +4,7 @@ using MimeKit;
 using SecretProject.Distribution.Data.Messages.Factories;
 using SecretProject.Service.Email.Configuration;
 using SecretProject.Service.Email.DataStore.Abstractions;
+using SecretProject.Service.Email.DataStore.Exceptions;
 
 namespace SecretProject.Service.Email.DataStore
 {
@@ -47,11 +48,20 @@ namespace SecretProject.Service.Email.DataStore
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при отправке сообщения на почту");
+                _logger.LogError(
+                    ex,
+                    "Failed to send email to {Email} with subject {Subject}",
+                    email,
+                    subject);
+
+                throw new EmailDeliveryException(email, subject, ex);
             }
             finally
             {
-                await client.DisconnectAsync(true);
+                if (client.IsConnected)
+                {
+                    await client.DisconnectAsync(true);
+                }
             }
         }
 
@@ -60,7 +70,7 @@ namespace SecretProject.Service.Email.DataStore
             var message = _messageFactory.CreateEmailConfirmationMessage(_emailOptions.ApplicationUrl, userId, token);
 
             await SendEmailAsync(email, message.Subject, message.Text);
-            _logger.LogInformation("Отправлено сообщение с подтверждением на почту {email} пользователю {user}", email, userId);
+            _logger.LogInformation("Email confirmation message sent to {Email} for user {UserId}", email, userId);
         }
     }
 }

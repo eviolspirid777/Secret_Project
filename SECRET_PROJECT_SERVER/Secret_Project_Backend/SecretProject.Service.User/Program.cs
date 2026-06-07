@@ -44,7 +44,7 @@ public class Program
         {
             consumer.Subscribe<UserRegisteredEvent>(AuthenticationEventTypes.UserRegistered);
             consumer.Subscribe<UserEmailConfirmedEvent>(AuthenticationEventTypes.UserEmailConfirmed);
-        });
+        }, maxRetryAttempts: 3, retryDelaySeconds: 10);
 
         builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredEvent>, UserRegisteredEventHandler>();
         builder.Services.AddScoped<IIntegrationEventHandler<UserEmailConfirmedEvent>, UserEmailConfirmedEventHandler>();

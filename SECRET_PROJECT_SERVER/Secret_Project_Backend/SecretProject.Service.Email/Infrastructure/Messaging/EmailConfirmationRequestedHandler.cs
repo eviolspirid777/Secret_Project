@@ -8,7 +8,8 @@ using SecretProject.Service.Email.DataStore.Abstractions;
 
 namespace SecretProject.Service.Email.Infrastructure.Messaging
 {
-    public class EmailConfirmationRequestedHandler(DistributionDbContext dbContext, IEmailService emailService) : IIntegrationEventHandler<EmailConfirmationRequestedEvent>
+    public class EmailConfirmationRequestedHandler(DistributionDbContext dbContext,
+                                                   IEmailService emailService) : IIntegrationEventHandler<EmailConfirmationRequestedEvent>
     {
         private readonly IEmailService _emailService = emailService;
         public async Task HandleAsync(IntegrationEventEnvelope<EmailConfirmationRequestedEvent> envelope, CancellationToken cancellationToken)

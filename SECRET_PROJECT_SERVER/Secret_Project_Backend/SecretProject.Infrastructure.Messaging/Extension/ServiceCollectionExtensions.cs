@@ -26,7 +26,9 @@ namespace SecretProject.Infrastructure.Messaging.Extension
         public static IServiceCollection AddRabbitMqConsumer(
             this IServiceCollection services,
             string queueName,
-            Action<RabbitMqConsumerBuilder> configure)
+            Action<RabbitMqConsumerBuilder> configure,
+            int maxRetryAttempts = 3,
+            int retryDelaySeconds = 30)
         {
             var builder = new RabbitMqConsumerBuilder();
             configure(builder);
@@ -34,7 +36,9 @@ namespace SecretProject.Infrastructure.Messaging.Extension
             services.AddSingleton(new RabbitMqConsumerSettings
             {
                 QueueName = queueName,
-                Subscriptions = builder.Build()
+                Subscriptions = builder.Build(),
+                MaxRetryAttempts = maxRetryAttempts,
+                RetryDelay = TimeSpan.FromSeconds(retryDelaySeconds)
             });
 
             services.AddHostedService<RabbitMqConsumer>();

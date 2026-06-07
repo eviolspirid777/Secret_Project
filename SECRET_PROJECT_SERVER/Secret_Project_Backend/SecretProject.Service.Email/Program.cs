@@ -47,7 +47,7 @@ namespace SecretProject.Service.Email
             builder.Services.AddRabbitMqConsumer("secretproject.email.events", consumer =>
             {
                 consumer.Subscribe<EmailConfirmationRequestedEvent>(AuthenticationEventTypes.EmailConfirmationRequested);
-            });
+            }, maxRetryAttempts: 3, retryDelaySeconds: 30);
             builder.Services.AddScoped<IIntegrationEventHandler<EmailConfirmationRequestedEvent>, EmailConfirmationRequestedHandler>();
 
             builder.Services.AddGrpc();

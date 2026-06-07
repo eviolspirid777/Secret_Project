@@ -10,5 +10,7 @@
         public string Password { get; init; } = string.Empty;
         public string VirtualHost { get; init; } = "/";
         public string Exchange { get; init; } = "secretproject.events";
+        public string RetryExchange { get; init; } = "secretproject.events.retry";
+        public string DeadLetterExchange { get; init; } = "secretproject.events.dead";
     }
 }
