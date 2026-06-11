@@ -1,11 +1,11 @@
-﻿using Grpc.Core;
+using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SecretProject.Data.Contracts.User;
+using UserContracts = SecretProject.Data.Contracts.User;
 using SecretProject.Service.HttpGateway.Web.DataStore.Common;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Grpc;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.User;
-using System.Data;
+using SecretProject.Service.HttpGateway.Web.DataStore.User.Requests;
 
 namespace SecretProject.Service.HttpGateway.Web.Controllers.User
 {
@@ -40,14 +40,14 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
 
         [Authorize]
         [HttpPost("change-user-status")]
-        public async Task<IActionResult> ChangeStatusUser([FromBody] ChangeUserStatusRequest request, CancellationToken ct)
+        public async Task<IActionResult> ChangeStatusUser([FromBody] ChangeUserStatusHttpRequest request, CancellationToken ct)
         {
             try
             {
-                var response = await _userServiceClient.ChangeUserStatusAsync(request, cancellationToken: ct);
-                return Ok(response);
+                var response = await _userServiceClient.ChangeUserStatusAsync(request.ToGrpc(), cancellationToken: ct);
+                return Ok(response.Status);
             }
-            catch(RpcException ex)
+            catch (RpcException ex)
             {
                 _logger.LogError(ex, "gRPC ошибка {UserId}", request.UserId);
                 return this.ToHttpResult(ex);
@@ -82,7 +82,10 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         {
             try
             {
-                var response = await _userServiceClient.GetUserInformationAsync(new() { Id = id }, cancellationToken: ct);
+                var response = await _userServiceClient.GetUserInformationAsync(
+                    new UserContracts.GetUserInformationRequest { Id = id },
+                    cancellationToken: ct);
+
                 return Ok(response.User.ToDto());
             }
             catch (RpcException ex)
@@ -99,11 +102,11 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
 
         [Authorize]
         [HttpPost("change-user-information")]
-        public async Task<IActionResult> ChangeUserInformation([FromBody] ChangeUserInformationRequest request)
+        public async Task<IActionResult> ChangeUserInformation([FromBody] ChangeUserInformationHttpRequest request)
         {
             try
             {
-                await _userServiceClient.ChangeUserInformationAsync(request);
+                await _userServiceClient.ChangeUserInformationAsync(request.ToGrpc());
                 return Ok();
             }
             catch (RpcException ex)
@@ -126,7 +129,9 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         {
             try
             {
-                var response = await _userServiceClient.GetFriendRequestsAsync(new() { UserId = id });
+                var response = await _userServiceClient.GetFriendRequestsAsync(
+                    new UserContracts.GetFriendRequestsRequest { UserId = id });
+
                 return Ok(response.Users.Select(x => x.ToDto()));
             }
             catch (RpcException ex)
@@ -147,8 +152,10 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         {
             try
             {
-                var response = await _userServiceClient.GetFriendsAsync(new() { Id = id });
-                return Ok(response.Users);
+                var response = await _userServiceClient.GetFriendsAsync(
+                    new UserContracts.GetFriendsRequest { Id = id });
+
+                return Ok(response.Users.Select(x => x.ToDto()));
             }
             catch (RpcException ex)
             {
@@ -164,22 +171,26 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
 
         [Authorize]
         [HttpPost("friend/send-request")]
-        public async Task<IActionResult> SendFriendRequest([FromBody] SendFriendRequestRequest request)
+        public async Task<IActionResult> SendFriendRequest([FromBody] FriendActionHttpRequest request)
         {
             try
             {
-                await _userServiceClient.SendFriendRequestAsync(request);
+                await _userServiceClient.SendFriendRequestAsync(request.ToSendFriendRequestGrpc());
                 return Ok();
             }
-            catch(RpcException ex)
+            catch (RpcException ex)
             {
-                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {toId}", request.FromUserId, request.ToUserId);
+                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {ToId}", request.FromUserId, request.ToUserId);
                 return this.ToHttpResult(ex);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Неожиданная ошибка при попытке отправить заявку в друзья пользователем {UserId} пользователю {toID}", 
-                    request.FromUserId, request.ToUserId);
+                _logger.LogError(
+                    ex,
+                    "Неожиданная ошибка при попытке отправить заявку в друзья пользователем {UserId} пользователю {ToId}",
+                    request.FromUserId,
+                    request.ToUserId);
+
                 return StatusCode(500, new ErrorResponse("Internal server error"));
             }
         }
@@ -187,66 +198,78 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         //TODO: Логика ниже похожа и можно вынести в отдельный сервис в зависимости от того, какой статус ты передашь
         [Authorize]
         [HttpPost("friend/accept-request")]
-        public async Task<IActionResult> AcceptRequest([FromBody] AcceptFriendRequestRequest request)
+        public async Task<IActionResult> AcceptRequest([FromBody] FriendActionHttpRequest request)
         {
             try
             {
-                await _userServiceClient.AcceptFriendRequestAsync(request);
+                await _userServiceClient.AcceptFriendRequestAsync(request.ToAcceptFriendRequestGrpc());
                 return Ok();
             }
-            catch(RpcException ex)
+            catch (RpcException ex)
             {
-                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {toId}", request.FromUserId, request.ToUserId);
+                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {ToId}", request.FromUserId, request.ToUserId);
                 return this.ToHttpResult(ex);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Неожиданная ошибка при попытке принять заявку в друзья пользователем {UserId} пользователю {toID}",
-                    request.FromUserId, request.ToUserId);
+                _logger.LogError(
+                    ex,
+                    "Неожиданная ошибка при попытке принять заявку в друзья пользователем {UserId} пользователю {ToId}",
+                    request.FromUserId,
+                    request.ToUserId);
+
                 return StatusCode(500, new ErrorResponse("Internal server error"));
             }
         }
 
         [Authorize]
         [HttpPost("friend/decline-request")]
-        public async Task<IActionResult> DeclineRequest([FromBody] DeclineFriendRequestRequest request)
+        public async Task<IActionResult> DeclineRequest([FromBody] FriendActionHttpRequest request)
         {
             try
             {
-                await _userServiceClient.DeclineFriendRequestAsync(request);
+                await _userServiceClient.DeclineFriendRequestAsync(request.ToDeclineFriendRequestGrpc());
                 return Ok();
             }
             catch (RpcException ex)
             {
-                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {toId}", request.FromUserId, request.ToUserId);
+                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {ToId}", request.FromUserId, request.ToUserId);
                 return this.ToHttpResult(ex);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Неожиданная ошибка при попытке отменить заявку в друзья пользователем {UserId} пользователю {toID}",
-                                    request.FromUserId, request.ToUserId);
+                _logger.LogError(
+                    ex,
+                    "Неожиданная ошибка при попытке отменить заявку в друзья пользователем {UserId} пользователю {ToId}",
+                    request.FromUserId,
+                    request.ToUserId);
+
                 return StatusCode(500, new ErrorResponse("Internal server error"));
             }
         }
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> DeleteFriend([FromBody] DeleteFriendRequestRequest request)
+        public async Task<IActionResult> DeleteFriend([FromBody] FriendActionHttpRequest request)
         {
             try
             {
-                await _userServiceClient.DeleteFriendRequestAsync(request);
+                await _userServiceClient.DeleteFriendRequestAsync(request.ToDeleteFriendRequestGrpc());
                 return Ok();
             }
             catch (RpcException ex)
             {
-                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {toId}", request.FromUserId, request.ToUserId);
+                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {ToId}", request.FromUserId, request.ToUserId);
                 return this.ToHttpResult(ex);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Неожиданная ошибка при попытке удалить друга пользователем {UserId} пользователя {toID}",
-                                    request.FromUserId, request.ToUserId);
+                _logger.LogError(
+                    ex,
+                    "Неожиданная ошибка при попытке удалить друга пользователем {UserId} пользователя {ToId}",
+                    request.FromUserId,
+                    request.ToUserId);
+
                 return StatusCode(500, new ErrorResponse("Internal server error"));
             }
         }
@@ -259,10 +282,12 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         {
             try
             {
-                var response = await _userServiceClient.ChangeMicrophoneStateAsync(new() { Id = id});
+                var response = await _userServiceClient.ChangeMicrophoneStateAsync(
+                    new UserContracts.ChangeMicrophoneStateRequest { Id = id });
+
                 return Ok(response.IsMicrophoneMuted);
             }
-            catch(RpcException ex)
+            catch (RpcException ex)
             {
                 _logger.LogError(ex, "gRPC ошибка {UserId}", id);
                 return this.ToHttpResult(ex);
@@ -280,10 +305,12 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         {
             try
             {
-                var response = await _userServiceClient.ChangeHeadphonesStateAsync(new() { Id = id });
+                var response = await _userServiceClient.ChangeHeadphonesStateAsync(
+                    new UserContracts.ChangeHeadphonesStateRequest { Id = id });
+
                 return Ok(response.IsHeadphonesMuted);
             }
-            catch(RpcException ex)
+            catch (RpcException ex)
             {
                 _logger.LogError(ex, "gRPC ошибка {UserId}", id);
                 return this.ToHttpResult(ex);

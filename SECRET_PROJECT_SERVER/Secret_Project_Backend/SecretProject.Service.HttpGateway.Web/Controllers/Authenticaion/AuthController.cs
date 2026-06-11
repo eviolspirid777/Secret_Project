@@ -2,8 +2,10 @@ using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
-using SecretProject.Data.Contracts.Authentication;
+using AuthContracts = SecretProject.Data.Contracts.Authentication;
+using SecretProject.Service.HttpGateway.Web.DataStore.Authentication.Requests;
 using SecretProject.Service.HttpGateway.Web.DataStore.Common;
+using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Auth;
 using SecretProject.Service.HttpGateway.Web.DataStore.Mappers.Grpc;
 
 namespace SecretProject.Service.HttpGateway.Web.Controllers;
@@ -15,14 +17,14 @@ public partial class AuthController
     [AllowAnonymous]
     [ProducesErrorResponseType(typeof(ProblemDetails))]
     [OpenApiOperation(nameof(Register), "Регистрация пользователя", "")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken ct)
+    public async Task<IActionResult> Register([FromBody] RegisterHttpRequest request, CancellationToken ct)
     {
         try
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var response = await _authClient.RegisterAsync(request, cancellationToken: ct);
+            var response = await _authClient.RegisterAsync(request.ToGrpc(), cancellationToken: ct);
             if (!response.Success)
                 return BadRequest(new ErrorResponse(response.ErrorMessage));
 
@@ -52,7 +54,7 @@ public partial class AuthController
         try
         {
             var response = await _authClient.ConfirmEmailAsync(
-            new ConfirmEmailRequest
+            new AuthContracts.ConfirmEmailRequest
             {
                 UserId = userId,
                 Token = token
@@ -79,14 +81,14 @@ public partial class AuthController
 
     [HttpPost("login")]
     [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken ct)
+    public async Task<IActionResult> Login([FromBody] LoginHttpRequest request, CancellationToken ct)
     {
         try
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var response = await _authClient.LoginAsync(request, cancellationToken: ct);
+            var response = await _authClient.LoginAsync(request.ToGrpc(), cancellationToken: ct);
             if (!response.Success)
                 return Unauthorized(new ErrorResponse(response.ErrorMessage));
 
@@ -115,7 +117,7 @@ public partial class AuthController
     {
         try
         {
-            var response = await _authClient.LogoutAsync(new LogoutRequest { UserId = id }, cancellationToken: ct);
+            var response = await _authClient.LogoutAsync(new AuthContracts.LogoutRequest { UserId = id }, cancellationToken: ct);
             if (!response.Success)
                 return BadRequest(new ErrorResponse(response.Message));
 
@@ -138,7 +140,7 @@ public partial class AuthController
     {
         try
         {
-            var response = await _authClient.DeleteAccountAsync(new DeleteAccountRequest { UserId = id }, cancellationToken: ct);
+            var response = await _authClient.DeleteAccountAsync(new AuthContracts.DeleteAccountRequest { UserId = id }, cancellationToken: ct);
             if (!response.Success)
                 return BadRequest(new ErrorResponse(response.ErrorMessage));
 
