@@ -95,11 +95,21 @@ namespace SecretProject.Service.User.Services
             var fromUser = await GetUserOrThrow(fromId);
             var toUser = await GetUserOrThrow(toId);
 
-            var friendshipRequestExist = await _dbContext.Friendships.AnyAsync(x => x.UserId == fromId && x.FriendId == toId ||
-                                            x.UserId == toId && x.FriendId == fromId);
-            if (friendshipRequestExist)
+            var pendingFriendshipRequestExist = await _dbContext.Friendships.AnyAsync(x => (x.UserId == fromId && x.FriendId == toId ||
+                                            x.UserId == toId && x.FriendId == fromId) && (x.Status == FriendshipStatus.Pending || x.Status == FriendshipStatus.Accepted));
+            if (pendingFriendshipRequestExist)
             {
-                throw new InvalidOperationException("Запрос дружбы уже существует");
+                throw new InvalidOperationException("Активный запрос дружбы или дружба уже существует");
+            }
+
+            var declinedFriendshipRequest = await _dbContext.Friendships.FirstOrDefaultAsync(x => (x.UserId == fromId && x.FriendId == toId ||
+                                            x.UserId == toId && x.FriendId == fromId) && x.Status == FriendshipStatus.Blocked);
+
+            if (declinedFriendshipRequest is not null)
+            {
+                declinedFriendshipRequest.Status = FriendshipStatus.Pending;
+                await _dbContext.SaveChangesAsync();
+                return new();
             }
 
             await _dbContext.Friendships.AddAsync(new()
@@ -190,9 +200,16 @@ namespace SecretProject.Service.User.Services
 
         private async Task<List<UserProfile>> FindFriends(Guid userId)
         {
+            var friendIds = await _dbContext.Friendships
+                .Where(x =>
+                    (x.UserId == userId || x.FriendId == userId) &&
+                    x.Status == FriendshipStatus.Accepted)
+                .Select(x => x.UserId == userId ? x.FriendId : x.UserId)
+                .ToListAsync();
+
             var friends = new List<UserProfile>();
-            var friendsId = _dbContext.Friendships.Where(x => (x.UserId == userId || x.FriendId == userId) && x.Status == FriendshipStatus.Accepted).Select(x => x.FriendId).ToList();
-            foreach (var friendId in friendsId)
+
+            foreach (var friendId in friendIds)
             {
                 var friend = await GetUserOrThrow(friendId);
                 friends.Add(friend);
