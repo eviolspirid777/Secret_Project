@@ -10,6 +10,41 @@ service UserService
     rpc ChangeUserStatus(ChangeUserStatusRequest) returns (ChangeUserStatusResponse);
     rpc GetFriendRequests(GetFriendRequestsRequest) returns (GetFriendRequestsResponse);
     rpc GetFriends(GetFriendsRequest) returns (GetFriendsResponse);
+    rpc ChangeUserInformation(ChangeUserInformationRequest) returns (ChangeUserInformationResponse);
+    rpc ChangeMicrophoneState(ChangeMicrophoneStateRequest) returns (ChangeMicrophoneStateResponse);
+    rpc ChangeHeadphonesState(ChangeHeadphonesStateRequest) returns (ChangeHeadphonesStateResponse);
+}
+
+message ChangeHeadphonesStateRequest
+{
+    string id = 1;
+}
+
+message ChangeHeadphonesStateResponse
+{
+    bool IsHeadphonesMuted = 1;
+}
+
+message ChangeMicrophoneStateRequest
+{
+    string id = 1;
+}
+
+message ChangeMicrophoneStateResponse
+{
+    bool IsMicrophoneMuted = 1;
+}
+
+message ChangeUserInformationRequest
+{
+    string userId = 1;
+    bytes avatar = 2;
+    string name = 3;
+}
+
+message ChangeUserInformationResponse
+{
+
 }
 
 message GetUserInformationRequest 

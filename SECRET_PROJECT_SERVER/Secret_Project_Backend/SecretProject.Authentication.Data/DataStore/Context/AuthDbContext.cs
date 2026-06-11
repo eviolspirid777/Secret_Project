@@ -17,7 +17,7 @@ public class AuthDbContext : IdentityDbContext<AuthUser, IdentityRole<Guid>, Gui
     {
         if (!optionsBuilder.IsConfigured)
         {
-            throw new InvalidOperationException("AuthDbContext requires externally configured DbContextOptions.");
+            throw new InvalidOperationException("AuthDbContext требует заранее прописанных DbContextOptions.");
         }
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -32,7 +32,9 @@ public sealed class UserRegisteredEventHandler(UserDbContext dbContext) : IInteg
                 Name = envelope.Message.DisplayName,
                 PresenceState = PresenceState.Offline,
                 ActivationState = ActivationState.Pending,
-                CreatedAt = envelope.OccurredAtUtc
+                CreatedAt = envelope.OccurredAtUtc,
+                IsHeadphonesMuted = false,
+                IsMicrophoneMuted= false,
             });
         }
 

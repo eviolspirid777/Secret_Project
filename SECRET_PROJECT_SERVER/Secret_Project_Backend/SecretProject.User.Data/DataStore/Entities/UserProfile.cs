@@ -7,6 +7,8 @@
         public required PresenceState PresenceState { get; set; }
         public required ActivationState ActivationState { get; set; }
         public required DateTimeOffset CreatedAt { get; set; }
+        public required bool IsMicrophoneMuted { get; set; } = false;
+        public required bool IsHeadphonesMuted { get; set; } = false;
         public DateTimeOffset? UpdatedAt { get; set; }
         public DateTimeOffset? DeletedAt { get; set; }
         public Guid? AvatarFileId { get; set; }

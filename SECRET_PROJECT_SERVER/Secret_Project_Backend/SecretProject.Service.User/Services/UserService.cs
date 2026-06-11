@@ -56,6 +56,35 @@ namespace SecretProject.Service.User.Services
 
             return user.ToGrpc();
         }
+        //TODO определиться как хранить и работать с аватаром
+        public async Task<ChangeUserInformationResponse> ChangeUserInformation(Guid id, byte[] avatar, string username)
+        {
+            var user = await GetUserOrThrow(id);
+            user.Name = username;
+
+            await _dbContext.SaveChangesAsync();
+
+            return new();
+        }
+
+        public async Task<ChangeHeadphonesStateResponse> ChangeHeadphonesState(Guid id)
+        {
+            var user = await GetUserOrThrow(id);
+            user.IsHeadphonesMuted = !user.IsHeadphonesMuted;
+
+            await _dbContext.SaveChangesAsync();
+            return new() { IsHeadphonesMuted = user.IsHeadphonesMuted };
+        }
+
+        public async Task<ChangeMicrophoneStateResponse> ChangeMicrophoneState(Guid id)
+        {
+            var user = await GetUserOrThrow(id);
+            user.IsMicrophoneMuted = !user.IsMicrophoneMuted;
+
+            await _dbContext.SaveChangesAsync();
+
+            return new() { IsMicrophoneMuted = user.IsMicrophoneMuted};
+        }
 
         private async Task<List<UserProfile>> FindFriends(Guid userId)
         {

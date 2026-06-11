@@ -38,6 +38,7 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         //    return Ok(userAvatarUrl);
         //}
 
+        [Authorize]
         [HttpPost("change-user-status")]
         public async Task<IActionResult> ChangeStatusUser([FromBody] ChangeUserStatusRequest request, CancellationToken ct)
         {
@@ -75,6 +76,7 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         //    return Ok(result);
         //}
 
+        [Authorize]
         [HttpGet("user-information/{id}")]
         public async Task<IActionResult> GetUserInformation(string id, CancellationToken ct)
         {
@@ -95,32 +97,30 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
             }
         }
 
-        //[Authorize]
-        //[HttpPost("change-user-information")]
-        //public async Task<IActionResult> ChangeUserInformation([FromBody] UserInformationRequest data)
-        //{
-        //    var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == data.UserId);
-        //    if (user == null)
-        //    {
-        //        return BadRequest("Invalid UserId");
-        //    }
-
-        //    if (data.Avatar != null)
-        //    {
-        //        //TODO: здесь нужно будет добавить логику для добавления изображения
-        //        user.AvatarUrl = "";
-        //    }
-        //    if (data.Name != null)
-        //    {
-        //        user.DisplayName = data.Name;
-        //    }
-
-        //    await _dbContext.SaveChangesAsync();
-        //    return Ok();
-        //}
+        [Authorize]
+        [HttpPost("change-user-information")]
+        public async Task<IActionResult> ChangeUserInformation([FromBody] ChangeUserInformationRequest request)
+        {
+            try
+            {
+                await _userServiceClient.ChangeUserInformationAsync(request);
+                return Ok();
+            }
+            catch (RpcException ex)
+            {
+                _logger.LogError(ex, "gRPC ошибка {UserId}", request.UserId);
+                return this.ToHttpResult(ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Неожиданная ошибка при попытке изменить информацию о пользователе {UserId}", request.UserId);
+                return StatusCode(500, new ErrorResponse("Internal server error"));
+            }
+        }
         #endregion User
 
         #region Friendship
+        [Authorize]
         [HttpGet("friend/get-friend-requests")]
         public async Task<IActionResult> GetFriendRequest([FromQuery] string id)
         {
@@ -141,6 +141,7 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
             }
         }
 
+        [Authorize]
         [HttpGet("friend/get-user-friends/{id}")]
         public async Task<IActionResult> GetUserFriends(string id)
         {
@@ -243,5 +244,49 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
         //    return Ok();
         //}
         #endregion Friendship
+
+        #region SoundConnectionState
+        [Authorize]
+        [HttpPost("sound-states/change-microphone-state/{id}")]
+        public async Task<IActionResult> ChangeMicrophoneState(string id)
+        {
+            try
+            {
+                var response = await _userServiceClient.ChangeMicrophoneStateAsync(new() { Id = id});
+                return Ok(response.IsMicrophoneMuted);
+            }
+            catch(RpcException ex)
+            {
+                _logger.LogError(ex, "gRPC ошибка {UserId}", id);
+                return this.ToHttpResult(ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Неожиданная ошибка при попытке поменять режим микрофона у пользователя {UserId}", id);
+                return StatusCode(500, new ErrorResponse("Internal server error"));
+            }
+        }
+
+        [Authorize]
+        [HttpPost("sound-states/change-headphones-state/{id}")]
+        public async Task<IActionResult> ChangeHeadphonesState(string id)
+        {
+            try
+            {
+                var response = await _userServiceClient.ChangeHeadphonesStateAsync(new() { Id = id });
+                return Ok(response.IsHeadphonesMuted);
+            }
+            catch(RpcException ex)
+            {
+                _logger.LogError(ex, "gRPC ошибка {UserId}", id);
+                return this.ToHttpResult(ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Неожиданная ошибка при попытке поменять режим наушников у пользователя {UserId}", id);
+                return StatusCode(500, new ErrorResponse("Internal server error"));
+            }
+        }
+        #endregion SoundConnectionState
     }
 }

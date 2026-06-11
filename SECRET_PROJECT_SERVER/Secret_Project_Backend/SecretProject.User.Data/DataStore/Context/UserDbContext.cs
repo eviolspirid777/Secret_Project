@@ -37,6 +37,8 @@ namespace SecretProject.User.Data.DataStore.Context
                 entity.Property(u => u.LastSeenAt);
                 entity.Property(u => u.Bio);
                 entity.Property(u => u.AvatarFileId);
+                entity.Property(u => u.IsMicrophoneMuted);
+                entity.Property(u => u.IsHeadphonesMuted);
             });
 
             modelBuilder.Entity<ProcessedEvent>(entity =>

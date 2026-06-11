@@ -74,5 +74,50 @@ namespace SecretProject.Service.User.Services.gRPC
                 throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
             }
         }
+
+        public override async Task<ChangeUserInformationResponse> ChangeUserInformation(ChangeUserInformationRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.UserId, out var guidId))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Не удалось распарсить string id в Guid"));
+
+            try
+            {
+                return await _userService.ChangeUserInformation(guidId, request.Avatar.ToByteArray(), request.Name);
+            }
+            catch (UserNotFoundException ex)
+            {
+                throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
+            }
+        }
+
+        public override async Task<ChangeMicrophoneStateResponse> ChangeMicrophoneState(ChangeMicrophoneStateRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.Id, out var guidId))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Не удалось распарсить string id в Guid"));
+
+            try
+            {
+                return await _userService.ChangeMicrophoneState(guidId);
+            }
+            catch (UserNotFoundException ex)
+            {
+                throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
+            }
+        }
+
+        public override async Task<ChangeHeadphonesStateResponse> ChangeHeadphonesState(ChangeHeadphonesStateRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.Id, out var guidId))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Не удалось распарсить string id в Guid"));
+
+            try
+            {
+                return await _userService.ChangeHeadphonesState(guidId);
+            }
+            catch (UserNotFoundException ex)
+            {
+                throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
+            }
+        }
     }
 }
