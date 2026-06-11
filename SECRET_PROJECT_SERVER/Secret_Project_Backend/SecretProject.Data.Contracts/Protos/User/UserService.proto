@@ -7,12 +7,62 @@ option csharp_namespace = "SecretProject.Data.Contracts.User";
 service UserService 
 {
     rpc GetUserInformation(GetUserInformationRequest) returns (GetUserInformationResponse);
-    rpc ChangeUserStatus(ChangeUserStatusRequest) returns (ChangeUserStatusResponse);
     rpc GetFriendRequests(GetFriendRequestsRequest) returns (GetFriendRequestsResponse);
     rpc GetFriends(GetFriendsRequest) returns (GetFriendsResponse);
+
+    rpc ChangeUserStatus(ChangeUserStatusRequest) returns (ChangeUserStatusResponse);
     rpc ChangeUserInformation(ChangeUserInformationRequest) returns (ChangeUserInformationResponse);
     rpc ChangeMicrophoneState(ChangeMicrophoneStateRequest) returns (ChangeMicrophoneStateResponse);
     rpc ChangeHeadphonesState(ChangeHeadphonesStateRequest) returns (ChangeHeadphonesStateResponse);
+
+    rpc SendFriendRequest(SendFriendRequestRequest) returns (SendFriendRequestResponse);
+    rpc AcceptFriendRequest(AcceptFriendRequestRequest) returns (AcceptFriendRequestResponse);
+    rpc DeclineFriendRequest(DeclineFriendRequestRequest) returns (DeclineFriendRequestResponse);
+    rpc DeleteFriendRequest(DeleteFriendRequestRequest) returns (DeleteFriendRequestResponse);
+
+}
+
+message AcceptFriendRequestRequest
+{
+    string fromUserId = 1;
+    string toUserId = 2;
+}
+
+message AcceptFriendRequestResponse
+{
+
+}
+
+message DeclineFriendRequestRequest
+{
+    string fromUserId = 1;
+    string toUserId = 2;
+}
+
+message DeclineFriendRequestResponse
+{
+
+}
+
+message DeleteFriendRequestRequest
+{
+    string fromUserId = 1;
+    string toUserId = 2;
+}
+
+message DeleteFriendRequestResponse
+{
+
+}
+
+message SendFriendRequestRequest
+{
+    string fromUserId = 1;
+    string toUserId = 2;
+}
+
+message SendFriendRequestResponse
+{
 }
 
 message ChangeHeadphonesStateRequest

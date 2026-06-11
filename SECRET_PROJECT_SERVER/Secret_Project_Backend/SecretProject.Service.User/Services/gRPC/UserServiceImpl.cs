@@ -9,6 +9,8 @@ namespace SecretProject.Service.User.Services.gRPC
     public class UserServiceImpl(IUserService userService) : ContractsGrpc.UserService.UserServiceBase
     {
         private readonly IUserService _userService = userService;
+
+        #region User
         public override async Task<GetUserInformationResponse> GetUserInformation(GetUserInformationRequest request, ServerCallContext context)
         {
             if (!Guid.TryParse(request.Id, out var guidId))
@@ -119,5 +121,81 @@ namespace SecretProject.Service.User.Services.gRPC
                 throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
             }
         }
+        #endregion
+
+        #region Friendship
+        public override async Task<SendFriendRequestResponse> SendFriendRequest(SendFriendRequestRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.FromUserId, out var fromId))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Не удалось распарсить string id в Guid"));
+            
+            if (!Guid.TryParse(request.ToUserId, out var toId))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Не удалось распарсить string id в Guid"));
+
+            try
+            {
+                return await _userService.SendFriendRequest(fromId, toId);
+            }
+            catch (UserNotFoundException ex)
+            {
+                throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
+            }
+        }
+
+        public override async Task<AcceptFriendRequestResponse> AcceptFriendRequest(AcceptFriendRequestRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.FromUserId, out var fromId))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Не удалось распарсить string id в Guid"));
+
+            if (!Guid.TryParse(request.ToUserId, out var toId))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Не удалось распарсить string id в Guid"));
+
+            try
+            {
+                return await _userService.AcceptFriendRequest(fromId, toId);
+            }
+            catch (UserNotFoundException ex)
+            {
+                throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
+            }
+        }
+
+        public override async Task<DeclineFriendRequestResponse> DeclineFriendRequest(DeclineFriendRequestRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.FromUserId, out var fromId))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Не удалось распарсить string id в Guid"));
+
+            if (!Guid.TryParse(request.ToUserId, out var toId))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Не удалось распарсить string id в Guid"));
+
+            try
+            {
+                return await _userService.DeclineFriendRequest(fromId, toId);
+            }
+            catch (UserNotFoundException ex)
+            {
+                throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
+            }
+        }
+
+        public override async Task<DeleteFriendRequestResponse> DeleteFriendRequest(DeleteFriendRequestRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.FromUserId, out var fromId))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Не удалось распарсить string id в Guid"));
+
+            if (!Guid.TryParse(request.ToUserId, out var toId))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Не удалось распарсить string id в Guid"));
+
+            try
+            {
+                return await _userService.DeleteFriend(fromId, toId);
+            }
+            catch (UserNotFoundException ex)
+            {
+                throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
+            }
+        }
+
+        #endregion
     }
 }

@@ -11,5 +11,9 @@ namespace SecretProject.Service.User.Abstractions
         Task<ChangeUserInformationResponse> ChangeUserInformation(Guid id, byte[] avatar, string username);
         Task<ChangeHeadphonesStateResponse> ChangeHeadphonesState(Guid id);
         Task<ChangeMicrophoneStateResponse> ChangeMicrophoneState(Guid id);
+        Task<SendFriendRequestResponse> SendFriendRequest(Guid fromId, Guid toId);
+        Task<AcceptFriendRequestResponse> AcceptFriendRequest(Guid fromId, Guid toId);
+        Task<DeclineFriendRequestResponse> DeclineFriendRequest(Guid fromId, Guid toId);
+        Task<DeleteFriendRequestResponse> DeleteFriend(Guid fromId, Guid toId);
     }
 }

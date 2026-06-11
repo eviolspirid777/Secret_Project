@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using SecretProject.Data.Contracts.User;
 using SecretProject.Service.User.Abstractions;
 using SecretProject.Service.User.Exceptions;
@@ -13,6 +14,7 @@ namespace SecretProject.Service.User.Services
         private readonly UserDbContext _dbContext = dbContext;
         private readonly ILogger<UserService> _logger = logger;
 
+        #region User
         public async Task<ChangeUserStatusResponse> ChangeUserStatus(Guid id, string status)
         {
             var user = await GetUserOrThrow(id);
@@ -35,7 +37,7 @@ namespace SecretProject.Service.User.Services
         {
             var user = await GetUserOrThrow(id);
 
-            var friends = await FindFriends(id);
+            var friends = await FindFriendRequests(id);
             if (friends.Count == 0)
                 return new() { Users = { new Google.Protobuf.Collections.RepeatedField<UserDto>() } };
 
@@ -85,11 +87,111 @@ namespace SecretProject.Service.User.Services
 
             return new() { IsMicrophoneMuted = user.IsMicrophoneMuted};
         }
+        #endregion
+
+        #region Friendship
+        public async Task<SendFriendRequestResponse> SendFriendRequest(Guid fromId, Guid toId)
+        {
+            var fromUser = await GetUserOrThrow(fromId);
+            var toUser = await GetUserOrThrow(toId);
+
+            var friendshipRequestExist = await _dbContext.Friendships.AnyAsync(x => x.UserId == fromId && x.FriendId == toId ||
+                                            x.UserId == toId && x.FriendId == fromId);
+            if (friendshipRequestExist)
+            {
+                throw new InvalidOperationException("Запрос дружбы уже существует");
+            }
+
+            await _dbContext.Friendships.AddAsync(new()
+            {
+                Id = Guid.NewGuid(),
+                UserId = fromId,
+                FriendId = toId,
+                Status = FriendshipStatus.Pending
+            });
+
+            await _dbContext.SaveChangesAsync();
+
+            return new();
+        }
+
+        public async Task<AcceptFriendRequestResponse> AcceptFriendRequest(Guid fromId, Guid toId)
+        {
+            var fromUser = await GetUserOrThrow(fromId);
+            var toUser = await GetUserOrThrow(toId);
+
+            var friendshipRequest = await _dbContext.Friendships.FirstOrDefaultAsync(x => x.UserId == fromId && x.FriendId == toId ||
+                                            x.UserId == toId && x.FriendId == fromId);
+            if (friendshipRequest is null)
+            {
+                throw new InvalidOperationException("Запроса дружбы не существует");
+            }
+
+            friendshipRequest.Status = FriendshipStatus.Accepted;
+
+            await _dbContext.SaveChangesAsync();
+
+            return new();
+        }
+
+        public async Task<DeclineFriendRequestResponse> DeclineFriendRequest(Guid fromId, Guid toId)
+        {
+            var fromUser = await GetUserOrThrow(fromId);
+            var toUser = await GetUserOrThrow(toId);
+
+            var friendshipRequest = await _dbContext.Friendships.FirstOrDefaultAsync(x => x.UserId == fromId && x.FriendId == toId ||
+                                            x.UserId == toId && x.FriendId == fromId);
+            if (friendshipRequest is null)
+            {
+                throw new InvalidOperationException("Запроса дружбы не существует");
+            }
+
+            friendshipRequest.Status = FriendshipStatus.Blocked;
+
+            await _dbContext.SaveChangesAsync();
+
+            return new();
+        }
+
+        public async Task<DeleteFriendRequestResponse> DeleteFriend(Guid fromId, Guid toId)
+        {
+            await GetUserOrThrow(fromId);
+            await GetUserOrThrow(toId);
+
+            var deletedCount = await _dbContext.Friendships
+                .Where(x =>
+                    (x.UserId == fromId && x.FriendId == toId) ||
+                    (x.UserId == toId && x.FriendId == fromId))
+                .ExecuteDeleteAsync();
+
+            if (deletedCount == 0)
+            {
+                throw new InvalidOperationException("Запроса дружбы не существует");
+            }
+
+            return new();
+        }
+
+        #endregion
+
+        #region Private
+        private async Task<List<UserProfile>> FindFriendRequests(Guid userId)
+        {
+            var friends = new List<UserProfile>();
+            var friendsId = _dbContext.Friendships.Where(x => x.FriendId == userId && x.Status == FriendshipStatus.Pending).Select(x => x.UserId).ToList();
+            foreach (var friendId in friendsId)
+            {
+                var friend = await GetUserOrThrow(friendId);
+                friends.Add(friend);
+            }
+
+            return friends;
+        }
 
         private async Task<List<UserProfile>> FindFriends(Guid userId)
         {
             var friends = new List<UserProfile>();
-            var friendsId = _dbContext.Friendships.Where(x => x.UserId == userId).Select(x => x.FriendId).ToList();
+            var friendsId = _dbContext.Friendships.Where(x => (x.UserId == userId || x.FriendId == userId) && x.Status == FriendshipStatus.Accepted).Select(x => x.FriendId).ToList();
             foreach (var friendId in friendsId)
             {
                 var friend = await GetUserOrThrow(friendId);
@@ -107,5 +209,6 @@ namespace SecretProject.Service.User.Services
 
             return user;
         }
+        #endregion
     }
 }

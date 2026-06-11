@@ -162,87 +162,94 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
             }
         }
 
-        //[Authorize]
-        //[HttpPost("friend/send-request")]
-        //public async Task<IActionResult> SendFriendRequest([FromBody] FriendRequest data)
-        //{
-        //    if (!Guid.TryParse(data.ToUserId, out Guid result))
-        //    {
-        //        return BadRequest("Такого пользователя не существует");
-        //    }
+        [Authorize]
+        [HttpPost("friend/send-request")]
+        public async Task<IActionResult> SendFriendRequest([FromBody] SendFriendRequestRequest request)
+        {
+            try
+            {
+                await _userServiceClient.SendFriendRequestAsync(request);
+                return Ok();
+            }
+            catch(RpcException ex)
+            {
+                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {toId}", request.FromUserId, request.ToUserId);
+                return this.ToHttpResult(ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Неожиданная ошибка при попытке отправить заявку в друзья пользователем {UserId} пользователю {toID}", 
+                    request.FromUserId, request.ToUserId);
+                return StatusCode(500, new ErrorResponse("Internal server error"));
+            }
+        }
 
-        //    var alreadyExist = _dbContext
-        //                                    .Friendships
-        //                                    .Any(fs =>
-        //                                                (fs.FriendId == data.FromUserId && fs.UserId == data.ToUserId) ||
-        //                                                (fs.FriendId == data.ToUserId && fs.UserId == data.FromUserId));
-        //    if (alreadyExist)
-        //    {
-        //        //TODO: подумай какую ошибку возвращать. Впрниципе срабатывает нормально
-        //        return BadRequest();
-        //    }
+        //TODO: Логика ниже похожа и можно вынести в отдельный сервис в зависимости от того, какой статус ты передашь
+        [Authorize]
+        [HttpPost("friend/accept-request")]
+        public async Task<IActionResult> AcceptRequest([FromBody] AcceptFriendRequestRequest request)
+        {
+            try
+            {
+                await _userServiceClient.AcceptFriendRequestAsync(request);
+                return Ok();
+            }
+            catch(RpcException ex)
+            {
+                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {toId}", request.FromUserId, request.ToUserId);
+                return this.ToHttpResult(ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Неожиданная ошибка при попытке принять заявку в друзья пользователем {UserId} пользователю {toID}",
+                    request.FromUserId, request.ToUserId);
+                return StatusCode(500, new ErrorResponse("Internal server error"));
+            }
+        }
 
-        //    await _dbContext.Friendships.AddAsync(new Friendship()
-        //    {
-        //        Id = Guid.NewGuid().ToString(),
-        //        UserId = data.FromUserId,
-        //        FriendId = data.ToUserId,
-        //        Status = FriendshipStatus.Pending
-        //    });
+        [Authorize]
+        [HttpPost("friend/decline-request")]
+        public async Task<IActionResult> DeclineRequest([FromBody] DeclineFriendRequestRequest request)
+        {
+            try
+            {
+                await _userServiceClient.DeclineFriendRequestAsync(request);
+                return Ok();
+            }
+            catch (RpcException ex)
+            {
+                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {toId}", request.FromUserId, request.ToUserId);
+                return this.ToHttpResult(ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Неожиданная ошибка при попытке отменить заявку в друзья пользователем {UserId} пользователю {toID}",
+                                    request.FromUserId, request.ToUserId);
+                return StatusCode(500, new ErrorResponse("Internal server error"));
+            }
+        }
 
-        //    await _dbContext.SaveChangesAsync();
-
-        //    await _hubFriendContext.Clients.User(data.ToUserId).SendAsync("ReceiveFriendRequest", data.FromUserId);
-        //    return Ok();
-        //}
-
-        ////TODO: Логика ниже похожа и можно вынести в отдельный сервис в зависимости от того, какой статус ты передашь
-        //[Authorize]
-        //[HttpPost("friend/accept-request")]
-        //public async Task<IActionResult> AcceptRequest([FromBody] FriendRequest data)
-        //{
-        //    var result = await _dbContext.Friendships.FirstOrDefaultAsync(fs => (fs.FriendId == data.FromUserId && fs.UserId == data.ToUserId) || (fs.FriendId == data.ToUserId && fs.UserId == data.FromUserId));
-        //    if (result == null)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    result.Status = FriendshipStatus.Accepted;
-        //    await _dbContext.SaveChangesAsync();
-
-        //    return Ok();
-        //}
-
-        //[Authorize]
-        //[HttpPost("friend/decline-request")]
-        //public async Task<IActionResult> DeclineRequest([FromBody] FriendRequest data)
-        //{
-        //    var result = await _dbContext.Friendships.FirstOrDefaultAsync(fs => (fs.FriendId == data.FromUserId && fs.UserId == data.ToUserId) || (fs.FriendId == data.ToUserId && fs.UserId == data.FromUserId));
-        //    if (result == null)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    result.Status = FriendshipStatus.Blocked;
-        //    await _dbContext.SaveChangesAsync();
-
-        //    return Ok();
-        //}
-
-        //[Authorize]
-        //[HttpPost]
-        //public async Task<IActionResult> DeleteFriend([FromBody] FriendRequest data)
-        //{
-        //    var friendship = await _dbContext.Friendships.FirstOrDefaultAsync(f => (f.User.Id == data.FromUserId && f.Friend.Id == data.ToUserId) || (f.User.Id == data.ToUserId && f.Friend.Id == data.FromUserId));
-        //    if (friendship == null)
-        //    {
-        //        return BadRequest("Invalid userId");
-        //    }
-        //    _dbContext.Friendships.Remove(friendship);
-
-        //    await _dbContext.SaveChangesAsync();
-        //    return Ok();
-        //}
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> DeleteFriend([FromBody] DeleteFriendRequestRequest request)
+        {
+            try
+            {
+                await _userServiceClient.DeleteFriendRequestAsync(request);
+                return Ok();
+            }
+            catch (RpcException ex)
+            {
+                _logger.LogError(ex, "gRPC ошибка от пользователя {UserId} пользователю {toId}", request.FromUserId, request.ToUserId);
+                return this.ToHttpResult(ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Неожиданная ошибка при попытке удалить друга пользователем {UserId} пользователя {toID}",
+                                    request.FromUserId, request.ToUserId);
+                return StatusCode(500, new ErrorResponse("Internal server error"));
+            }
+        }
         #endregion Friendship
 
         #region SoundConnectionState
