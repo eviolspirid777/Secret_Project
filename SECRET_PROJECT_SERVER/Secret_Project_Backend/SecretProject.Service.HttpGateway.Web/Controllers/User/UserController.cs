@@ -195,7 +195,6 @@ namespace SecretProject.Service.HttpGateway.Web.Controllers.User
             }
         }
 
-        //TODO: Логика ниже похожа и можно вынести в отдельный сервис в зависимости от того, какой статус ты передашь
         [Authorize]
         [HttpPost("friend/accept-request")]
         public async Task<IActionResult> AcceptRequest([FromBody] FriendActionHttpRequest request)
